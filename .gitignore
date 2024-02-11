@@ -1,0 +1,145 @@
+# Flutter/Dart specific
+.vscode/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+*.iml
+
+# Xcode
+**.xcworkspace
+**.xcuserstate
+**.xccheckout
+
+# Android Studio
+**.idea/
+
+# Android build/gradle files
+build/
+local.properties
+**/build/
+**/captures/
+
+# Gradle
+.gradle/
+gradlew
+gradlew.bat
+
+# IntelliJ IDEA
+.idea/
+
+# macOS
+.DS_Store
+
+# Logs and debugging data
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Android
+*.apk
+*.ap_
+*.dex
+*.lock
+*.so
+*.jks
+*.aar
+
+# iOS
+Pods/
+**/Pods/
+**/*.xcworkspace
+**/*.pbxproj
+
+# Flutter/Dart dependency management
+.packages
+
+# Flutter/Dart documentation
+doc/api/
+
+# Build artifacts and temporary files
+*.bak
+*.swp
+*.tmp
+*.swo
+*.log
+*.vscode/
+*.vscdb/
+*.gradle/
+*.classpath
+*.project
+*.DS_Store
+*.iml
+*.pyc
+*.pyo
+venv/
+
+# Windows thumbnail cache files
+Thumbs.db
+ehthumbs.db
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# macOS icon files
+*.icns
+
+# Node.js
+node_modules/
+npm-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+
+# Yarn
+yarn-error.log
+
+# Visual Studio Code Workspace Settings
+.vscode/settings.json
+
+# Compiled Python files
+*.pyc
+
+# Compiled Java classes
+*.class
+
+# Compiled Ruby files
+*.rbc
+*.rbo
+
+# Compiled Node.js files
+*.o
+
+# Compiled dynamic libraries
+*.dll
+*.so
+*.dylib
+
+# Compiled executables
+*.exe
+*.out
+*.app
+
+# Provisioning profiles
+*.provisionprofile
+
+# Local config
+.local
+
+# Flutter analysis and generated files
+**/lib/src/generated/**
+
+# Android Gradle plugin user-specific files
+**/gradle-wrapper.properties
+**/local.properties
+**/gradle-local.properties
+
+# Dart coverage directory
+**/coverage/
