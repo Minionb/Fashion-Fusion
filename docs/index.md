@@ -63,8 +63,7 @@
      - `GET /reports/sales`: Generate sales report
     
 # Order Flow PUML
-### Copy and paste the following in PUML
-https://www.plantuml.com/plantuml/uml/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000
+### Copy and paste the following in [PUML](https://www.plantuml.com/plantuml/uml/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000)
 
 @startuml  
 start  
