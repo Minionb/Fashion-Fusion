@@ -18,6 +18,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+  final _nameCtrl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -32,20 +33,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Header
                   Text(
                     "Sign up",
                     style:
                         TextStyle(fontSize: 30.sp, fontWeight: FontWeight.w600),
                   ),
                   50.verticalSpace,
+                  // Name TextFiled
                   CustomTextFiled(
                     label: "Name",
                     hint: "John",
-                    ctrl: _emailCtrl,
+                    ctrl: _nameCtrl,
                     keyboardType: TextInputType.name,
                     textInputAction: TextInputAction.next,
                   ),
                   15.verticalSpace,
+                  // Email TextFiled
                   CustomTextFiled(
                     label: "Email",
                     hint: "abc@example.com",
@@ -54,12 +58,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     textInputAction: TextInputAction.next,
                   ),
                   15.verticalSpace,
+                  // Password TextFiled
                   CustomTextFiled(
                       label: "Password",
                       hint: "●●●●●●●●",
                       ctrl: _passwordCtrl,
                       isPassword: true),
                   10.verticalSpace,
+                  // Already have an account Button
                   TextButton(
                       onPressed: () {
                         context.pushReplacementName(Routes.init);
@@ -71,18 +77,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             fontWeight: FontWeight.w600),
                       )),
                   25.verticalSpace,
+                  // Login Button
                   CustomBottom(
-                    onPressed: () {},
-                    label: "LOGIN",
+                    onPressed: () {
+                      // TODO: Login funciton
+                    },
+                    label: "SIGN UP",
                     bg: AppColors.primary,
                   ),
                   40.verticalSpace,
+                  // Text:
                   const Center(
                       child: Text(
                     "Or login with social account",
                     style: TextStyle(fontWeight: FontWeight.w600),
                   )),
                   10.verticalSpace,
+                  // Login Using google & facebook
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

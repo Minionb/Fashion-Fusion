@@ -32,12 +32,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Header
                   Text(
                     "Login",
                     style:
                         TextStyle(fontSize: 30.sp, fontWeight: FontWeight.w600),
                   ),
                   50.verticalSpace,
+                  // Email TextFiled
                   CustomTextFiled(
                     label: "Email",
                     hint: "abc@example.com",
@@ -46,14 +48,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     textInputAction: TextInputAction.next,
                   ),
                   15.verticalSpace,
+                  // Pasword TextFiled
                   CustomTextFiled(
                       label: "Password",
                       hint: "●●●●●●●●",
                       ctrl: _passwordCtrl,
                       isPassword: true),
                   10.verticalSpace,
+                  // forget Password Button
                   TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        context.pushNamed(Routes.forgetPassword);
+                      },
                       child: Text(
                         "Forget Your Password?",
                         style: TextStyle(
@@ -61,18 +67,23 @@ class _LoginScreenState extends State<LoginScreen> {
                             fontWeight: FontWeight.w600),
                       )),
                   25.verticalSpace,
+                  // Login Button
                   CustomBottom(
-                    onPressed: () {},
+                    onPressed: () {
+                      //TODO: Login Funciton
+                    },
                     label: "LOGIN",
                     bg: AppColors.primary,
                   ),
                   40.verticalSpace,
+                  // Text
                   const Center(
                       child: Text(
                     "Or login with social account",
                     style: TextStyle(fontWeight: FontWeight.w600),
                   )),
                   10.verticalSpace,
+                  // Login with facebook & google
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -82,6 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                   10.verticalSpace,
+                  // Text
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -89,9 +101,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         "Don't have an account?",
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
+                      // To Go to sing up screen
                       TextButton(
                           style: TextButton.styleFrom(padding: EdgeInsets.zero),
                           onPressed: () {
+                            // push and replacment screen that the user can't come back form previous screeen
                             context.pushReplacementName(Routes.signup);
                           },
                           child: Text(
