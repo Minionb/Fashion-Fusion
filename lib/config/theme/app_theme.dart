@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static ThemeData appTheme() {
     return ThemeData(
-      // appBarTheme: AppBarTheme(backgroundColor: AppColors.bg),
+      appBarTheme: AppBarTheme(backgroundColor: AppColors.bg),
       textSelectionTheme:
           const TextSelectionThemeData(cursorColor: Colors.grey),
-      // scaffoldBackgroundColor: AppColors.bg,
+      scaffoldBackgroundColor: AppColors.bg,
       brightness: Brightness.light,
       primaryColor: AppColors.primary,
       fontFamily: AppStrings.fontFamily,
