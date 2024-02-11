@@ -143,3 +143,6 @@ yarn-error.log
 
 # Dart coverage directory
 **/coverage/
+
+# Node Modules directory for Backend
+api/node_modules/
