@@ -82,5 +82,5 @@ stop
 @enduml  
 
 # Fashion Fusion APIs in Swagger
-### Copy and paste the following in https://editor.swagger.io
+### Copy the contents of [/FFusion-API.yaml](../docs/FFusion-API.yaml) and paste it in [Open API](https://editor.swagger.io)
 
