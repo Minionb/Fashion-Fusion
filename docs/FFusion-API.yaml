@@ -1,0 +1,576 @@
+openapi: 3.0.0
+info:
+  title: Fashion Fusion APIs
+  version: 1.0.0
+paths:
+  /products:
+    post:
+      summary: Add a new product
+      tags:
+        - Product Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: OK
+    get:
+      summary: Get list of products
+      tags:
+        - Product Management
+      responses:
+        '200':
+          description: OK
+  /products/{productId}:
+    put:
+      summary: Update an existing product
+      tags:
+        - Product Management
+      parameters:
+        - name: productId
+          in: path
+          description: ID of the product to update
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: OK
+    delete:
+      summary: Remove a product
+      tags:
+        - Product Management
+      parameters:
+        - name: productId
+          in: path
+          description: ID of the product to remove
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+  /categories:
+    get:
+      summary: Get list of product categories
+      tags:
+        - Product Management
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Add a new product category
+      tags:
+        - Product Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/Category'
+      responses:
+        '200':
+          description: OK
+  /categories/{categoryId}:
+    put:
+      summary: Update an existing product category
+      tags:
+        - Product Management
+      parameters:
+        - name: categoryId
+          in: path
+          description: ID of the category to update
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/Category'
+      responses:
+        '200':
+          description: OK
+    delete:
+      summary: Remove a product category
+      tags:
+        - Product Management
+      parameters:
+        - name: categoryId
+          in: path
+          description: ID of the category to remove
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+  /admin/login:
+    post:
+      summary: Admin login
+      tags:
+        - User Management
+      responses:
+        '200':
+          description: OK
+  /admin/logout:
+    post:
+      summary: Admin logout
+      tags:
+        - User Management
+      responses:
+        '200':
+          description: OK
+  /admin/register:
+    post:
+      summary: Register a new admin
+      tags:
+        - User Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/Admin'
+      responses:
+        '200':
+          description: OK
+  /customer/login:
+    post:
+      summary: Customer login
+      tags:
+        - User Management
+      responses:
+        '200':
+          description: OK
+  /customer/logout:
+    post:
+      summary: Customer logout
+      tags:
+        - User Management
+      responses:
+        '200':
+          description: OK
+  /customer/register:
+    post:
+      summary: Register a new customer
+      tags:
+        - User Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '200':
+          description: OK
+  /customer/{customerId}:
+    get:
+      summary: Get customer profile
+      tags:
+        - User Management
+      parameters:
+        - name: customerId
+          in: path
+          description: ID of the customer profile to get
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+    put:
+      summary: Update customer profile
+      tags:
+        - User Management
+      parameters:
+        - name: customerId
+          in: path
+          description: ID of the customer profile to update
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '200':
+          description: OK
+  /customer/{customerId}/password:
+    put:
+      summary: Change customer password
+      tags:
+        - User Management
+      parameters:
+        - name: customerId
+          in: path
+          description: ID of the customer to change password
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: OK
+  /orders:
+    post:
+      summary: Create a new order
+      tags:
+        - Order Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/Order'
+      responses:
+        '200':
+          description: OK
+    get:
+      summary: Get list of orders
+      tags:
+        - Order Management
+      responses:
+        '200':
+          description: OK
+  /orders/{orderId}:
+    get:
+      summary: Get details of an order
+      tags:
+        - Order Management
+      parameters:
+        - name: orderId
+          in: path
+          description: ID of the order to get details
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+    put:
+      summary: Update order status
+      tags:
+        - Order Management
+      parameters:
+        - name: orderId
+          in: path
+          description: ID of the order to update status
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/UpdateOrderStatusRequest'
+      responses:
+        '200':
+          description: OK
+    delete:
+      summary: Cancel an order
+      tags:
+        - Order Management
+      parameters:
+        - name: orderId
+          in: path
+          description: ID of the order to cancel
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+  /cart/items:
+    post:
+      summary: Add item to cart
+      tags:
+        - Order Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/CartItem'
+      responses:
+        '200':
+          description: OK
+    get:
+      summary: Get items in cart
+      tags:
+        - Order Management
+      responses:
+        '200':
+          description: OK
+  /cart/items/{itemId}:
+    delete:
+      summary: Remove item from cart
+      tags:
+        - Order Management
+      parameters:
+        - name: itemId
+          in: path
+          description: ID of the item to remove from cart
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+  /inventory/{productId}:
+    put:
+      summary: Update stock levels of a product
+      tags:
+        - Inventory Management
+      parameters:
+        - name: productId
+          in: path
+          description: ID of the product to update stock levels
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/UpdateStockRequest'
+      responses:
+        '200':
+          description: OK
+  /inventory/low_stock:
+    get:
+      summary: Get products with low stock levels
+      tags:
+        - Inventory Management
+      responses:
+        '200':
+          description: OK
+  /inventory/notifications:
+    post:
+      summary: Receive stock notifications
+      tags:
+        - Inventory Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/Notification'
+      responses:
+        '200':
+          description: OK
+  /checkout:
+    post:
+      summary: Process checkout
+      tags:
+        - Payment and Checkout
+      responses:
+        '200':
+          description: OK
+  /payment:
+    post:
+      summary: Process payment
+      tags:
+        - Payment and Checkout
+      responses:
+        '200':
+          description: OK
+  /reports/sales:
+    get:
+      summary: Generate sales report
+      tags:
+        - Analytics and Reporting
+      responses:
+        '200':
+          description: OK
+  /reports/user_behavior:
+    get:
+      summary: Analyze user behavior
+      tags:
+        - Analytics and Reporting
+      responses:
+        '200':
+          description: OK
+  /reports/performance:
+    get:
+      summary: Monitor performance metrics
+      tags:
+        - Analytics and Reporting
+      responses:
+        '200':
+          description: OK
+  /tickets:
+    post:
+      summary: Submit support ticket
+      tags:
+        - Customer Support
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/Ticket'
+      responses:
+        '200':
+          description: OK
+  /tickets/{ticketId}:
+    get:
+      summary: Get details of a support ticket
+      tags:
+        - Customer Support
+      parameters:
+        - name: ticketId
+          in: path
+          description: ID of the support ticket to get details
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+    put:
+      summary: Resolve a support ticket
+      tags:
+        - Customer Support
+      parameters:
+        - name: ticketId
+          in: path
+          description: ID of the support ticket to resolve
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+  /tickets/customer/{customerId}:
+    get:
+      summary: Get support tickets of a customer
+      tags:
+        - Customer Support
+      parameters:
+        - name: customerId
+          in: path
+          description: ID of the customer to get support tickets
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+      required:
+        - name
+        - price
+    Category:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
+    Admin:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+    Customer:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+    Order:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+      required:
+        - items
+    CartItem:
+      type: object
+      properties:
+        productId:
+          type: integer
+        quantity:
+          type: integer
+      required:
+        - productId
+        - quantity
+    UpdateStockRequest:
+      type: object
+      properties:
+        quantity:
+          type: integer
+      required:
+        - quantity
+    UpdateOrderStatusRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, confirmed, shipped, delivered, cancelled]
+      required:
+        - status
+    ChangePasswordRequest:
+      type: object
+      properties:
+        newPassword:
+          type: string
+      required:
+        - newPassword
+    Notification:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+    Ticket:
+      type: object
+      properties:
+        issue:
+          type: string
+      required:
+        - issue
