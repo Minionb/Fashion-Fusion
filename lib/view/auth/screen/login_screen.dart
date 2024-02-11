@@ -1,5 +1,7 @@
+import 'package:fashion_fusion/config/routes/app_routes.dart';
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_images.dart';
+import 'package:fashion_fusion/core/utils/navigator_extension.dart';
 import 'package:fashion_fusion/core/widgets/custom_button.dart';
 import 'package:fashion_fusion/core/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
@@ -89,7 +91,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       TextButton(
                           style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                          onPressed: () {},
+                          onPressed: () {
+                            context.pushReplacementName(Routes.signup);
+                          },
                           child: Text(
                             "Sign Up",
                             style: TextStyle(color: AppColors.primary),
