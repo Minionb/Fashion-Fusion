@@ -12,7 +12,7 @@ async function resetPassword(req, res, userModel) {
 
     // If user is not found, return an error
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.send(404, { message: "User not found" });
     }
 
     // Hash the new password
@@ -24,10 +24,10 @@ async function resetPassword(req, res, userModel) {
       { $set: { password: hashedPassword } }
     );
 
-    res.status(200).json({ message: "Password reset successfully" });
+    res.send(200, { message: "Password reset successfully" });
   } catch (error) {
     console.error("Password reset error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.send(500, { message: "Internal server error" });
   }
 }
 
