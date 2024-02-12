@@ -102,10 +102,33 @@ async function getUserById(req, res, userModel) {
   }
 }
 
+
+// Middleware to verify JWT token
+function verifyToken(req, res, next) {
+  // Get the token from the request headers
+  const token = req.headers.authorization;
+
+  // Check if token is provided
+  if (!token) {
+      return res.send(401, { message: 'Unauthorized: No token provided' });
+  }
+
+  // Verify the token
+  jwt.verify(token, "todo-change-fashion-fusion-key", (err, decoded) => {
+      if (err) {
+          return res.send(401, { message: 'Unauthorized: Invalid token' });
+      }
+      // If token is valid, attach the decoded user ID to the request object
+      req.userId = decoded.userId;
+      next();
+  });
+}
+
 function getAdmins(server) {
   // Get all admins in the system
   server.get("/admins", function (req, res, next) {
-    console.log("GET /admins params=>" + JSON.stringify(req.params));
+    // Apply JWT verification middleware
+    server.use(verifyToken);
 
     // Query the database to retrieve all customers, excluding the password field
     AdminsModel.find({}, { password: 0 })
@@ -195,6 +218,8 @@ function resetAdminsPassword(server) {
 function getAdminsById(server) {
   // API endpoint to get admin by ID
   server.get("/admins/:id", async (req, res) => {
+    // Apply JWT verification middleware
+    server.use(verifyToken);
     await getUserById(req, res, AdminsModel);
   });
 }
@@ -251,6 +276,9 @@ function getCustomers(server) {
   // Get all customers in the system
   server.get("/customers", function (req, res, next) {
     console.log("GET /customers params=>" + JSON.stringify(req.params));
+
+    // Apply JWT verification middleware
+    server.use(verifyToken);
 
     // Query the database to retrieve all customers, excluding the password field
     CustomersModel.find({}, { password: 0 })
