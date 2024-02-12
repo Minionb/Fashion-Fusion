@@ -2,6 +2,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { CustomersModel, AdminsModel } = require("../schema/index");
 
+// In-memory blacklist to store invalidated tokens
+const blacklisted_tokens = new Set();
+
 // Reusable function to reset password for both customers and admins
 async function resetPassword(req, res, userModel) {
   try {
@@ -53,13 +56,9 @@ async function login(req, res, userModel) {
     }
 
     // If passwords match, generate a JWT
-    const token = jwt.sign(
-      { userId: user._id },
-      "todo-change-fashion-fusion-key",
-      {
-        expiresIn: "1h",
-      }
-    );
+    const token = jwt.sign({ userId: user._id }, secret_jwt_key, {
+      expiresIn: "1h",
+    });
 
     // Return the JWT as a response
     res.send(200, { token });
@@ -102,7 +101,7 @@ async function getUserById(req, res, userModel) {
   }
 }
 
-
+const secret_jwt_key = "todo-change-fashion-fusion-key";
 // Middleware to verify JWT token
 function verifyToken(req, res, next) {
   // Get the token from the request headers
@@ -110,17 +109,24 @@ function verifyToken(req, res, next) {
 
   // Check if token is provided
   if (!token) {
-      return res.send(401, { message: 'Unauthorized: No token provided' });
+    return res.send(401, { message: "Unauthorized: No token provided" });
+  }
+
+  // Check if token is in the blacklist
+  if (blacklisted_tokens.has(token)) {
+    return res.send(401, {
+      message: "Unauthorized: Token has been invalidated",
+    });
   }
 
   // Verify the token
-  jwt.verify(token, "todo-change-fashion-fusion-key", (err, decoded) => {
-      if (err) {
-          return res.send(401, { message: 'Unauthorized: Invalid token' });
-      }
-      // If token is valid, attach the decoded user ID to the request object
-      req.userId = decoded.userId;
-      next();
+  jwt.verify(token, secret_jwt_key, (err, decoded) => {
+    if (err) {
+      return res.send(401, { message: "Unauthorized: Invalid token" });
+    }
+    // If token is valid, attach the decoded user ID to the request object
+    req.userId = decoded.userId;
+    next();
   });
 }
 
@@ -203,7 +209,9 @@ function loginAdmin(server) {
 function logoutAdmin(server) {
   // Logout API for admins
   server.post("/admins/logout", async (req, res) => {
-    req.session.adminId = null; // Clear admin session ID
+    server.use(verifyToken);
+
+    blacklisted_tokens.add(req.headers.authorization);
     res.send("Admin logged out successfully");
   });
 }
@@ -297,7 +305,7 @@ function loginCustomer(server) {
   server.post("/customers/login", async (req, res) => {
     try {
       // Call the login function to handle login logic
-      const admin = await this.login(req, res, CustomersModel);
+      const admin = await login(req, res, CustomersModel);
     } catch (error) {
       console.error("Login error:", error);
       res.send(500, { message: "Internal server error" });
@@ -307,8 +315,11 @@ function loginCustomer(server) {
 
 function logoutCustomer(server) {
   // Logout API for customers
-  server.post("/customer/logout", async (req, res) => {
-    req.session.customerId = null; // Clear customer session ID
+  server.post("/customers/logout", async (req, res) => {
+    server.use(verifyToken);
+
+    blacklisted_tokens.add(req.headers.authorization);
+    // req.session.customerId = null; // Clear customer session ID
     res.send("Customer logged out successfully");
   });
 }
