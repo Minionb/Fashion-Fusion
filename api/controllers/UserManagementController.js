@@ -179,7 +179,7 @@ function loginAdmin(server) {
 
 function logoutAdmin(server) {
   // Logout API for admins
-  server.post("/admin/logout", async (req, res) => {
+  server.post("/admins/logout", async (req, res) => {
     req.session.adminId = null; // Clear admin session ID
     res.send("Admin logged out successfully");
   });
