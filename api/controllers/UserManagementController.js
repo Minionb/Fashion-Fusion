@@ -1,10 +1,7 @@
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { CustomersModel, AdminsModel } = require("../schema/index");
-
-// In-memory blacklist to store invalidated tokens
-const blacklisted_tokens = new Set();
-const refreshTokens = [];
+const { verifyToken } = require("../util/verifyToken");
+const { generateTokens } = require("../util/generateTokens");
 
 // Reusable function to reset password for both customers and admins
 async function resetPassword(req, res, userModel) {
@@ -58,22 +55,13 @@ async function login(req, res, userModel) {
 
     const userType = userModel === CustomersModel ? "customer" : "admin";
 
-    // If passwords match, generate a JWT
-    const accessToken = jwt.sign(
-      { userId: user._id, userType },
-      secret_jwt_key,
-      {
-        expiresIn: "1h",
-      }
-    );
-    const refreshToken = jwt.sign(
-      { userId: user._id, userType },
-      secret_jwt_key
-    );
-    refreshTokens.push(refreshToken);
+    // If passwords match, generate a JWT tokens
+    const { accessToken, refreshToken } = generateTokens(user, userType);
+
+    const tokens = { accessToken, refreshToken };
 
     // Return the JWT as a response
-    res.send(200, { accessToken, refreshToken });
+    res.send(200, tokens);
   } catch (error) {
     console.error("Login error:", error);
     res.send(500, { message: "Internal server error" });
@@ -111,36 +99,6 @@ async function getUserById(req, res, userModel) {
     console.error("Error fetching user:", error);
     res.send(500, { message: "Internal server error" });
   }
-}
-
-const secret_jwt_key = "todo-change-fashion-fusion-key";
-// Middleware to verify JWT token
-function verifyToken(req, res, next) {
-  // Get the token from the request headers
-  const token = req.headers.authorization;
-
-  // Check if token is provided
-  if (!token) {
-    return res.send(401, { message: "Unauthorized: No token provided" });
-  }
-
-  // Check if token is in the blacklist
-  if (blacklisted_tokens.has(token)) {
-    return res.send(401, {
-      message: "Unauthorized: Token has been invalidated",
-    });
-  }
-
-  // Verify the token
-  jwt.verify(token, secret_jwt_key, (err, decoded) => {
-    if (err) {
-      return res.send(401, { message: "Unauthorized: Invalid token" });
-    }
-    // If token is valid, attach the decoded user ID to the request object
-    req.userId = decoded.userId;
-    req.userType = decoded.userType;
-    next();
-  });
 }
 
 function getAdmins(server) {
@@ -219,7 +177,6 @@ function loginAdmin(server) {
 function logoutAdmin(server) {
   // Logout API for admins
   server.post("/admins/logout", verifyToken, async (req, res) => {
-    blacklisted_tokens.add(req.headers.authorization);
     res.send("Admin logged out successfully");
   });
 }
@@ -321,7 +278,6 @@ function loginCustomer(server) {
 function logoutCustomer(server) {
   // Logout API for customers
   server.post("/customers/logout", verifyToken, async (req, res) => {
-    blacklisted_tokens.add(req.headers.authorization);
     // req.session.customerId = null; // Clear customer session ID
     res.send("Customer logged out successfully");
   });
