@@ -11,7 +11,7 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.bg,
       brightness: Brightness.light,
       primaryColor: AppColors.primary,
-      fontFamily: AppStrings.fontFamily,
+      fontFamily: AppString.fontFamily,
     );
   }
 }
