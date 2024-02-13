@@ -277,3 +277,5 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+.dart_tool/package_config_subset
+.dart_tool/package_config.json
