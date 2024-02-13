@@ -4,6 +4,7 @@ const { CustomersModel, AdminsModel } = require("../schema/index");
 
 // In-memory blacklist to store invalidated tokens
 const blacklisted_tokens = new Set();
+const refreshTokens = [];
 
 // Reusable function to reset password for both customers and admins
 async function resetPassword(req, res, userModel) {
@@ -55,13 +56,24 @@ async function login(req, res, userModel) {
       return res.send(401, { message: "Invalid password" });
     }
 
+    const userType = userModel === CustomersModel ? "customer" : "admin";
+
     // If passwords match, generate a JWT
-    const token = jwt.sign({ userId: user._id }, secret_jwt_key, {
-      expiresIn: "1h",
-    });
+    const accessToken = jwt.sign(
+      { userId: user._id, userType },
+      secret_jwt_key,
+      {
+        expiresIn: "1h",
+      }
+    );
+    const refreshToken = jwt.sign(
+      { userId: user._id, userType },
+      secret_jwt_key
+    );
+    refreshTokens.push(refreshToken);
 
     // Return the JWT as a response
-    res.send(200, { token });
+    res.send(200, { accessToken, refreshToken });
   } catch (error) {
     console.error("Login error:", error);
     res.send(500, { message: "Internal server error" });
@@ -126,16 +138,14 @@ function verifyToken(req, res, next) {
     }
     // If token is valid, attach the decoded user ID to the request object
     req.userId = decoded.userId;
+    req.userType = decoded.userType;
     next();
   });
 }
 
 function getAdmins(server) {
   // Get all admins in the system
-  server.get("/admins", function (req, res, next) {
-    // Apply JWT verification middleware
-    server.use(verifyToken);
-
+  server.get("/admins", verifyToken, function (req, res, next) {
     // Query the database to retrieve all customers, excluding the password field
     AdminsModel.find({}, { password: 0 })
       .sort({ lastName: "asc" })
@@ -208,9 +218,7 @@ function loginAdmin(server) {
 
 function logoutAdmin(server) {
   // Logout API for admins
-  server.post("/admins/logout", async (req, res) => {
-    server.use(verifyToken);
-
+  server.post("/admins/logout", verifyToken, async (req, res) => {
     blacklisted_tokens.add(req.headers.authorization);
     res.send("Admin logged out successfully");
   });
@@ -225,9 +233,7 @@ function resetAdminsPassword(server) {
 
 function getAdminsById(server) {
   // API endpoint to get admin by ID
-  server.get("/admins/:id", async (req, res) => {
-    // Apply JWT verification middleware
-    server.use(verifyToken);
+  server.get("/admins/:id", verifyToken, async (req, res) => {
     await getUserById(req, res, AdminsModel);
   });
 }
@@ -282,11 +288,10 @@ function registerCustomer(server) {
 
 function getCustomers(server) {
   // Get all customers in the system
-  server.get("/customers", function (req, res, next) {
-    console.log("GET /customers params=>" + JSON.stringify(req.params));
-
-    // Apply JWT verification middleware
-    server.use(verifyToken);
+  server.get("/customers", verifyToken, function (req, res, next) {
+    if (req.userType !== "admin") {
+      res.send(401, { message: "Unauthorized" });
+    }
 
     // Query the database to retrieve all customers, excluding the password field
     CustomersModel.find({}, { password: 0 })
@@ -315,9 +320,7 @@ function loginCustomer(server) {
 
 function logoutCustomer(server) {
   // Logout API for customers
-  server.post("/customers/logout", async (req, res) => {
-    server.use(verifyToken);
-
+  server.post("/customers/logout", verifyToken, async (req, res) => {
     blacklisted_tokens.add(req.headers.authorization);
     // req.session.customerId = null; // Clear customer session ID
     res.send("Customer logged out successfully");
