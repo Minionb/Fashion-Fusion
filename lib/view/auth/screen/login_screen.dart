@@ -1,6 +1,7 @@
 import 'package:fashion_fusion/config/routes/app_routes.dart';
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_images.dart';
+import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/utils/navigator_extension.dart';
 import 'package:fashion_fusion/core/widgets/custom_button.dart';
@@ -13,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -36,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Form(
               key: _formKey,
               child: Padding(
-                padding: const EdgeInsets.all(18.0).w,
+                padding: const EdgeInsets.fromLTRB(18, 0, 18, 50).w,
                 child: BlocListener<AuthCubit, CubitState>(
                   listener: (context, state) {
                     if (state is DataLoading) {
@@ -45,7 +47,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (state is DataSuccess) {
                       final ResponseModel model = state.data;
                       context.loaderOverlay.hide();
-                      print("HHHHHH${model.accessToken}");
+                      sl<SharedPreferences>()
+                          .setString("token", model.accessToken ?? "");
                     }
                     if (state is DataFailure) {
                       context.loaderOverlay.hide();

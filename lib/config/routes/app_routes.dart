@@ -22,7 +22,11 @@ class AppRoutes {
                   child: const LoginScreen(),
                 ));
       case Routes.signup:
-        return MaterialPageRoute(builder: (context) => const SignUpScreen());
+        return MaterialPageRoute(
+            builder: (context) => BlocProvider(
+                  create: (context) => sl<AuthCubit>(),
+                  child: const SignUpScreen(),
+                ));
       case Routes.forgetPassword:
         return MaterialPageRoute(
             builder: (context) => const ForgetPasswordScreen());

@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "express": "^4.18.2",
     "fasion-fusion-api": "file:api",
     "jsonwebtoken": "^9.0.2"
   }

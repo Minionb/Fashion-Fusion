@@ -1,27 +1,37 @@
 class RegisterUserModel {
-  final String name;
-  final String phone;
   final String email;
   final String password;
-  final String confirmPassword;
-  final int? role;
+  final String firstName;
+  final String lastName;
+  final String address;
+  final String dateOfBirth;
+  final Gender gender;
+
+  final String telephoneNumber;
 
   RegisterUserModel({
-    required this.name,
-    this.role,
-    required this.confirmPassword,
-    required this.phone,
+    required this.telephoneNumber,
     required this.email,
     required this.password,
+    required this.firstName,
+    required this.lastName,
+    required this.address,
+    required this.dateOfBirth,
+    required this.gender,
   });
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['name'] = name;
-    data['phone'] = phone;
     data['email'] = email;
     data['password'] = password;
-    data['role'] = role;
-    data['password_confirmation'] = confirmPassword;
+    data['first_name'] = firstName;
+    data['last_name'] = lastName;
+    data['address'] = address;
+    data['date_of_birth'] = dateOfBirth;
+    data['gender'] = gender.name;
+    data['telephone_number'] = telephoneNumber;
+
     return data;
   }
 }
+
+enum Gender { male, female, other }
