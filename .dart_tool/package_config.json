@@ -158,6 +158,12 @@
       "languageVersion": "2.18"
     },
     {
+      "name": "intl",
+      "rootUri": "file:///Users/muayad/.pub-cache/hosted/pub.dev/intl-0.19.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "lints",
       "rootUri": "file:///Users/muayad/.pub-cache/hosted/pub.dev/lints-2.1.1",
       "packageUri": "lib/",
@@ -380,7 +386,7 @@
       "languageVersion": "3.2"
     }
   ],
-  "generated": "2024-02-13T05:35:28.316917Z",
+  "generated": "2024-02-14T02:35:50.080801Z",
   "generator": "pub",
   "generatorVersion": "3.2.6"
 }

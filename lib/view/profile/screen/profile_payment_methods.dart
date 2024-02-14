@@ -1,4 +1,4 @@
-import 'package:fashion_fusion/view/auth/screen/add_payment_method.dart';
+import 'package:fashion_fusion/view/profile/add_payment_method.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePaymentMethods extends StatelessWidget {
