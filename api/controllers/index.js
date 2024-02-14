@@ -1,5 +1,7 @@
-const UserManagementController = require('./UserManagementController')
+const UserManagementController = require("./UserManagementController");
+const ProductManagementController = require("./ProductManagementController");
 
 module.exports = {
-    UserManagementController
-}
+  UserManagementController,
+  ProductManagementController,
+};
