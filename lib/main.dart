@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: MaterialApp(
             themeMode: ThemeMode.light,
+            darkTheme: AppTheme.appThemeDark(),
             theme: AppTheme.appTheme(),
             debugShowCheckedModeBanner: false,
             onGenerateRoute: AppRoutes.onGenerate,

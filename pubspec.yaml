@@ -28,7 +28,10 @@ dependencies:
   get_it: ^7.6.7
   shared_preferences: ^2.2.2
   internet_connection_checker: ^1.0.0+1
-  intl: ^0.19.0
+  phone_form_field: ^9.0.5
+
+
+
 
 dev_dependencies:
   flutter_test:
