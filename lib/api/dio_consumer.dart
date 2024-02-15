@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
@@ -61,10 +62,12 @@ class DioConsumer implements ApiConsumer {
       Map<String, dynamic>? queryParameters,
       Options? options}) async {
     try {
+      var jsonBody = utf8.encode(json.encode(body));
       final response = await client.post(path,
           queryParameters: queryParameters,
           options: options,
-          data: formDataIsEnabled ? FormData.fromMap(body!) : body);
+          data: formDataIsEnabled ? FormData.fromMap(body!) : jsonBody);
+          
       return response;
     } on DioException catch (error) {
       _handleDioError(error);

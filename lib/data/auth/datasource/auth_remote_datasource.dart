@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:fashion_fusion/api/api_consumer.dart';
@@ -39,7 +40,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<Status> register(RegisterUserModel model) async {
     final Response response =
-        await apiConsumer.post(EndPoints.signup, body: model.toJson());
+        await apiConsumer.post(EndPoints.signup, body: model.toJson(), options:  Options(headers: {HttpHeaders.contentTypeHeader: "application/json"}));
     if (response.statusCode == StatusCode.ok ||
         response.statusCode == StatusCode.created) {
       final jsonData = json.decode(response.data);
