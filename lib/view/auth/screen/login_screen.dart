@@ -3,6 +3,7 @@ import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_images.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
+import 'package:fashion_fusion/core/utils/helper_validation.dart';
 import 'package:fashion_fusion/core/utils/navigator_extension.dart';
 import 'package:fashion_fusion/core/widgets/custom_button.dart';
 import 'package:fashion_fusion/core/widgets/custom_text_field.dart';
@@ -70,6 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       50.verticalSpace,
                       // Email TextFiled
                       CustomTextFiled(
+                        validator: (p0) => ValidationHelper.emailValidation(p0),
                         label: "Email",
                         hint: "abc@example.com",
                         ctrl: _emailCtrl,
@@ -79,6 +81,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       15.verticalSpace,
                       // Pasword TextFiled
                       CustomTextFiled(
+                          validator: (p0) =>
+                              ValidationHelper.passwordValidation(p0),
                           label: "Password",
                           hint: "●●●●●●●●",
                           ctrl: _passwordCtrl,
@@ -104,7 +108,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 email: _emailCtrl.text,
                                 password: _passwordCtrl.text));
                           }
-                          //TODO: Login Funciton
                         },
                         label: "LOGIN",
                         bg: AppColors.primary,
