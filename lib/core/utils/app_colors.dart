@@ -7,6 +7,13 @@ class AppColors {
   static Color textGray = HexColor("9B9B9B");
   static Color lightSeliver = HexColor("D9D9D9");
   static Color darkSeliver = HexColor("707070");
+
+  // Dark
+  static Color primaryDK = HexColor("EF3651");
+  static Color bgDK = HexColor("1E1F28");
+  static Color grayDK = HexColor("ABB4BD");
+  static Color whiteDK = HexColor("F6F6F6");
+  static Color darkSeliverDK = HexColor("707070");
 }
 
 class HexColor extends Color {
