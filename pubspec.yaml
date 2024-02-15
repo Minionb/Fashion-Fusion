@@ -29,6 +29,7 @@ dependencies:
   shared_preferences: ^2.2.2
   internet_connection_checker: ^1.0.0+1
   phone_form_field: ^9.0.5
+  persistent_bottom_nav_bar_v2: ^4.2.8
 
 
 

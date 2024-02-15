@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:persistent_bottom_nav_bar_v2/persistent-tab-view.dart';
 
 extension ExtendNavigator on BuildContext {
   Future<dynamic> push(Widget page) async {
@@ -10,14 +10,14 @@ extension ExtendNavigator on BuildContext {
     Navigator.pushNamed(this, name);
   }
 
-  // Future<dynamic> pushNamedNAV(Widget page, {bool withNav = false}) async {
-  //   return await pushNewScreen(
-  //     this,
-  //     screen: page,
-  //     withNavBar: withNav,
-  //     pageTransitionAnimation: PageTransitionAnimation.cupertino,
-  //   );
-  // }
+  Future<dynamic> pushNamedNAV(Widget page, {bool withNav = false}) async {
+    return await pushNewScreen(
+      this,
+      screen: page,
+      withNavBar: withNav,
+      pageTransitionAnimation: PageTransitionAnimation.cupertino,
+    );
+  }
 
   Future<dynamic> pushReplacement(Widget page) async {
     Navigator.pushReplacement(this, MaterialPageRoute(builder: (_) => page));
