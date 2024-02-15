@@ -2,6 +2,7 @@ import 'package:fashion_fusion/config/routes/app_routes.dart';
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_images.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
+import 'package:fashion_fusion/core/utils/helper_validation.dart';
 import 'package:fashion_fusion/core/utils/navigator_extension.dart';
 import 'package:fashion_fusion/core/widgets/custom_button.dart';
 import 'package:fashion_fusion/core/widgets/custom_text_field.dart';
@@ -39,6 +40,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         appBar: AppBar(),
         body: SingleChildScrollView(
           child: Form(
+
               key: _formKey,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(18, 0, 18, 50).w,
@@ -55,6 +57,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     50.verticalSpace,
                     // Email TextFiled
                     CustomTextFiled(
+                      validator: (p0) => ValidationHelper.emailValidation(p0),
                       label: "Email",
                       hint: "abc@example.com",
                       ctrl: _emailCtrl,
@@ -67,6 +70,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       children: [
                         Expanded(
                           child: CustomTextFiled(
+                            validator: (p0) =>
+                                ValidationHelper.firstNameValidation(p0),
                             label: "First Name",
                             hint: "John",
                             ctrl: _firstNameCtrl,
@@ -77,6 +82,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         10.horizontalSpace,
                         Expanded(
                           child: CustomTextFiled(
+                            validator: (p0) =>
+                                ValidationHelper.secondNameValidation(p0),
                             label: "Last Name",
                             hint: "Smith",
                             ctrl: _lastNameCtrl,
@@ -90,6 +97,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     _phoneNumber(),
                     15.verticalSpace,
                     CustomTextFiled(
+                      validator: (p0) => ValidationHelper.addressValidation(p0),
                       label: "Address",
                       hint: "Tea Garden Circle",
                       ctrl: _addressCtrl,
@@ -100,6 +108,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     // Password TextFiled
                     CustomTextFiled(
+                        validator: (p0) =>
+                            ValidationHelper.passwordValidation(p0),
                         label: "Password",
                         hint: "●●●●●●●●",
                         ctrl: _passwordCtrl,
@@ -135,17 +145,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       },
                       child: CustomBottom(
                         onPressed: () {
-                          context.read<AuthCubit>().register(
-                                RegisterUserModel(
-                                    telephoneNumber: "1234567890",
-                                    email: _emailCtrl.text,
-                                    password: _passwordCtrl.text,
-                                    firstName: _firstNameCtrl.text,
-                                    lastName: _lastNameCtrl.text,
-                                    address: _addressCtrl.text,
-                                    dateOfBirth: "1990-01-01",
-                                    gender: Gender.male),
-                              );
+                          if (_formKey.currentState!.validate()) {
+                            context.read<AuthCubit>().register(
+                                  RegisterUserModel(
+                                      telephoneNumber: "1234567890",
+                                      email: _emailCtrl.text,
+                                      password: _passwordCtrl.text,
+                                      firstName: _firstNameCtrl.text,
+                                      lastName: _lastNameCtrl.text,
+                                      address: _addressCtrl.text,
+                                      dateOfBirth: "1990-01-01",
+                                      gender: Gender.male),
+                                );
+                          }
                         },
                         label: "SIGN UP",
                         bg: AppColors.primary,
@@ -195,6 +207,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
         8.verticalSpace,
         PhoneFormField(
+          validator: (p0) => ValidationHelper.phoneNumberValidation(p0?.nsn),
           onChanged: (p0) => setState(() => _phoneCtrl.text = p0.international),
           isCountrySelectionEnabled: false,
           initialValue: const PhoneNumber(isoCode: IsoCode.CA, nsn: ""),

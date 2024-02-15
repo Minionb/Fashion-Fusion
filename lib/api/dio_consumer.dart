@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
+import 'package:fashion_fusion/api/app_interceptors.dart';
 import 'package:fashion_fusion/api/status_code.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:flutter/foundation.dart';
@@ -33,7 +35,7 @@ class DioConsumer implements ApiConsumer {
       ..validateStatus = (status) {
         return status! < StatusCode.internalServerError;
       };
-    // client.interceptors.add(sl<AppIntercepters>());
+    client.interceptors.add(sl<AppIntercepters>());
     if (kDebugMode) {
       client.interceptors.add(sl<LogInterceptor>());
     }
@@ -61,10 +63,14 @@ class DioConsumer implements ApiConsumer {
       Map<String, dynamic>? queryParameters,
       Options? options}) async {
     try {
+      var jsonBody = utf8.encode(json.encode(body));
       final response = await client.post(path,
           queryParameters: queryParameters,
-          options: options,
-          data: formDataIsEnabled ? FormData.fromMap(body!) : body);
+          options: options ??
+              Options(
+                  headers: {HttpHeaders.contentTypeHeader: "application/json"}),
+          data: formDataIsEnabled ? FormData.fromMap(body!) : jsonBody);
+
       return response;
     } on DioException catch (error) {
       _handleDioError(error);
