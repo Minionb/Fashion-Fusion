@@ -51,7 +51,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                   // Login Button
                   CustomBottom(
                     onPressed: () {
-                      //TODO: Login Funciton
+                      //TODO: Forget Password
                     },
                     label: "SEND",
                     bg: AppColors.primary,

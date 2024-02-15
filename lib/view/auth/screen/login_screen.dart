@@ -50,6 +50,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       context.loaderOverlay.hide();
                       sl<SharedPreferences>()
                           .setString("token", model.accessToken ?? "");
+                      sl<SharedPreferences>().setBool("isLogin", true);
+                      context.pushNamedAndRemoveUntil(Routes.mainScren);
                     }
                     if (state is DataFailure) {
                       context.loaderOverlay.hide();
