@@ -41,4 +41,5 @@ const productSchema = new mongoose.Schema({
   inventory: [inventorySchema],
 });
 
+productSchema.set("timestamps", true);
 module.exports = mongoose.model("products", productSchema);

@@ -1,23 +1,23 @@
-const mongoose = require ("mongoose");
+const mongoose = require("mongoose");
 
 const productImageSchema = new mongoose.Schema({
-    product_id: {
-        type: String,
-        required: true
-      },
-      filename: {
-        type: String,
-        required: true
-      },
-      contentType: {
-        type: String,
-        required: true
-      },
-      data: {
-        type: Buffer,
-        required: true
-      }
-
+  product_id: {
+    type: String,
+    required: true,
+  },
+  filename: {
+    type: String,
+    required: true,
+  },
+  contentType: {
+    type: String,
+    required: true,
+  },
+  data: {
+    type: Buffer,
+    required: true,
+  },
 });
 
-module.exports = mongoose.model('productImages', productImageSchema);
+productImageSchema.set("timestamps", true);
+module.exports = mongoose.model("productImages", productImageSchema);
