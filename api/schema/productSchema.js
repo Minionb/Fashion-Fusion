@@ -30,7 +30,7 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  Tags: {
+  tags: {
     type: String,
     required: true,
   },
