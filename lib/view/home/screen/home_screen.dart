@@ -3,7 +3,6 @@ import 'package:fashion_fusion/core/utils/app_images.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -21,30 +20,46 @@ class HomeScreen extends StatelessWidget {
               ];
             },
             body: GridView.builder(
+              padding: const EdgeInsets.fromLTRB(15, 15, 15, 50).w,
               itemCount: ProductModel.products.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 20,
+                  crossAxisSpacing: 20,
                   childAspectRatio: 0.75),
               itemBuilder: (context, index) {
                 final model = ProductModel.products[index];
                 return Container(
                   decoration: const BoxDecoration(),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Expanded(
-                          child: Image.asset(
-                        model.imagePath,
-                        fit: BoxFit.cover,
+                          child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12).w,
+                        child: Image.asset(
+                          model.imagePath,
+                          fit: BoxFit.cover,
+                          alignment: Alignment.topCenter,
+                          width: double.infinity,
+                        ),
                       )),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12.0).w,
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             10.verticalSpace,
-                            Text(model.label),
-                            10.verticalSpace,
+                            Text(
+                              model.label,
+                              maxLines: 1,
+                              textAlign: TextAlign.left,
+                              // overflow: TextOverflow.ellipsis,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            7.verticalSpace,
                             Row(
                               children: [
                                 Text(
@@ -159,50 +174,50 @@ class ProductModel {
     ProductModel(
         label: "Double-breasted Trench Coat",
         imagePath: "${AppImages.imagePath}/1.jpeg",
-        price: 0),
+        price: 10.00),
     ProductModel(
         label: "Double-breasted Blazer",
         imagePath: "${AppImages.imagePath}/2.jpeg",
-        price: 0),
+        price: 20.00),
     ProductModel(
         label: "Wide-leg Pants",
         imagePath: "${AppImages.imagePath}/3.jpeg",
-        price: 0),
+        price: 20.00),
     ProductModel(
         label: "Baggy Regular Jeans",
         imagePath: "${AppImages.imagePath}/4.jpeg",
-        price: 0),
+        price: 30.00),
     ProductModel(
         label: "Jacquard-knit Sweater",
         imagePath: "${AppImages.imagePath}/5.jpeg",
-        price: 0),
+        price: 25.00),
     ProductModel(
         label: "Puffer Vest",
         imagePath: "${AppImages.imagePath}/6.jpeg",
-        price: 0),
+        price: 21.00),
     ProductModel(
         label: "Linen-blend Pull-on Pants",
         imagePath: "${AppImages.imagePath}/7.jpeg",
-        price: 0),
+        price: 23.00),
     ProductModel(
         label: "Coated Bomber Jacket",
         imagePath: "${AppImages.imagePath}/8.jpeg",
-        price: 0),
+        price: 5.00),
     ProductModel(
         label: "Linen-blend Pull-on Pants",
         imagePath: "${AppImages.imagePath}/9.jpeg",
-        price: 0),
+        price: 10.00),
     ProductModel(
         label: "MAMA Straight Ankle Jeans",
         imagePath: "${AppImages.imagePath}/10.jpeg",
-        price: 0),
+        price: 13.00),
     ProductModel(
         label: "Long-sleeved Jersey Top",
         imagePath: "${AppImages.imagePath}/11.jpeg",
-        price: 0),
+        price: 14.00),
     ProductModel(
         label: "Curvy Fit Baggy Low Jeans",
         imagePath: "${AppImages.imagePath}/12.jpeg",
-        price: 0),
+        price: 45.00),
   ];
 }
