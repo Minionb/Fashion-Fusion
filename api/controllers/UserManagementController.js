@@ -210,9 +210,6 @@ function registerCustomer(server) {
         gender,
         telephone_number,
       } = req.body;
-      console.log(JSON.stringify(req.body))
-      console.log(email)
-      console.log(JSON.stringify(req.params))
 
       // Check if the email is already registered
       const existingCustomer = await CustomersModel.findOne({ email });
@@ -221,7 +218,6 @@ function registerCustomer(server) {
       }
 
       // Hash the password
-      
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Create a new customer object
