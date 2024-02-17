@@ -1,4 +1,5 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
+import 'package:fashion_fusion/view/home/screen/home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent-tab-view.dart';
@@ -54,7 +55,7 @@ class _NavBarState extends State<NavBar> {
 
   List<Widget> _buildScreens() {
     return [
-      Container(),
+      HomeScreen(),
       Container(),
       Container(),
       Container(),
