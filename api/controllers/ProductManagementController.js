@@ -1,5 +1,6 @@
 const { verifyToken } = require("../util/verifyToken");
-const { ProductsModel } = require("../schema/index");
+const { ProductsModel, ProductImagesModel } = require("../schema/index");
+const multer = require("multer");
 
 /**
  * Create product
@@ -118,6 +119,84 @@ function deleteProduct(server) {
   });
 }
 
+// Multer storage configuration
+const storage = multer.memoryStorage(); // Store files in memory as Buffer
+// Multer upload instance
+const upload = multer({ storage: storage });
+
+function postProductImages(server) {
+  // Route to handle image upload
+  server.post(
+    "/products/:id/images",
+    upload.single("image"),
+    async (req, res) => {
+      try {
+        const productId = req.params.id;
+        const product = await ProductsModel.findById(productId);
+
+        if (!product) {
+          return res.status(404).json({ error: "Product not found" });
+        }
+
+        // Read the uploaded image file
+        const imageData = req.file.buffer;
+        const contentType = req.file.mimetype;
+        const filename = req.file.originalname;
+
+        // Create a new image document
+        const newImage = new ProductImagesModel({
+          product_id: productId,
+          data: imageData,
+          contentType: contentType,
+          filename: filename,
+        });
+
+        // Save the image to the database
+        await newImage.save();
+
+        // Update the product to include the new image
+        product.images.push(newImage._id);
+        await product.save();
+
+        res
+          .status(201)
+          .json({ message: "Image uploaded successfully", image: newImage });
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
+  );
+}
+
+/**
+ * Get product images using productImageId
+ * @param {server} server
+ */
+function getProductImages(server) {
+  // GET /products/:id/images
+  server.get("/products/images/:id", async (req, res) => {
+    try {
+      const productImageId = req.params.id;
+
+      // Find the product by ID and populate the 'images' field
+      const productImage = await ProductImagesModel.findById(productImageId);
+      if (!productImage) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      // Set content type as image/jpeg for demonstration purpose
+      res.set("Content-Type", productImage.contentType);
+
+      // Send the image data as response
+      res.status(200).send(productImage.data);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+}
+
 /**
  * Get all Product Category
  * @param {server} server
@@ -182,6 +261,9 @@ class ProductManagementController {
     getProductsById(server);
     putProduct(server);
     deleteProduct(server);
+
+    postProductImages(server);
+    getProductImages(server);
 
     postProductCategory(server);
     getProductCategory(server);
