@@ -34,4 +34,11 @@ function verifyToken(req, res, next) {
   });
 }
 
-module.exports = { verifyToken };
+// Middleware to verify JWT token for admin
+function verifyAdminToken(req, res, next) {
+  verifyToken(req, res, next);
+  if (req.userType !== "admin") {
+    res.status(401).send({ message: "Unauthorized" });
+  }
+}
+module.exports = { verifyAdminToken, verifyToken };

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const ProductImagesModel = require("./productImageSchema");
 
 // Define customer data schema
 const inventorySchema = new mongoose.Schema({
@@ -39,6 +40,14 @@ const productSchema = new mongoose.Schema({
     required: true,
   },
   inventory: [inventorySchema],
+  images: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+    },
+  ],
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+  },
 });
 
 productSchema.set("timestamps", true);
