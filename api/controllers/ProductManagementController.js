@@ -25,20 +25,60 @@ function postProducts(server) {
  * @param {server} server
  */
 function getProducts(server) {
-  server.get("/products", verifyToken, function (req, res, next) {
-    // Query the database to retrieve all products
-    ProductsModel.find({})
-      .sort({ createdAt: "desc" })
-      .then((products) => {
-        // Return all of the products in the system
-        res.send(products);
-        return next();
-      })
-      .catch((error) => {
-        return next(new Error(JSON.stringify(error.errors)));
-      });
+  server.get("/products", verifyToken, async (req, res, next) => {
+    try {
+      const filter = buildFilter(req.query);
+      const sortOption = buildSortOption(req.query.sort);
+      const products = await ProductsModel.find(filter).sort(sortOption);
+      res.send(products);
+    } catch (error) {
+      console.error(error);
+      return next(new Error(JSON.stringify(error.errors)));
+    }
   });
 }
+
+function buildFilter(query) {
+  const filter = {};
+  if (query.productName)
+    filter.product_name = new RegExp(query.productName, "i");
+  if (query.description)
+    filter.product_description = new RegExp(query.description, "i");
+  if (query.tags) filter.tags = new RegExp(query.tags, "i");
+  if (query.category) filter.category = query.category;
+  if (query.price) {
+    const priceRange = query.price.split("-");
+    if (priceRange.length === 1) {
+      filter.price = priceRange[0];
+    } else if (priceRange.length === 2) {
+      filter.price = { $gte: priceRange[0], $lte: priceRange[1] };
+    }
+  }
+  if (query.size) filter["inventory.size"] = query.size;
+  return filter;
+}
+
+function buildSortOption(sort) {
+  let sortOption = {};
+  if (sort) {
+    switch (sort) {
+      case "price_low_to_high":
+        sortOption = { price: 1 };
+        break;
+      case "price_high_to_low":
+        sortOption = { price: -1 };
+        break;
+      default:
+        sortOption = { [sort]: -1 }; // Assuming sort is a valid field for sorting
+        break;
+    }
+  } else {
+    // Default sorting when no sort parameter is provided
+    sortOption = { updatedAt: -1, createdAt: -1 };
+  }
+  return sortOption;
+}
+
 /**
  * Get product by id
  */
