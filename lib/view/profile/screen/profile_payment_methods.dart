@@ -27,8 +27,10 @@ class ProfilePaymentMethods extends StatelessWidget {
             /// Cards of entered payment methods
             
             FloatingActionButton(onPressed: () {
-              toAddPaymentMethod(context);
-            }),
+                toAddPaymentMethod(context);
+              },
+              child: Text("Add Payment Method"),
+            ),
           ],
         ),
       )
