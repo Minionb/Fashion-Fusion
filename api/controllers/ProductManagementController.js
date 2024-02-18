@@ -128,6 +128,7 @@ function postProductImages(server) {
   // Route to handle image upload
   server.post(
     "/products/:id/images",
+    verifyToken,
     upload.single("image"),
     async (req, res) => {
       try {
@@ -174,8 +175,8 @@ function postProductImages(server) {
  * @param {server} server
  */
 function getProductImages(server) {
-  // GET /products/:id/images
-  server.get("/products/images/:id", async (req, res) => {
+  // GET /products/images/:id
+  server.get("/products/images/:id", verifyToken, async (req, res) => {
     try {
       const productImageId = req.params.id;
 
@@ -190,6 +191,38 @@ function getProductImages(server) {
 
       // Send the image data as response
       res.status(200).send(productImage.data);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+}
+
+/**
+ * Delete product image by id
+ * @param {server} server
+ */
+function deleteProductImage(server) {
+  server.delete("/products/images/:id", verifyToken, async (req, res) => {
+    if (req.userType !== "admin") {
+      res.send(401, { message: "Unauthorized" });
+    }
+    try {
+      const productImageId = req.params.id;
+
+      // Find the product image by ID
+      const productImage = await ProductImagesModel.findById(productImageId);
+      if (!productImage) {
+        return res.status(404).json({ error: "Product image not found" });
+      }
+
+      // Delete the product image
+      await ProductImagesModel.findByIdAndDelete(productImageId);
+
+      // Remove the ID of the deleted image from the ProductsModel.images array
+      await ProductsModel.updateMany({}, { $pull: { images: productImageId } });
+
+      res.status(200).json({ message: "Product image deleted successfully" });
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Internal server error" });
@@ -264,6 +297,7 @@ class ProductManagementController {
 
     postProductImages(server);
     getProductImages(server);
+    deleteProductImage(server);
 
     postProductCategory(server);
     getProductCategory(server);
