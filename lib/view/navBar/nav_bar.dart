@@ -1,5 +1,6 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/view/home/screen/home_screen.dart';
+import 'package:fashion_fusion/view/profile/screen/profile_details.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent-tab-view.dart';
@@ -59,7 +60,7 @@ class _NavBarState extends State<NavBar> {
       Container(),
       Container(),
       Container(),
-      Container(),
+      ProfileDetails(),
     ];
   }
 
@@ -94,6 +95,7 @@ class _NavBarState extends State<NavBar> {
         title: "Profile",
         activeColorPrimary: AppColors.primary,
         inactiveColorPrimary: CupertinoColors.systemGrey,
+
       ),
     ];
   }
