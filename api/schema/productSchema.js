@@ -45,6 +45,9 @@ const productSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
     },
   ],
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+  },
 });
 
 productSchema.set("timestamps", true);

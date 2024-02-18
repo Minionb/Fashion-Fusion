@@ -259,6 +259,63 @@ function getCustomers(server) {
   });
 }
 
+// Function to convert MM/YYYY string to Date object for cardExpiryDate
+function convertExpiryToDate(expirationDate) {
+  const [month, year] = expirationDate.split("/");
+  return new Date(parseInt(year), parseInt(month) - 1, 1);
+}
+
+// Function to convert DD-MM-YYYY string to Date object for date_of_birth
+function convertDOBToDate(dateOfBirth) {
+  const [day, month, year] = dateOfBirth.split("-");
+  return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+}
+// Function to update customer data
+async function updateCustomerData(customerId, updateData) {
+  const existingCustomer = await CustomersModel.findById(customerId);
+  if (!existingCustomer) {
+    throw new Error("Customer not found");
+  }
+
+  // Convert card expiry from MM/YYYY to Date object before applying updates
+  if (updateData.payments && updateData.payments.length > 0) {
+    updateData.payments.forEach((payment) => {
+      if (payment.expirationDate) {
+        payment.expirationDate = convertExpiryToDate(payment.expirationDate);
+      }
+    });
+  }
+
+  // Convert date of birth from DD/MM/YYYY to Date object before applying updates
+  if (updateData.date_of_birth) {
+    existingCustomer.date_of_birth = convertDOBToDate(updateData.date_of_birth);
+    delete updateData.date_of_birth;
+  }
+
+  existingCustomer.set(updateData);
+  return existingCustomer.save();
+}
+
+/**
+ * PUT /customer/:id route for updating customer information
+ * @param {*} server
+ */
+function putCustomer(server) {
+  server.put("/customers/:id", async (req, res) => {
+    const customerId = req.params.id;
+    const updateData = req.body;
+    delete updateData.email; // Exclude email field from update data
+
+    try {
+      const updatedCustomer = await updateCustomerData(customerId, updateData);
+      res.json(updatedCustomer);
+    } catch (error) {
+      console.error(error);
+      res.status(404).json({ message: error.message || "Customer not found" });
+    }
+  });
+}
+
 function loginCustomer(server) {
   server.post("/customers/login", async (req, res) => {
     try {
@@ -307,6 +364,7 @@ class UserManagementController {
     getAdminsById(server);
 
     getCustomers(server);
+    putCustomer(server);
     registerCustomer(server);
     loginCustomer(server);
     logoutCustomer(server);

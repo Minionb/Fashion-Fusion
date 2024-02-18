@@ -10,6 +10,7 @@ function postProducts(server) {
   server.post("/products", verifyAdminToken, async (req, res) => {
     try {
       const newProduct = new ProductsModel(req.body);
+      newProduct.createdBy = req.userId;
       // Save the new admin to the database
       await newProduct.save();
       res.send(201, { message: "Product added successfully" });
