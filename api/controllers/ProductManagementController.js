@@ -1,4 +1,4 @@
-const { verifyToken } = require("../util/verifyToken");
+const { verifyToken, verifyAdminToken } = require("../util/verifyToken");
 const { ProductsModel, ProductImagesModel } = require("../schema/index");
 const multer = require("multer");
 
@@ -7,11 +7,8 @@ const multer = require("multer");
  * @param {server} server
  */
 function postProducts(server) {
-  server.post("/products", verifyToken, async (req, res) => {
+  server.post("/products", verifyAdminToken, async (req, res) => {
     try {
-      if (req.userType !== "admin") {
-        res.send(401, { message: "Unauthorized" });
-      }
       const newProduct = new ProductsModel(req.body);
       // Save the new admin to the database
       await newProduct.save();
@@ -97,12 +94,8 @@ function putProduct(server) {
  * @param {server} server
  */
 function deleteProduct(server) {
-  server.delete("/products/:id", verifyToken, async (req, res) => {
+  server.delete("/products/:id", verifyAdminToken, async (req, res) => {
     try {
-      if (req.userType !== "admin") {
-        res.send(401, { message: "Unauthorized" });
-      }
-
       const productId = req.params.id;
 
       // Find the product by ID and delete it
@@ -203,10 +196,7 @@ function getProductImages(server) {
  * @param {server} server
  */
 function deleteProductImage(server) {
-  server.delete("/products/images/:id", verifyToken, async (req, res) => {
-    if (req.userType !== "admin") {
-      res.send(401, { message: "Unauthorized" });
-    }
+  server.delete("/products/images/:id", verifyAdminToken, async (req, res) => {
     try {
       const productImageId = req.params.id;
 
