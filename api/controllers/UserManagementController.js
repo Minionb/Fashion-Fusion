@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const { CustomersModel, AdminsModel } = require("../schema/index");
-const { verifyToken } = require("../util/verifyToken");
+const { verifyToken, verifyAdminToken } = require("../util/verifyToken");
 const { generateTokens } = require("../util/generateTokens");
 
 // Reusable function to reset password for both customers and admins
@@ -103,7 +103,7 @@ async function getUserById(req, res, userModel) {
 
 function getAdmins(server) {
   // Get all admins in the system
-  server.get("/admins", verifyToken, function (req, res, next) {
+  server.get("/admins", verifyAdminToken, function (req, res, next) {
     // Query the database to retrieve all customers, excluding the password field
     AdminsModel.find({}, { password: 0 })
       .sort({ lastName: "asc" })
@@ -190,7 +190,7 @@ function resetAdminsPassword(server) {
 
 function getAdminsById(server) {
   // API endpoint to get admin by ID
-  server.get("/admins/:id", verifyToken, async (req, res) => {
+  server.get("/admins/:id", verifyAdminToken, async (req, res) => {
     await getUserById(req, res, AdminsModel);
   });
 }
@@ -210,9 +210,6 @@ function registerCustomer(server) {
         gender,
         telephone_number,
       } = req.body;
-      console.log(JSON.stringify(req.body))
-      console.log(email)
-      console.log(JSON.stringify(req.params))
 
       // Check if the email is already registered
       const existingCustomer = await CustomersModel.findOne({ email });
@@ -221,7 +218,6 @@ function registerCustomer(server) {
       }
 
       // Hash the password
-      
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Create a new customer object
@@ -249,11 +245,7 @@ function registerCustomer(server) {
 
 function getCustomers(server) {
   // Get all customers in the system
-  server.get("/customers", verifyToken, function (req, res, next) {
-    if (req.userType !== "admin") {
-      res.send(401, { message: "Unauthorized" });
-    }
-
+  server.get("/customers", verifyAdminToken, function (req, res, next) {
     // Query the database to retrieve all customers, excluding the password field
     CustomersModel.find({}, { password: 0 })
       .then((customers) => {
