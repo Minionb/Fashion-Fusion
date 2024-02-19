@@ -14,6 +14,7 @@ import 'package:fashion_fusion/provider/states/cubit_states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
@@ -47,11 +48,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     }
                     if (state is DataSuccess) {
                       final ResponseModel model = state.data;
+                      // to get token data
                       context.loaderOverlay.hide();
+                      // {userId: 65cd78f72785cad53c71ab43, userType: customer, iat: 1708367703, exp: 1708371303}
+                      Map<String, dynamic> decodedToken =
+                          JwtDecoder.decode(model.accessToken ?? "");
+                          // Save the token
                       sl<SharedPreferences>()
                           .setString("token", model.accessToken ?? "");
+                          // Save the status of login if the login is successful
                       sl<SharedPreferences>().setBool("isLogin", true);
+                      // Save userID if the login is successful
+                      sl<SharedPreferences>().setString("userID", decodedToken["userId"]);
+                      // Push to navBar Screen
                       context.pushNamedAndRemoveUntil(Routes.mainScren);
+
                     }
                     if (state is DataFailure) {
                       context.loaderOverlay.hide();

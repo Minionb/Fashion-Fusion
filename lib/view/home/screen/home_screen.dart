@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -27,18 +28,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildAppBar2(),
               ];
             },
-            body: GridView.builder(
-              padding: const EdgeInsets.fromLTRB(15, 15, 15, 50).w,
-              itemCount: ProductModel.products.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 20,
-                  crossAxisSpacing: 20,
-                  childAspectRatio: 0.72),
-              itemBuilder: (context, index) {
-                final model = ProductModel.products[index];
-                return ProductCard(model: model);
-              },
+            body: AnimationLimiter(
+              child: GridView.builder(
+                padding: const EdgeInsets.fromLTRB(15, 15, 15, 50).w,
+                itemCount: ProductModel.products.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 20,
+                    crossAxisSpacing: 20,
+                    childAspectRatio: 0.72),
+                itemBuilder: (context, index) {
+                  final model = ProductModel.products[index];
+                  return AnimationConfiguration.staggeredList(
+                      position: index,
+                      duration: const Duration(milliseconds: 900),
+                      child: SlideAnimation(
+                          child: FadeInAnimation(
+                              child: ProductCard(model: model))));
+                },
+              ),
             )),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
+import 'package:fashion_fusion/core/widgets/like_button.dart';
 import 'package:fashion_fusion/view/home/screen/home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -87,16 +88,12 @@ class ProductCard extends StatelessWidget {
             child: Align(
               alignment: Alignment.topRight,
               child: Container(
-                padding: const EdgeInsets.all(4).w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.bg,
-                ),
-                child: Icon(
-                  CupertinoIcons.heart,
-                  size: 16.sp,
-                ),
-              ),
+                  padding: const EdgeInsets.all(4).w,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.bg,
+                  ),
+                  child: LikeButton()),
             ),
           )
         ],
