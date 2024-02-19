@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const { CustomersModel, AdminsModel } = require("../schema/index");
 const { verifyToken, verifyAdminToken } = require("../util/verifyToken");
 const { generateTokens } = require("../util/generateTokens");
+const { maskCreditNumber } = require("../util/cardUtils");
 
 // Reusable function to reset password for both customers and admins
 async function resetPassword(req, res, userModel) {
@@ -89,7 +90,7 @@ async function getUserById(req, res, userModel) {
     ) {
       user.payments.forEach((payment) => {
         if (payment.cardNumber) {
-          payment.cardNumber = "************" + payment.cardNumber.slice(-4);
+          payment.cardNumber = maskCreditNumber(payment.cardNumber);
         }
       });
     }

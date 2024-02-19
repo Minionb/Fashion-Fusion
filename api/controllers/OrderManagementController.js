@@ -1,4 +1,5 @@
-const { verifyToken, verifyAdminToken } = require("../util/verifyToken");
+const { verifyToken } = require("../util/verifyToken");
+const { OrderService } = require("../services/OrderService");
 const { CartsModel } = require("../schema/index");
 const { mongoose, ObjectId } = require("mongoose");
 
@@ -114,6 +115,15 @@ function putCartItems(server) {
   });
 }
 
+const clearCart = async (customerId) => {
+  const cart = await CartsModel.findOne({ customerId });
+
+  if (cart) {
+    cart.cartItems = [];
+    await cart.save();
+  }
+};
+
 // DELETE /cart/items
 function deleteCartItems(server) {
   server.delete("/cart/items", verifyToken, async (req, res) => {
@@ -121,12 +131,7 @@ function deleteCartItems(server) {
       const customerId = req.userId;
       const cart = await CartsModel.findOne({ customerId });
 
-      if (!cart) {
-        return res.status(404).json({ message: "Cart not found" });
-      }
-
-      cart.cartItems = [];
-      await cart.save();
+      clearCart(customerId);
 
       res.status(204).send();
     } catch (error) {
@@ -190,6 +195,99 @@ function getCartItems(server) {
   });
 }
 
+// POST /cart/checkout
+function checkoutCart(server) {
+  server.post("/cart/checkout", verifyToken, async (req, res) => {
+    try {
+      const customerId = req.userId;
+      const cart = await CartsModel.findOne({ customerId });
+
+      if (!cart) {
+        return res.status(404).json({ message: "Cart not found" });
+      }
+      // Check if cartItems is empty
+      if (cart.cartItems.length === 0) {
+        return res
+          .status(400)
+          .json({ message: "Cart is empty. Cannot proceed with checkout." });
+      }
+
+      // Assuming delivery method and courier are provided in the request body
+      const paymentMethod = req.body.paymentMethod;
+      const deliveryMethod = req.body.deliveryMethod;
+      const courier = req.body.courier;
+      const cardNumber = req.body.cardNumber;
+
+      const order = await OrderService.createOrder(
+        customerId,
+        cart.cartItems,
+        paymentMethod,
+        cardNumber,
+        deliveryMethod,
+        courier
+      );
+
+      await clearCart(customerId);
+
+      res.status(201).json({ message: "Order created successfully", order });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
+}
+
+// GET /orders
+function getOrders(server) {
+  server.get("/orders", verifyToken, async (req, res) => {
+    try {
+      const customerId = req.userId;
+      const orders = await OrderService.getAllOrders(customerId);
+      res.status(200).json(orders);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
+} // Helper function to construct update fields
+function constructUpdateFields(orderStatus, paymentStatus, deliveryStatus) {
+  const updateFields = {};
+  if (orderStatus) updateFields["status"] = orderStatus;
+  if (paymentStatus) updateFields["payment.status"] = paymentStatus;
+  if (deliveryStatus) updateFields["delivery.status"] = deliveryStatus;
+  return updateFields;
+}
+
+// PATCH /orders/:orderId
+function patchOrder(server) {
+  server.patch("/orders/:orderId", verifyToken, async (req, res) => {
+    try {
+      const orderId = req.params.orderId;
+      const { orderStatus, paymentStatus, deliveryStatus } = req.body;
+
+      const updateFields = constructUpdateFields(
+        orderStatus,
+        paymentStatus,
+        deliveryStatus
+      );
+      const updatedOrder = await OrderService.updateOrder(
+        orderId,
+        updateFields
+      );
+
+      if (!updatedOrder)
+        return res.status(404).json({ message: "Order not found" });
+
+      res
+        .status(200)
+        .json({ message: "Order updated successfully", order: updatedOrder });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
+}
+
 class OrderManagementController {
   /**
    * Initializes the apis
@@ -200,6 +298,10 @@ class OrderManagementController {
     deleteCartItems(server);
     deleteCartItemsProduct(server);
     getCartItems(server);
+    checkoutCart(server);
+
+    getOrders(server);
+    patchOrder(server);
   }
 }
 
