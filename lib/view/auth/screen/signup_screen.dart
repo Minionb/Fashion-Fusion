@@ -148,7 +148,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           if (_formKey.currentState!.validate()) {
                             context.read<AuthCubit>().register(
                                   RegisterUserModel(
-                                      telephoneNumber: "1234567890",
+                                      telephoneNumber: _phoneCtrl.text,
                                       email: _emailCtrl.text,
                                       password: _passwordCtrl.text,
                                       firstName: _firstNameCtrl.text,
