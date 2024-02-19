@@ -21,14 +21,12 @@ class AppRoutes {
     switch (routeSettings.name) {
       case Routes.init:
         return MaterialPageRoute(builder: (context) {
-          return
-              sl<SharedPreferences>().getBool("isLogin") == true
-                  ? const NavBar()
-                  :
-              BlocProvider(
-            create: (context) => sl<AuthCubit>(),
-            child: const LoginScreen(),
-          );
+          return sl<SharedPreferences>().getBool("isLogin") == true
+              ? const NavBar()
+              : BlocProvider(
+                  create: (context) => sl<AuthCubit>(),
+                  child: const LoginScreen(),
+                );
         });
       case Routes.signup:
         return MaterialPageRoute(
