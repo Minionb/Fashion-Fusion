@@ -172,14 +172,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     return AlertDialog(
                                       title: Text('Successfully registered account!'),
                                       content: Text('Enjoy shopping!'),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          onPressed: () {
-                                            context.pushReplacementName(Routes.login);
-                                          },
-                                          child: Text('OK'),
-                                        ),
-                                      ],
                                     );
                                   },
                                 );
