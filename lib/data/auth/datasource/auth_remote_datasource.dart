@@ -23,8 +23,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl({required this.apiConsumer});
   @override
   Future<ResponseModel> login(LoginModel model) async {
-    final Response response =
-        await apiConsumer.post(EndPoints.login, body: model.toJson());
+    final Response response = await apiConsumer.post(
+        model.isAdmin ? EndPoints.adminLogin : EndPoints.login,
+        body: model.toJson());
     if (response.statusCode == StatusCode.ok ||
         response.statusCode == StatusCode.created) {
       final jsonData = json.decode(response.data);

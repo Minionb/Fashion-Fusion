@@ -1,12 +1,13 @@
 import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/provider/auth/auth_cubit.dart';
+import 'package:fashion_fusion/view/admin/view/adminNavBar/screen/admin_navbar.dart';
 import 'package:fashion_fusion/view/auth/screen/forget_password.dart';
 import 'package:fashion_fusion/view/auth/screen/login_screen.dart';
 import 'package:fashion_fusion/view/auth/screen/signup_screen.dart';
+import 'package:fashion_fusion/view/auth/screen/welcome_screen.dart';
 import 'package:fashion_fusion/view/navBar/nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Routes {
   static const String init = "/";
@@ -14,6 +15,7 @@ class Routes {
   static const String forgetPassword = "/forgetPassword";
   static const String mainScren = "/mainScreen";
   static const String login = "/login";
+  static const String adminMainScreen = "/adminMainScreen";
 }
 
 class AppRoutes {
@@ -21,12 +23,14 @@ class AppRoutes {
     switch (routeSettings.name) {
       case Routes.init:
         return MaterialPageRoute(builder: (context) {
-          return sl<SharedPreferences>().getBool("isLogin") == true
-              ? const NavBar()
-              : BlocProvider(
-                  create: (context) => sl<AuthCubit>(),
-                  child: const LoginScreen(),
-                );
+          return
+              // sl<SharedPreferences>().getBool("isLogin") == true
+              //     ? const NavBar()
+              //     :
+              BlocProvider(
+            create: (context) => sl<AuthCubit>(),
+            child: const WelcomePage(),
+          );
         });
       case Routes.signup:
         return MaterialPageRoute(
@@ -45,6 +49,8 @@ class AppRoutes {
                   create: (context) => sl<AuthCubit>(),
                   child: const LoginScreen(),
                 ));
+      case Routes.adminMainScreen:
+        return MaterialPageRoute(builder: (context) => const AdminNavBar());
       default:
     }
     return null;
