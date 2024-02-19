@@ -1,17 +1,25 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_images.dart';
+import 'package:fashion_fusion/view/home/widget/product_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int catIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
+        bottom: false,
         child: NestedScrollView(
             headerSliverBuilder: (BuildContext context, bool innerBoxScrolled) {
               return <Widget>[
@@ -26,66 +34,10 @@ class HomeScreen extends StatelessWidget {
                   crossAxisCount: 2,
                   mainAxisSpacing: 20,
                   crossAxisSpacing: 20,
-                  childAspectRatio: 0.75),
+                  childAspectRatio: 0.72),
               itemBuilder: (context, index) {
                 final model = ProductModel.products[index];
-                return Container(
-                  decoration: const BoxDecoration(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Expanded(
-                          child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12).w,
-                        child: Image.asset(
-                          model.imagePath,
-                          fit: BoxFit.cover,
-                          alignment: Alignment.topCenter,
-                          width: double.infinity,
-                        ),
-                      )),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0).w,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            10.verticalSpace,
-                            Text(
-                              model.label,
-                              maxLines: 1,
-                              textAlign: TextAlign.left,
-                              // overflow: TextOverflow.ellipsis,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w600),
-                            ),
-                            7.verticalSpace,
-                            Row(
-                              children: [
-                                Text(
-                                  "\$${model.price.toStringAsFixed(2)}",
-                                  style: TextStyle(color: AppColors.textGray),
-                                ),
-                                const Spacer(),
-                                Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                      color: Colors.black,
-                                      shape: BoxShape.circle),
-                                  child: Icon(
-                                    CupertinoIcons.add,
-                                    color: Colors.white,
-                                    size: 18.sp,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                );
+                return ProductCard(model: model);
               },
             )),
       ),
@@ -138,28 +90,59 @@ class HomeScreen extends StatelessWidget {
   SliverAppBar _buildAppBar2() {
     return SliverAppBar(
         pinned: true,
-        elevation: 4,
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
         backgroundColor: AppColors.bg,
-        flexibleSpace: ListView.separated(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10).w,
-          shrinkWrap: true,
-          scrollDirection: Axis.horizontal,
-          itemCount: 30,
-          separatorBuilder: (context, index) => 5.horizontalSpace,
-          itemBuilder: (context, index) {
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20).w,
-              decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.darkSeliver),
-                  borderRadius: BorderRadius.circular(20)),
-              child: const Center(
-                child: Text("Hi"),
-              ),
-            );
-          },
+        flexibleSpace: Container(
+          color: AppColors.bg,
+          child: _listCat(),
         ));
   }
+
+  ListView _listCat() {
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10).w,
+      shrinkWrap: true,
+      scrollDirection: Axis.horizontal,
+      itemCount: _cat.length,
+      separatorBuilder: (context, index) => 5.horizontalSpace,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              catIndex = index;
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20).w,
+            decoration: BoxDecoration(
+                color: catIndex == index ? AppColors.primary : AppColors.bg,
+                border: Border.all(
+                    color: catIndex == index
+                        ? AppColors.bg
+                        : AppColors.darkSeliver),
+                borderRadius: BorderRadius.circular(20)),
+            child: Center(
+              child: Text(
+                _cat[index],
+                style:
+                    TextStyle(color: catIndex == index ? Colors.white : null),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  final List<String> _cat = [
+    "Bags",
+    "Shoes",
+    "Tops",
+    "Bottoms",
+    "Dresses",
+    "Accessories",
+    "Hats",
+    "Jeans",
+  ];
 }
 
 class ProductModel {
@@ -221,3 +204,5 @@ class ProductModel {
         price: 45.00),
   ];
 }
+
+enum User { student, instructor, admin }

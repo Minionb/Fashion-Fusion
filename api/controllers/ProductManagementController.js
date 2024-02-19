@@ -1,4 +1,4 @@
-const { verifyToken } = require("../util/verifyToken");
+const { verifyToken, verifyAdminToken } = require("../util/verifyToken");
 const { ProductsModel, ProductImagesModel } = require("../schema/index");
 const multer = require("multer");
 
@@ -7,12 +7,10 @@ const multer = require("multer");
  * @param {server} server
  */
 function postProducts(server) {
-  server.post("/products", verifyToken, async (req, res) => {
+  server.post("/products", verifyAdminToken, async (req, res) => {
     try {
-      if (req.userType !== "admin") {
-        res.send(401, { message: "Unauthorized" });
-      }
       const newProduct = new ProductsModel(req.body);
+      newProduct.createdBy = req.userId;
       // Save the new admin to the database
       await newProduct.save();
       res.send(201, { message: "Product added successfully" });
@@ -28,20 +26,60 @@ function postProducts(server) {
  * @param {server} server
  */
 function getProducts(server) {
-  server.get("/products", verifyToken, function (req, res, next) {
-    // Query the database to retrieve all products
-    ProductsModel.find({})
-      .sort({ createdAt: "desc" })
-      .then((products) => {
-        // Return all of the products in the system
-        res.send(products);
-        return next();
-      })
-      .catch((error) => {
-        return next(new Error(JSON.stringify(error.errors)));
-      });
+  server.get("/products", verifyToken, async (req, res, next) => {
+    try {
+      const filter = buildFilter(req.query);
+      const sortOption = buildSortOption(req.query.sort);
+      const products = await ProductsModel.find(filter).sort(sortOption);
+      res.send(products);
+    } catch (error) {
+      console.error(error);
+      return next(new Error(JSON.stringify(error.errors)));
+    }
   });
 }
+
+function buildFilter(query) {
+  const filter = {};
+  if (query.productName)
+    filter.product_name = new RegExp(query.productName, "i");
+  if (query.description)
+    filter.product_description = new RegExp(query.description, "i");
+  if (query.tags) filter.tags = new RegExp(query.tags, "i");
+  if (query.category) filter.category = query.category;
+  if (query.price) {
+    const priceRange = query.price.split("-");
+    if (priceRange.length === 1) {
+      filter.price = priceRange[0];
+    } else if (priceRange.length === 2) {
+      filter.price = { $gte: priceRange[0], $lte: priceRange[1] };
+    }
+  }
+  if (query.size) filter["inventory.size"] = query.size;
+  return filter;
+}
+
+function buildSortOption(sort) {
+  let sortOption = {};
+  if (sort) {
+    switch (sort) {
+      case "price_low_to_high":
+        sortOption = { price: 1 };
+        break;
+      case "price_high_to_low":
+        sortOption = { price: -1 };
+        break;
+      default:
+        sortOption = { [sort]: -1 }; // Assuming sort is a valid field for sorting
+        break;
+    }
+  } else {
+    // Default sorting when no sort parameter is provided
+    sortOption = { updatedAt: -1, createdAt: -1 };
+  }
+  return sortOption;
+}
+
 /**
  * Get product by id
  */
@@ -97,12 +135,8 @@ function putProduct(server) {
  * @param {server} server
  */
 function deleteProduct(server) {
-  server.delete("/products/:id", verifyToken, async (req, res) => {
+  server.delete("/products/:id", verifyAdminToken, async (req, res) => {
     try {
-      if (req.userType !== "admin") {
-        res.send(401, { message: "Unauthorized" });
-      }
-
       const productId = req.params.id;
 
       // Find the product by ID and delete it
@@ -128,6 +162,7 @@ function postProductImages(server) {
   // Route to handle image upload
   server.post(
     "/products/:id/images",
+    verifyToken,
     upload.single("image"),
     async (req, res) => {
       try {
@@ -174,8 +209,8 @@ function postProductImages(server) {
  * @param {server} server
  */
 function getProductImages(server) {
-  // GET /products/:id/images
-  server.get("/products/images/:id", async (req, res) => {
+  // GET /products/images/:id
+  server.get("/products/images/:id", verifyToken, async (req, res) => {
     try {
       const productImageId = req.params.id;
 
@@ -190,6 +225,35 @@ function getProductImages(server) {
 
       // Send the image data as response
       res.status(200).send(productImage.data);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+}
+
+/**
+ * Delete product image by id
+ * @param {server} server
+ */
+function deleteProductImage(server) {
+  server.delete("/products/images/:id", verifyAdminToken, async (req, res) => {
+    try {
+      const productImageId = req.params.id;
+
+      // Find the product image by ID
+      const productImage = await ProductImagesModel.findById(productImageId);
+      if (!productImage) {
+        return res.status(404).json({ error: "Product image not found" });
+      }
+
+      // Delete the product image
+      await ProductImagesModel.findByIdAndDelete(productImageId);
+
+      // Remove the ID of the deleted image from the ProductsModel.images array
+      await ProductsModel.updateMany({}, { $pull: { images: productImageId } });
+
+      res.status(200).json({ message: "Product image deleted successfully" });
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Internal server error" });
@@ -264,6 +328,7 @@ class ProductManagementController {
 
     postProductImages(server);
     getProductImages(server);
+    deleteProductImage(server);
 
     postProductCategory(server);
     getProductCategory(server);

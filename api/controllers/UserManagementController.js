@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const { CustomersModel, AdminsModel } = require("../schema/index");
-const { verifyToken } = require("../util/verifyToken");
+const { verifyToken, verifyAdminToken } = require("../util/verifyToken");
 const { generateTokens } = require("../util/generateTokens");
 
 // Reusable function to reset password for both customers and admins
@@ -103,7 +103,7 @@ async function getUserById(req, res, userModel) {
 
 function getAdmins(server) {
   // Get all admins in the system
-  server.get("/admins", verifyToken, function (req, res, next) {
+  server.get("/admins", verifyAdminToken, function (req, res, next) {
     // Query the database to retrieve all customers, excluding the password field
     AdminsModel.find({}, { password: 0 })
       .sort({ lastName: "asc" })
@@ -190,7 +190,7 @@ function resetAdminsPassword(server) {
 
 function getAdminsById(server) {
   // API endpoint to get admin by ID
-  server.get("/admins/:id", verifyToken, async (req, res) => {
+  server.get("/admins/:id", verifyAdminToken, async (req, res) => {
     await getUserById(req, res, AdminsModel);
   });
 }
@@ -245,11 +245,7 @@ function registerCustomer(server) {
 
 function getCustomers(server) {
   // Get all customers in the system
-  server.get("/customers", verifyToken, function (req, res, next) {
-    if (req.userType !== "admin") {
-      res.send(401, { message: "Unauthorized" });
-    }
-
+  server.get("/customers", verifyAdminToken, function (req, res, next) {
     // Query the database to retrieve all customers, excluding the password field
     CustomersModel.find({}, { password: 0 })
       .then((customers) => {
@@ -260,6 +256,63 @@ function getCustomers(server) {
       .catch((error) => {
         return next(new Error(JSON.stringify(error.errors)));
       });
+  });
+}
+
+// Function to convert MM/YYYY string to Date object for cardExpiryDate
+function convertExpiryToDate(expirationDate) {
+  const [month, year] = expirationDate.split("/");
+  return new Date(parseInt(year), parseInt(month) - 1, 1);
+}
+
+// Function to convert DD-MM-YYYY string to Date object for date_of_birth
+function convertDOBToDate(dateOfBirth) {
+  const [day, month, year] = dateOfBirth.split("-");
+  return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+}
+// Function to update customer data
+async function updateCustomerData(customerId, updateData) {
+  const existingCustomer = await CustomersModel.findById(customerId);
+  if (!existingCustomer) {
+    throw new Error("Customer not found");
+  }
+
+  // Convert card expiry from MM/YYYY to Date object before applying updates
+  if (updateData.payments && updateData.payments.length > 0) {
+    updateData.payments.forEach((payment) => {
+      if (payment.expirationDate) {
+        payment.expirationDate = convertExpiryToDate(payment.expirationDate);
+      }
+    });
+  }
+
+  // Convert date of birth from DD/MM/YYYY to Date object before applying updates
+  if (updateData.date_of_birth) {
+    existingCustomer.date_of_birth = convertDOBToDate(updateData.date_of_birth);
+    delete updateData.date_of_birth;
+  }
+
+  existingCustomer.set(updateData);
+  return existingCustomer.save();
+}
+
+/**
+ * PUT /customer/:id route for updating customer information
+ * @param {*} server
+ */
+function putCustomer(server) {
+  server.put("/customers/:id", async (req, res) => {
+    const customerId = req.params.id;
+    const updateData = req.body;
+    delete updateData.email; // Exclude email field from update data
+
+    try {
+      const updatedCustomer = await updateCustomerData(customerId, updateData);
+      res.json(updatedCustomer);
+    } catch (error) {
+      console.error(error);
+      res.status(404).json({ message: error.message || "Customer not found" });
+    }
   });
 }
 
@@ -311,6 +364,7 @@ class UserManagementController {
     getAdminsById(server);
 
     getCustomers(server);
+    putCustomer(server);
     registerCustomer(server);
     loginCustomer(server);
     logoutCustomer(server);
