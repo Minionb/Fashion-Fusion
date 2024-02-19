@@ -41,7 +41,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
         appBar: AppBar(),
         body: SingleChildScrollView(
           child: Form(
-
               key: _formKey,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(18, 0, 18, 50).w,
@@ -136,6 +135,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         }
                         if (state is DataSuccess) {
                           context.loaderOverlay.hide();
+                          HelperMethod.showToast(context,
+                              title: const Text("Thank you!"),
+                              description: const Text(
+                                  "Thanks for signing up. Welcome to our application. We are happy to have you on board."),
+                              type: ToastificationType.success);
+                          Future.delayed(const Duration(seconds: 2), () {
+                            context.pushReplacementName(Routes.init);
+                          });
                         }
                         if (state is DataFailure) {
                           context.loaderOverlay.hide();
