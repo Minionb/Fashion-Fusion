@@ -13,6 +13,7 @@ class Routes {
   static const String signup = "/signup";
   static const String forgetPassword = "/forgetPassword";
   static const String mainScren = "/mainScreen";
+  static const String login = "/login";
 }
 
 class AppRoutes {
@@ -40,6 +41,12 @@ class AppRoutes {
             builder: (context) => const ForgetPasswordScreen());
       case Routes.mainScren:
         return MaterialPageRoute(builder: (context) => const NavBar());
+      case Routes.login:
+        return MaterialPageRoute(
+            builder: (context) => BlocProvider(
+                  create: (context) => sl<AuthCubit>(),
+                  child: const LoginScreen(),
+                ));
       default:
     }
     return null;

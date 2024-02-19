@@ -9,6 +9,7 @@ import 'package:fashion_fusion/core/widgets/custom_text_field.dart';
 import 'package:fashion_fusion/data/auth/model/signup_model.dart';
 import 'package:fashion_fusion/provider/auth/auth_cubit.dart';
 import 'package:fashion_fusion/provider/states/cubit_states.dart';
+import 'package:fashion_fusion/view/auth/screen/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -132,17 +133,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         if (state is DataLoading) {
                           context.loaderOverlay.show();
                         }
-                        if (state is DataSuccess) {
-                          context.loaderOverlay.hide();
-                          HelperMethod.showToast(context,
-                              title: const Text("Thank you!"),
-                              description: const Text(
-                                  "Thanks for signing up. Welcome to our application. We are happy to have you on board."),
-                              type: ToastificationType.success);
-                          Future.delayed(const Duration(seconds: 2), () {
-                            context.pushReplacementName(Routes.init);
-                          });
-                        }
                         if (state is DataFailure) {
                           context.loaderOverlay.hide();
                           HelperMethod.showToast(context,
@@ -155,7 +145,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           if (_formKey.currentState!.validate()) {
                             context.read<AuthCubit>().register(
                                   RegisterUserModel(
-                                      telephoneNumber: "1234567890",
+                                      telephoneNumber: _phoneCtrl.text,
                                       email: _emailCtrl.text,
                                       password: _passwordCtrl.text,
                                       firstName: _firstNameCtrl.text,
@@ -163,6 +153,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       address: _addressCtrl.text,
                                       dateOfBirth: "1990-01-01",
                                       gender: Gender.male),
+                                );
+
+                            showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text('Successfully registered account!'),
+                                      content: Text('Enjoy shopping!'),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          onPressed: () {
+                                            context.pushReplacementName(Routes.login);
+                                          },
+                                          child: Text('OK'),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 );
                           }
                         },
