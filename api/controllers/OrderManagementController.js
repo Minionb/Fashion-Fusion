@@ -85,10 +85,13 @@ function putCartItems(server) {
  * PUT /cart/items
  * Adds or updates the cart items.
  * Scenarios:
- *    - WHEN productId does not exist in the cart THEN productId is added into the cartItems array
+ *    - WHEN productId does not exist in the cart and quantity is a positive integer THEN productId is added to the cartItems array
+ *    - WHEN productId does not exist in the cart and quantity is a negative integer THEN there are no changes to the cartItems array
  *    - WHEN productId exists in the cart and quantity is a positive integer THEN quantity is added to the productId item
  *    - WHEN productId exists in the cart and quantity is a negative integer THEN quantity is subtracted to the productId item
- *    - WHEN productId exists in the cart and quantity is a negative integer and subtracting results in 0 or less THEN productId is removed from cart
+ *    - WHEN productId exists in the cart AND quantity is a negative integer
+ *          AND subtracting it from existing quantity results in 0 or less
+ *        THEN productId is removed from cart
  * @param {*} server
  */
 function putCartItems(server) {
