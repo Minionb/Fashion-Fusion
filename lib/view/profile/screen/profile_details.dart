@@ -1,3 +1,4 @@
+import 'package:fashion_fusion/view/auth/screen/welcome_screen.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_payment_methods.dart';
 import 'package:flutter/material.dart';
 
@@ -72,6 +73,10 @@ class ProfileDetails extends StatelessWidget {
                   title: "Settings",
                   subtitle: "Notifications, password",
                   routeWidget: ProfilePaymentMethods()),
+              const SignOutCard(
+                  title: "Sign Out",
+                  subtitle: "Sign out from accounts",
+                  routeWidget: WelcomePage()),
             ],
           ),
         ));
@@ -95,6 +100,72 @@ class ProfileOptionsCard extends StatelessWidget {
         onTap: () {
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => routeWidget));
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(title,
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.grey,
+                  )
+                ],
+              ),
+              Text(subtitle,
+                  style: const TextStyle(color: Colors.grey, fontSize: 10)),
+            ],
+          ),
+        ));
+  }
+}
+
+class SignOutCard extends StatelessWidget{
+  final String title;
+  final String subtitle;
+  final Widget routeWidget;
+
+  const SignOutCard(
+      {super.key,
+      required this.title,
+      required this.subtitle,
+      required this.routeWidget});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text(
+                'Confirm Sign Out'),
+                content: const Text('Are you sure to sign out?'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                  Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => routeWidget));
+                },
+                child: const Text('Yes'),
+                  ),
+                ],
+              );
+            },
+          );
         },
         child: Padding(
           padding: const EdgeInsets.all(10),
