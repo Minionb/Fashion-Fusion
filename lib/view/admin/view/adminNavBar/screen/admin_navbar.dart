@@ -1,18 +1,16 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
-import 'package:fashion_fusion/view/home/screen/home_screen.dart';
-import 'package:fashion_fusion/view/profile/screen/profile_details.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent-tab-view.dart';
 
-class NavBar extends StatefulWidget {
-  const NavBar({super.key});
+class AdminNavBar extends StatefulWidget {
+  const AdminNavBar({super.key});
 
   @override
-  State<NavBar> createState() => _NavBarState();
+  State<AdminNavBar> createState() => _AdminNavBarState();
 }
 
-class _NavBarState extends State<NavBar> {
+class _AdminNavBarState extends State<AdminNavBar> {
   final PersistentTabController _controller =
       PersistentTabController(initialIndex: 0);
 
@@ -56,43 +54,29 @@ class _NavBarState extends State<NavBar> {
 
   List<Widget> _buildScreens() {
     return [
-      const HomeScreen(),
       Container(),
       Container(),
       Container(),
-      const ProfileDetails(),
     ];
   }
 
   List<PersistentBottomNavBarItem> _navBarsItems() {
     return [
       PersistentBottomNavBarItem(
-        icon: const Icon(CupertinoIcons.home),
-        title: "Home",
+        icon: const Icon(CupertinoIcons.person_2),
+        title: "Users",
         activeColorPrimary: AppColors.primary,
         inactiveColorPrimary: CupertinoColors.systemGrey,
       ),
       PersistentBottomNavBarItem(
-        icon: const Icon(CupertinoIcons.cart),
-        title: "Shop",
+        icon: const Icon(Icons.dashboard_customize_outlined),
+        title: "Orders",
         activeColorPrimary: AppColors.primary,
         inactiveColorPrimary: CupertinoColors.systemGrey,
       ),
       PersistentBottomNavBarItem(
-        icon: const Icon(Icons.shopping_bag_outlined),
-        title: "Bag",
-        activeColorPrimary: AppColors.primary,
-        inactiveColorPrimary: CupertinoColors.systemGrey,
-      ),
-      PersistentBottomNavBarItem(
-        icon: const Icon(CupertinoIcons.heart),
-        title: "favorite",
-        activeColorPrimary: AppColors.primary,
-        inactiveColorPrimary: CupertinoColors.systemGrey,
-      ),
-      PersistentBottomNavBarItem(
-        icon: const Icon(CupertinoIcons.person),
-        title: "Profile",
+        icon: const Icon(Icons.description_rounded),
+        title: "Reports",
         activeColorPrimary: AppColors.primary,
         inactiveColorPrimary: CupertinoColors.systemGrey,
       ),
