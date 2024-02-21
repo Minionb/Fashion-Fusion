@@ -1,6 +1,7 @@
 const {
   UserManagementController,
   ProductManagementController,
+  OrderManagementController,
 } = require("./controllers/index");
 const express = require("express");
 const dbConfig = require("./dbConfig");
@@ -14,16 +15,11 @@ const server = express();
 // Middleware to parse JSON bodies
 server.use(express.json());
 
-server.listen(PORT, HOST, function () {
-  console.log("Server %s listening at %s", server.name, server.url);
-  console.log("**** Resources: ****");
-  console.log("********************");
-  console.log(" /customers/register");
-  console.log(" /customer/:id");
-  console.log(" /admins");
-  console.log(" /admins/:id");
-});
-
 // Launch apis:
 new UserManagementController().initApis(server);
 new ProductManagementController().initApis(server);
+new OrderManagementController().initApis(server);
+
+server.listen(PORT, HOST, function () {
+  console.log("Server %s listening at http://%s:%s", server.name, HOST, PORT);
+});
