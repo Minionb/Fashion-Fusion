@@ -1,6 +1,6 @@
 const { verifyToken } = require("../util/verifyToken");
 const { OrderService } = require("../services/OrderService");
-const { CartsModel } = require("../schema/index");
+const { CartsModel, FavoritesModel } = require("../schema/index");
 const { mongoose, ObjectId } = require("mongoose");
 
 // Function to validate request body
@@ -59,27 +59,6 @@ function getCartItemIndex(cart, productId) {
     }
   }
   return -1;
-}
-
-// POST /cart/items
-function putCartItems(server) {
-  server.post("/cart/items", verifyToken, async (req, res) => {
-    try {
-      const customerId = req.userId;
-      const { productId, quantity } = validateRequestBody(req);
-      let cart = await findOrCreateCart(customerId, productId, quantity);
-      cart.customerId = customerId;
-
-      addOrUpdateCartItem(cart, productId, quantity);
-
-      await cart.save();
-
-      res.status(201).json(cart);
-    } catch (error) {
-      console.error(error);
-      res.status(400).json({ message: error.message });
-    }
-  });
 }
 
 /**

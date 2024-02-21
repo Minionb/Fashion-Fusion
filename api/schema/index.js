@@ -4,6 +4,7 @@ const ProductsModel = require("./productSchema");
 const ProductImagesModel = require("./productImageSchema");
 const CartsModel = require("./cartSchema");
 const OrdersModel = require("./orderSchema");
+const FavoritesModel = require("./favoriteSchema");
 
 module.exports = {
   CustomersModel,
@@ -12,4 +13,5 @@ module.exports = {
   ProductImagesModel,
   CartsModel,
   OrdersModel,
+  FavoritesModel,
 };
