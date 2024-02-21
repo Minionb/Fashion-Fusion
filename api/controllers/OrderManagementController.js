@@ -267,6 +267,79 @@ function patchOrder(server) {
   });
 }
 
+async function getOrDefaultFavorites(customerId) {
+  let favorite = await FavoritesModel.findOne({ customerId: customerId });
+
+  if (!favorite) {
+    favorite = new FavoritesModel({ customerId, favoriteItems: [] });
+  }
+  return favorite;
+}
+
+// PUT /favorites/item endpoint handler
+const addFavoriteItem = async (req, res) => {
+  const customerId = req.userId;
+  const { productId } = req.body;
+
+  try {
+    const productIdObj = new mongoose.Types.ObjectId(productId);
+    const favorite = await getOrDefaultFavorites(customerId);
+
+    if (
+      !favorite.favoriteItems.some(
+        (item) => item.toString() === productIdObj.toString()
+      )
+    ) {
+      favorite.favoriteItems.push(productId);
+      await favorite.save();
+    }
+
+    res.status(201).json({ message: "Item added to favorites successfully" });
+  } catch (error) {
+    console.error("Error adding item to favorites:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// DELETE /favorites/item endpoint handler
+const removeFavoriteItem = async (req, res) => {
+  const customerId = req.userId;
+  const { productId } = req.body;
+
+  try {
+    const productIdObj = new mongoose.Types.ObjectId(productId);
+    const favorite = await getOrDefaultFavorites(customerId);
+    favorite.favoriteItems = favorite.favoriteItems.filter(
+      (item) => item.toString() !== productIdObj.toString()
+    );
+    await favorite.save();
+
+    res.json({ message: "Item removed from favorites successfully" });
+  } catch (error) {
+    console.error("Error removing item from favorites:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// GET /favorites/item endpoint handler
+const getFavoriteItems = async (req, res) => {
+  const customerId = req.userId;
+  try {
+    const favorite = await getOrDefaultFavorites(customerId);
+    res.json(favorite);
+  } catch (error) {
+    console.error("Error fetching favorite items:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Enclose each endpoint handler in a function that accepts a server
+const attachFavoritesRoutes = (server) => {
+  server.put("/favorite/items", verifyToken, addFavoriteItem);
+  server.delete("/favorite/items", verifyToken, removeFavoriteItem);
+  server.get("/favorite/items", verifyToken, getFavoriteItems);
+};
+
 class OrderManagementController {
   /**
    * Initializes the apis
@@ -281,6 +354,8 @@ class OrderManagementController {
 
     getOrders(server);
     patchOrder(server);
+
+    attachFavoritesRoutes(server);
   }
 }
 
