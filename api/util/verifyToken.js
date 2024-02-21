@@ -5,35 +5,42 @@ const { secret_jwt_key } = require("./properties");
 const blacklisted_tokens = new Set();
 exports.blacklisted_tokens = blacklisted_tokens;
 
+// Function to verify the JWT token asynchronously
+async function verifyJWT(token) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, secret_jwt_key, (err, decoded) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(decoded);
+      }
+    });
+  });
+}
+
 // Middleware to verify JWT token
-function verifyToken(req, res, next) {
-  // Get the token from the request headers
+async function verifyToken(req, res, next) {
   const token = req.headers.authorization;
 
-  // Check if token is provided
   if (!token) {
-    return res.send(401, { message: "Unauthorized: No token provided" });
+    return res.status(401).send({ message: "Unauthorized: No token provided" });
   }
 
-  // Check if token is in the blacklist
   if (blacklisted_tokens.has(token)) {
-    return res.send(401, {
+    return res.status(401).send({
       message: "Unauthorized: Token has been invalidated",
     });
   }
 
-  // Verify the token
-  jwt.verify(token, secret_jwt_key, (err, decoded) => {
-    if (err) {
-      return res.send(401, { message: "Unauthorized: Invalid token" });
-    }
-    // If token is valid, attach the decoded user ID to the request object
+  try {
+    const decoded = await verifyJWT(token);
     req.userId = decoded.userId;
     req.userType = decoded.userType;
     next();
-  });
+  } catch (error) {
+    return res.status(401).send({ message: "Unauthorized: Invalid token" });
+  }
 }
-
 // Middleware to verify JWT token for admin
 function verifyAdminToken(req, res, next) {
   verifyToken(req, res, next);
@@ -41,4 +48,5 @@ function verifyAdminToken(req, res, next) {
     res.status(401).send({ message: "Unauthorized" });
   }
 }
+
 module.exports = { verifyAdminToken, verifyToken };

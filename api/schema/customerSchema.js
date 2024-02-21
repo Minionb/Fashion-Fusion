@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-// Define customer data schema
 const paymentSchema = new mongoose.Schema({
   method: {
     type: String,
@@ -20,6 +19,7 @@ const paymentSchema = new mongoose.Schema({
   },
 });
 
+// Define customer data schema
 const customerSchema = new mongoose.Schema({
   email: {
     type: String,
