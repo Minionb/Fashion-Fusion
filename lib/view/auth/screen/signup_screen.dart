@@ -190,14 +190,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     )),
                     10.verticalSpace,
                     // Login Using google & facebook
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _socialContainer(AppImages.googleLogo),
-                        10.horizontalSpace,
-                        _socialContainer(AppImages.facebokLogo),
-                      ],
-                    ),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.center,
+                    //   children: [
+                    //     _socialContainer(AppImages.googleLogo),
+                    //     10.horizontalSpace,
+                    //     _socialContainer(AppImages.facebokLogo),
+                    //   ],
+                    // ),
                   ],
                 ),
               )),

@@ -146,16 +146,16 @@ class _LoginScreenState extends State<LoginScreen> {
                             )),
                       10.verticalSpace,
                       // Login with facebook & google
-                      widget.isAdmin
-                          ? const SizedBox()
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                _socialContainer(AppImages.googleLogo),
-                                10.horizontalSpace,
-                                _socialContainer(AppImages.facebokLogo),
-                              ],
-                            ),
+                      // widget.isAdmin
+                      //     ? const SizedBox()
+                      //     : Row(
+                      //         mainAxisAlignment: MainAxisAlignment.center,
+                      //         children: [
+                      //           _socialContainer(AppImages.googleLogo),
+                      //           10.horizontalSpace,
+                      //           _socialContainer(AppImages.facebokLogo),
+                      //         ],
+                      //       ),
                       10.verticalSpace,
                       // Text
                       widget.isAdmin
