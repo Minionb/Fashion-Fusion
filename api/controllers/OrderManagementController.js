@@ -410,10 +410,27 @@ const getFavoriteItems = async (req, res) => {
   const customerId = req.userId;
   try {
     const favorite = await getOrDefaultFavorites(customerId);
-    res.json(favorite);
+    const favoriteProductIds = favorite.favoriteItems;
+    if (!favoriteProductIds || favoriteProductIds.length == 0)
+      return res.status(200).json(responseItems);
+    const faveProducts = await ProductsModel.find({
+      _id: { $in: favoriteProductIds },
+    });
+
+    // Construct separate response objects for cart items with prices
+    const responseItems = favoriteProductIds.map((productId) => {
+      const product = OrderService.getProduct(faveProducts, productId);
+      return {
+        productId: productId.productId,
+        price: product ? product.price : null,
+        productName: product ? product.product_name : null,
+      };
+    });
+
+    return res.status(200).json(responseItems);
   } catch (error) {
     console.error("Error fetching favorite items:", error);
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
