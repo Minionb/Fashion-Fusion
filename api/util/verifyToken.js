@@ -42,7 +42,7 @@ async function verifyToken(req, res, next) {
 }
 // Middleware to verify JWT token for admin
 async function verifyAdminToken(req, res, next) {
-  verifyToken(req, res, next);
+  await verifyToken(req, res, next);
   if (req.userType !== "admin") {
     res.status(401).send({ message: "Unauthorized" });
   }
