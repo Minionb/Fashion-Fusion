@@ -14,28 +14,30 @@ class ProfilePaymentMethods extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          // InkWell(
-          //   onTap: () {
-          //     toAddPaymentMethod(context);
-          //   },
-          //   child: const Text("Add a payment method"),
-          // ),
-          const Text("Your payment cards"),
-
-          /// Cards of entered payment methods
-
-          FloatingActionButton(
-            onPressed: () {
-              toAddPaymentMethod(context);
-            },
-            child: const Text("Add Payment Method"),
-          ),
-        ],
-      ),
-    ));
+      appBar: AppBar(title: const Text("Payment methods"),),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column( crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("Your payment cards", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            /// Cards of entered payment methods
+            const Padding(padding: EdgeInsets.all(20)),
+            Text("No saved payment methods"),
+            const Padding(padding: EdgeInsets.all(20)),
+            const Expanded(child: Spacer()),
+            Row(
+              children: [
+                const Expanded(child: Spacer()),
+                FloatingActionButton(onPressed: () {
+                  toAddPaymentMethod(context);
+                  },
+                  child: const Text("+", style: TextStyle(fontSize: 25)),
+                ),
+              ],
+            ),
+          ],
+        ),
+      )
+    );
   }
 }

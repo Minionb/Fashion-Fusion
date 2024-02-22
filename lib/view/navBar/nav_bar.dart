@@ -1,9 +1,13 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
+import 'package:fashion_fusion/core/utils/app_service.dart';
+import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
 import 'package:fashion_fusion/view/home/screen/home_screen.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_details.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent-tab-view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NavBar extends StatefulWidget {
   const NavBar({super.key});
@@ -60,7 +64,11 @@ class _NavBarState extends State<NavBar> {
       Container(),
       Container(),
       Container(),
-      const ProfileDetails(),
+      
+      BlocProvider(
+        create: (context) => sl<ProfileCubit>()..getProfile(sl<SharedPreferences>().getString("userID")!),
+        child: ProfileDetails(),
+      )
     ];
   }
 

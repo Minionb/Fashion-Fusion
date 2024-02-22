@@ -1,6 +1,8 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
+import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: must_be_immutable
 class LikeButton extends StatefulWidget {
@@ -30,6 +32,9 @@ class _LikeButtonState extends State<LikeButton>
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        print(sl<SharedPreferences>().getString("userID"));
+        
+
         setState(() {
           widget.isFavorite = !widget.isFavorite;
         });
