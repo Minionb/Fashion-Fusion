@@ -7,6 +7,12 @@ import 'package:fashion_fusion/data/auth/datasource/auth_remote_datasource.dart'
 import 'package:fashion_fusion/data/auth/repository/auth_repository.dart';
 import 'package:fashion_fusion/data/auth/usecase/login_usecase.dart';
 import 'package:fashion_fusion/data/auth/usecase/register_usecase.dart';
+import 'package:fashion_fusion/data/product/datasource/product_remote_datasource.dart';
+import 'package:fashion_fusion/data/product/repository/product_repository.dart';
+import 'package:fashion_fusion/data/product/usecase/add_product_usecase.dart';
+import 'package:fashion_fusion/data/product/usecase/delete_product_usecase.dart';
+import 'package:fashion_fusion/data/product/usecase/get_product_usecase.dart';
+import 'package:fashion_fusion/data/product/usecase/update_product_usecase.dart';
 import 'package:fashion_fusion/data/profile/datasource/profile_remote_datasource.dart';
 import 'package:fashion_fusion/data/profile/repository/profile_repository.dart';
 import 'package:fashion_fusion/data/profile/usecase/add_profile_usecase.dart';
@@ -14,6 +20,8 @@ import 'package:fashion_fusion/data/profile/usecase/delete_profile_usecase.dart'
 import 'package:fashion_fusion/data/profile/usecase/get_profile_usecase.dart';
 import 'package:fashion_fusion/data/profile/usecase/update_profile_usecase.dart';
 import 'package:fashion_fusion/provider/auth/auth_cubit.dart';
+import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
+import 'package:fashion_fusion/provider/product_cubit/product_edit/product_edit_cubit.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile_edit/profile_edit_cubit.dart';
 import 'package:get_it/get_it.dart';
@@ -40,7 +48,25 @@ Future<void> init() async {
   sl.registerLazySingleton<RegisterUsecase>(
       () => RegisterUsecase(repository: sl()));
 
+// Product::START
+  sl.registerFactory(() => ProductCubit(get: sl()));
+  sl.registerFactory(
+      () => ProductEditCubit(add: sl(), update: sl(), delete: sl()));
 
+  sl.registerLazySingleton<ProductRepository>(() =>
+      ProductRepositoryImpl(networkInfo: sl(), remoteDatasource: sl()));
+
+
+  sl.registerLazySingleton(() => GetProductUsecase(repository: sl()));
+  sl.registerLazySingleton(() => AddProductUsecase(repository: sl()));
+  sl.registerLazySingleton(() => DeleteProductUsecase(repository: sl()));
+  sl.registerLazySingleton(() => UpdateProductUsecase(repository: sl()));
+
+
+  sl.registerLazySingleton<ProductRemoteDataSource>(
+      () => ProductRemoteDataSourceImpl(apiConsumer: sl()));
+
+// Product::END
 
   sl.registerFactory(
       () => ProfileCubit(get: sl()));
