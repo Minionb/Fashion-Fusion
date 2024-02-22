@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
+import 'package:fashion_fusion/error/failures.dart';
 import '../repository/product_repository.dart';
-import '../../../core/error/failures.dart';
+
 class DeleteProductUsecase {
   final ProductRepository repository;
   DeleteProductUsecase({required this.repository});

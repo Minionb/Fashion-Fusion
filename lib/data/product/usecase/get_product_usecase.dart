@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
+import 'package:fashion_fusion/error/failures.dart';
 import '../repository/product_repository.dart';
-import '../../../core/error/failures.dart';
 import '../model/product_model.dart';
 
 
