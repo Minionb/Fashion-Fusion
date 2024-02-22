@@ -7,7 +7,15 @@ import 'package:fashion_fusion/data/auth/datasource/auth_remote_datasource.dart'
 import 'package:fashion_fusion/data/auth/repository/auth_repository.dart';
 import 'package:fashion_fusion/data/auth/usecase/login_usecase.dart';
 import 'package:fashion_fusion/data/auth/usecase/register_usecase.dart';
+import 'package:fashion_fusion/data/profile/datasource/profile_remote_datasource.dart';
+import 'package:fashion_fusion/data/profile/repository/profile_repository.dart';
+import 'package:fashion_fusion/data/profile/usecase/add_profile_usecase.dart';
+import 'package:fashion_fusion/data/profile/usecase/delete_profile_usecase.dart';
+import 'package:fashion_fusion/data/profile/usecase/get_profile_usecase.dart';
+import 'package:fashion_fusion/data/profile/usecase/update_profile_usecase.dart';
 import 'package:fashion_fusion/provider/auth/auth_cubit.dart';
+import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
+import 'package:fashion_fusion/provider/profile_cubit/profile_edit/profile_edit_cubit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,9 +37,27 @@ Future<void> init() async {
   sl.registerLazySingleton<ApiConsumer>(() => DioConsumer(client: sl()));
   // ! Usecase
   sl.registerLazySingleton<LoginUsecase>(() => LoginUsecase(repository: sl()));
-
   sl.registerLazySingleton<RegisterUsecase>(
       () => RegisterUsecase(repository: sl()));
+
+
+
+  sl.registerFactory(
+      () => ProfileCubit(get: sl()));
+
+  sl.registerFactory(
+      () => ProfileEditCubit(add: sl(), update: sl(), delete: sl()));
+
+  sl.registerLazySingleton<ProfileRepository>(() =>
+      ProfileRepositoryImpl(networkInfo: sl(), remoteDatasource: sl()));
+
+  sl.registerLazySingleton(() => GetProfileUsecase(repository: sl()));
+  sl.registerLazySingleton(() => AddProfileUsecase(repository: sl()));
+  sl.registerLazySingleton(() => DeleteProfileUsecase(repository: sl()));
+  sl.registerLazySingleton(() => UpdateProfileUsecase(repository: sl()));
+
+  sl.registerLazySingleton<ProfileRemoteDataSource>(
+      () => ProfileRemoteDataSourceImpl(apiConsumer: sl()));
 
   //! External
   final sharedPreferences = await SharedPreferences.getInstance();
