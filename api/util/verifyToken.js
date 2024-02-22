@@ -36,14 +36,13 @@ async function verifyToken(req, res, next) {
     const decoded = await verifyJWT(token);
     req.userId = decoded.userId;
     req.userType = decoded.userType;
-    next();
   } catch (error) {
     return res.status(401).send({ message: "Unauthorized: Invalid token" });
   }
 }
 // Middleware to verify JWT token for admin
-function verifyAdminToken(req, res, next) {
-  verifyToken(req, res, next);
+async function verifyAdminToken(req, res, next) {
+  await verifyToken(req, res, next);
   if (req.userType !== "admin") {
     res.status(401).send({ message: "Unauthorized" });
   }

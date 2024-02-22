@@ -1,6 +1,11 @@
 const { verifyToken } = require("../util/verifyToken");
 const { OrderService } = require("../services/OrderService");
-const { CartsModel, FavoritesModel } = require("../schema/index");
+const {
+  CartsModel,
+  FavoritesModel,
+  ProductsModel,
+  OrdersModel,
+} = require("../schema/index");
 const { mongoose, ObjectId } = require("mongoose");
 
 // Function to validate request body
@@ -29,7 +34,8 @@ const findOrCreateCart = async (customerId) => {
 };
 
 // Function to add or update cart item
-const addOrUpdateCartItem = (cart, productId, quantity) => {
+const addOrUpdateCartItem = (cart, product, quantity) => {
+  const productId = product._id;
   let existingCartItemIndex = -1;
 
   // Find the index of the cartItem with the productId
@@ -39,6 +45,7 @@ const addOrUpdateCartItem = (cart, productId, quantity) => {
   if (existingCartItemIndex !== -1) {
     // Add the quantity
     cart.cartItems[existingCartItemIndex].quantity += quantity;
+    cart.cartItems[existingCartItemIndex].price = product.price;
 
     // If the new quantity is zero or negative, remove it from the cartItems
     if (cart.cartItems[existingCartItemIndex].quantity <= 0) {
@@ -46,7 +53,10 @@ const addOrUpdateCartItem = (cart, productId, quantity) => {
     }
   } else if (quantity > 0) {
     // Add the new productId only when the quantity is greater than zero
-    cart.cartItems.push({ productId: productId, quantity });
+    cart.cartItems.push({
+      productId: productId,
+      quantity,
+    });
   }
 };
 
@@ -75,21 +85,26 @@ function getCartItemIndex(cart, productId) {
  * @param {*} server
  */
 function putCartItems(server) {
-  server.put("/cart/items", verifyToken, async (req, res) => {
+  server.put("/cart/items", async (req, res) => {
+    await verifyToken(req, res);
     try {
       const customerId = req.userId;
       const { productId, quantity } = validateRequestBody(req);
       let cart = await findOrCreateCart(customerId, productId, quantity);
       cart.customerId = customerId;
 
-      addOrUpdateCartItem(cart, productId, quantity);
+      const product = await ProductsModel.findById(productId);
+      if (!product)
+        return res.status(404).json({ message: "Product not found" });
+
+      addOrUpdateCartItem(cart, product, quantity);
 
       await cart.save();
 
-      res.status(201).json(cart);
+      return res.status(201).send(cart);
     } catch (error) {
       console.error(error);
-      res.status(400).json({ message: error.message });
+      return res.status(400).json({ message: error.message });
     }
   });
 }
@@ -105,7 +120,8 @@ const clearCart = async (customerId) => {
 
 // DELETE /cart/items
 function deleteCartItems(server) {
-  server.delete("/cart/items", verifyToken, async (req, res) => {
+  server.delete("/cart/items", async (req, res) => {
+    await verifyToken(req, res);
     try {
       const customerId = req.userId;
       const cart = await CartsModel.findOne({ customerId });
@@ -140,7 +156,8 @@ const deleteCartItemByProductId = async (customerId, productId) => {
 
 // DELETE /cart/items/:productId
 function deleteCartItemsProduct(server) {
-  server.delete("/cart/items/:productId", verifyToken, async (req, res) => {
+  server.delete("/cart/items/:productId", async (req, res) => {
+    await verifyToken(req, res);
     try {
       const customerId = req.userId;
       const { productId } = req.params;
@@ -161,22 +178,44 @@ const getCartItemsByCustomerId = async (customerId) => {
 };
 
 // GET /cart/items
-function getCartItems(server) {
-  server.get("/cart/items", verifyToken, async (req, res) => {
+async function getCartItems(server) {
+  server.get("/cart/items", async (req, res) => {
+    await verifyToken(req, res);
     try {
       const customerId = req.userId;
       const cartItems = await getCartItemsByCustomerId(customerId);
-      res.status(200).json(cartItems);
+
+      const productIds = cartItems.map((cartItem) => cartItem.productId);
+      const cartProducts = await ProductsModel.find({
+        _id: { $in: productIds },
+      });
+
+      // Construct separate response objects for cart items with prices
+      const responseItems = cartItems.map((cartItem) => {
+        const product = OrderService.getProduct(
+          cartProducts,
+          cartItem.productId
+        );
+        return {
+          productId: cartItem.productId,
+          quantity: cartItem.quantity,
+          price: product ? product.price : null,
+          productName: product ? product.product_name : null,
+        };
+      });
+
+      return res.status(200).json(responseItems);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Internal Server Error" });
+      return res.status(500).json({ message: "Internal Server Error" });
     }
   });
 }
 
 // POST /cart/checkout
 function checkoutCart(server) {
-  server.post("/cart/checkout", verifyToken, async (req, res) => {
+  server.post("/cart/checkout", async (req, res) => {
+    await verifyToken(req, res);
     try {
       const customerId = req.userId;
       const cart = await CartsModel.findOne({ customerId });
@@ -217,38 +256,80 @@ function checkoutCart(server) {
 }
 
 // GET /orders
-function getOrders(server) {
-  server.get("/orders", verifyToken, async (req, res) => {
+async function getOrders(server) {
+  server.get("/orders", async (req, res) => {
+    await verifyToken(req, res);
     try {
       const customerId = req.userId;
       const orders = await OrderService.getAllOrders(customerId);
-      res.status(200).json(orders);
+
+      // Construct separate response objects for orders
+      const responseOrders = orders.map((order) => {
+        return {
+          orderId: order._id,
+          status: order.status,
+          totalAmount: order.totalAmount,
+          paymentMethod: order.payment.method,
+          deliveryMethod: order.delivery.method,
+          createdAt: order.createdAt,
+          updatedAt: order.updatedAt,
+        };
+      });
+
+      return res.status(200).json(responseOrders);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Internal Server Error" });
+      return res.status(500).json({ message: "Internal Server Error" });
     }
   });
-} // Helper function to construct update fields
-function constructUpdateFields(orderStatus, paymentStatus, deliveryStatus) {
-  const updateFields = {};
-  if (orderStatus) updateFields["status"] = orderStatus;
-  if (paymentStatus) updateFields["payment.status"] = paymentStatus;
-  if (deliveryStatus) updateFields["delivery.status"] = deliveryStatus;
-  return updateFields;
 }
 
+// GET /order/:id
+async function getOrderById(server) {
+  server.get("/orders/:id", async (req, res) => {
+    try {
+      const orderId = req.params.id;
+
+      // Find the order by its ID
+      const order = await OrderService.getOrderById(orderId);
+
+      // If order is not found, return 404
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Return the separate response object with the order details
+      return res.status(200).json(order);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
+}
+
+// Helper function to construct update fields
+function constructUpdateFields(orderStatus, payment, delivery) {
+  const updateFields = {};
+  if (orderStatus) updateFields["status"] = orderStatus;
+  // If payment or delivery details are provided in the request body, update them
+  if (payment) updateFields["payment"] = payment;
+  if (delivery) updateFields["delivery"] = delivery;
+  return updateFields;
+}
 // PATCH /orders/:orderId
-function patchOrder(server) {
-  server.patch("/orders/:orderId", verifyToken, async (req, res) => {
+async function patchOrder(server) {
+  server.patch("/orders/:orderId", async (req, res) => {
+    await verifyToken(req, res);
     try {
       const orderId = req.params.orderId;
-      const { orderStatus, paymentStatus, deliveryStatus } = req.body;
+      const { orderStatus, payment, delivery } = req.body;
 
       const updateFields = constructUpdateFields(
         orderStatus,
-        paymentStatus,
-        deliveryStatus
+        payment,
+        delivery
       );
+
       const updatedOrder = await OrderService.updateOrder(
         orderId,
         updateFields
@@ -278,6 +359,7 @@ async function getOrDefaultFavorites(customerId) {
 
 // PUT /favorites/item endpoint handler
 const addFavoriteItem = async (req, res) => {
+  await verifyToken(req, res);
   const customerId = req.userId;
   const { productId } = req.body;
 
@@ -303,6 +385,7 @@ const addFavoriteItem = async (req, res) => {
 
 // DELETE /favorites/item endpoint handler
 const removeFavoriteItem = async (req, res) => {
+  await verifyToken(req, res);
   const customerId = req.userId;
   const { productId } = req.body;
 
@@ -323,21 +406,39 @@ const removeFavoriteItem = async (req, res) => {
 
 // GET /favorites/item endpoint handler
 const getFavoriteItems = async (req, res) => {
+  await verifyToken(req, res);
   const customerId = req.userId;
   try {
     const favorite = await getOrDefaultFavorites(customerId);
-    res.json(favorite);
+    const favoriteProductIds = favorite.favoriteItems;
+    if (!favoriteProductIds || favoriteProductIds.length == 0)
+      return res.status(200).json(responseItems);
+    const faveProducts = await ProductsModel.find({
+      _id: { $in: favoriteProductIds },
+    });
+
+    // Construct separate response objects for cart items with prices
+    const responseItems = favoriteProductIds.map((productId) => {
+      const product = OrderService.getProduct(faveProducts, productId);
+      return {
+        productId: productId.productId,
+        price: product ? product.price : null,
+        productName: product ? product.product_name : null,
+      };
+    });
+
+    return res.status(200).json(responseItems);
   } catch (error) {
     console.error("Error fetching favorite items:", error);
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Enclose each endpoint handler in a function that accepts a server
 const attachFavoritesRoutes = (server) => {
-  server.put("/favorite/items", verifyToken, addFavoriteItem);
-  server.delete("/favorite/items", verifyToken, removeFavoriteItem);
-  server.get("/favorite/items", verifyToken, getFavoriteItems);
+  server.put("/favorite/items", addFavoriteItem);
+  server.delete("/favorite/items", removeFavoriteItem);
+  server.get("/favorite/items", getFavoriteItems);
 };
 
 class OrderManagementController {
@@ -353,6 +454,7 @@ class OrderManagementController {
     checkoutCart(server);
 
     getOrders(server);
+    getOrderById(server);
     patchOrder(server);
 
     attachFavoritesRoutes(server);

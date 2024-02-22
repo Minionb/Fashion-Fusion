@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/data/profile/model/profile_model.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
+import 'package:fashion_fusion/view/auth/screen/welcome_screen.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_payment_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -122,6 +123,7 @@ class ProfileTitle extends StatelessWidget {
         const ProfileOptionsCard(title: "Shipping addresses", subtitle: "[] addresses", routeWidget: ProfilePaymentMethods()),
         const ProfileOptionsCard(title: "Payment methods", subtitle: "Visa **[]", routeWidget: ProfilePaymentMethods()),
         const ProfileOptionsCard(title: "Settings", subtitle: "Notifications, password", routeWidget: ProfilePaymentMethods()),
+        const SignOutCard(title: "Sign Out", subtitle: "Sign out from your account", routeWidget: WelcomePage()),
       ],
     );
     

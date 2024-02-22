@@ -8,6 +8,7 @@ import 'package:fashion_fusion/view/auth/screen/welcome_screen.dart';
 import 'package:fashion_fusion/view/navBar/nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Routes {
   static const String init = "/";
@@ -24,9 +25,9 @@ class AppRoutes {
       case Routes.init:
         return MaterialPageRoute(builder: (context) {
           return
-              // sl<SharedPreferences>().getBool("isLogin") == true
-              //     ? const NavBar()
-              //     :
+              sl<SharedPreferences>().getBool("isLogin") == true
+                  ? const NavBar()
+                  :
               BlocProvider(
             create: (context) => sl<AuthCubit>(),
             child: const WelcomePage(),

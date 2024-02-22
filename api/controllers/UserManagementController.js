@@ -75,7 +75,8 @@ async function getUserById(req, res, userModel) {
 
 function getAdmins(server) {
   // Get all admins in the system
-  server.get("/admins", verifyAdminToken, function (req, res, next) {
+  server.get("/admins", async function (req, res, next) {
+    await verifyAdminToken(req, res);
     // Query the database to retrieve all customers, excluding the password field
     AdminsModel.find({}, { password: 0 })
       .sort({ lastName: "asc" })
@@ -148,14 +149,16 @@ function loginAdmin(server) {
 
 function logoutAdmin(server) {
   // Logout API for admins
-  server.post("/admins/logout", verifyToken, async (req, res) => {
+  server.post("/admins/logout", async (req, res) => {
+    await verifyAdminToken(req, res);
     res.send("Admin logged out successfully");
   });
 }
 
 function getAdminsById(server) {
   // API endpoint to get admin by ID
-  server.get("/admins/:id", verifyAdminToken, async (req, res) => {
+  server.get("/admins/:id", async (req, res) => {
+    await verifyAdminToken(req, res);
     await getUserById(req, res, AdminsModel);
   });
 }
@@ -210,7 +213,8 @@ function registerCustomer(server) {
 
 function getCustomers(server) {
   // Get all customers in the system
-  server.get("/customers", verifyAdminToken, function (req, res, next) {
+  server.get("/customers", async function (req, res, next) {
+    await verifyAdminToken(req, res);
     // Query the database to retrieve all customers, excluding the password field
     CustomersModel.find({}, { password: 0 })
       .then((customers) => {
@@ -267,6 +271,7 @@ async function updateCustomerData(customerId, updateData) {
  */
 function putCustomer(server) {
   server.put("/customers/:id", async (req, res) => {
+    await verifyToken(req, res);
     const customerId = req.params.id;
     const updateData = req.body;
     delete updateData.email; // Exclude email field from update data
@@ -295,7 +300,8 @@ function loginCustomer(server) {
 
 function logoutCustomer(server) {
   // Logout API for customers
-  server.post("/customers/logout", verifyToken, async (req, res) => {
+  server.post("/customers/logout", async (req, res) => {
+    await verifyToken(req, res);
     // req.session.customerId = null; // Clear customer session ID
     res.send("Customer logged out successfully");
   });
