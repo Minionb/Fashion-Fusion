@@ -35,9 +35,7 @@ const orderItemSchema = new mongoose.Schema({
     required: true,
   },
   quantity: { type: Number, required: true },
-  deliveryId: {
-    type: mongoose.Schema.Types.ObjectId,
-  },
+  price: { type: Number, require: true },
 });
 
 const orderSchema = new mongoose.Schema({
@@ -49,6 +47,7 @@ const orderSchema = new mongoose.Schema({
   status: { type: String },
   payment: { type: orderPaymentSchema },
   delivery: { type: deliverySchema },
+  totalAmount: { type: Number, require: true },
 });
 
 orderSchema.set("timestamps", true);

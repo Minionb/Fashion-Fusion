@@ -7,16 +7,20 @@ const multer = require("multer");
  * @param {server} server
  */
 function postProducts(server) {
-  server.post("/products", verifyAdminToken, async (req, res) => {
+  server.post("/products", async (req, res) => {
+    await verifyAdminToken(req, res);
     try {
       const newProduct = new ProductsModel(req.body);
       newProduct.createdBy = req.userId;
       // Save the new admin to the database
       await newProduct.save();
-      res.send(201, { message: "Product added successfully" });
+      res.status(201).json({
+        productId: newProduct._id,
+        message: "Product added successfully",
+      });
     } catch (error) {
       console.error("Product insertion error:", error);
-      res.send(500, { message: "Internal server error" });
+      // res.send(500, { message: "Internal server error" });
     }
   });
 }
@@ -26,7 +30,8 @@ function postProducts(server) {
  * @param {server} server
  */
 function getProducts(server) {
-  server.get("/products", verifyToken, async (req, res, next) => {
+  server.get("/products", async (req, res, next) => {
+    await verifyToken(req, res);
     try {
       const filter = buildFilter(req.query);
       const sortOption = buildSortOption(req.query.sort);
@@ -84,7 +89,8 @@ function buildSortOption(sort) {
  * Get product by id
  */
 function getProductsById(server) {
-  server.get("/products/:id", verifyToken, async (req, res) => {
+  server.get("/products/:id", async (req, res) => {
+    await verifyToken(req, res);
     try {
       const productId = req.params.id;
 
@@ -108,6 +114,7 @@ function getProductsById(server) {
  */
 function putProduct(server) {
   server.put("/products/:id", verifyToken, async (req, res) => {
+    await verifyToken(req, res);
     try {
       const productId = req.params.id;
       const updateData = req.body;
@@ -135,7 +142,8 @@ function putProduct(server) {
  * @param {server} server
  */
 function deleteProduct(server) {
-  server.delete("/products/:id", verifyAdminToken, async (req, res) => {
+  server.delete("/products/:id", async (req, res) => {
+    await verifyAdminToken(req, res);
     try {
       const productId = req.params.id;
 
@@ -162,9 +170,9 @@ function postProductImages(server) {
   // Route to handle image upload
   server.post(
     "/products/:id/images",
-    verifyToken,
     upload.single("image"),
     async (req, res) => {
+      await verifyAdminToken(req, res);
       try {
         const productId = req.params.id;
         const product = await ProductsModel.findById(productId);
@@ -210,7 +218,8 @@ function postProductImages(server) {
  */
 function getProductImages(server) {
   // GET /products/images/:id
-  server.get("/products/images/:id", verifyToken, async (req, res) => {
+  server.get("/products/images/:id", async (req, res) => {
+    await verifyToken(req, res);
     try {
       const productImageId = req.params.id;
 
@@ -237,7 +246,8 @@ function getProductImages(server) {
  * @param {server} server
  */
 function deleteProductImage(server) {
-  server.delete("/products/images/:id", verifyAdminToken, async (req, res) => {
+  server.delete("/products/images/:id", async (req, res) => {
+    await verifyAdminToken(req, res);
     try {
       const productImageId = req.params.id;
 
