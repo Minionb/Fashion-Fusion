@@ -8,7 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -142,14 +142,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   final List<String> _cat = [
-    "Bags",
-    "Shoes",
     "Tops",
     "Bottoms",
     "Dresses",
+    "Hoodies & Sweats",
     "Accessories",
-    "Hats",
-    "Jeans",
   ];
 }
 

@@ -1,6 +1,5 @@
 import 'package:fashion_fusion/config/routes/app_routes.dart';
 import 'package:fashion_fusion/core/utils/app_colors.dart';
-import 'package:fashion_fusion/core/utils/app_images.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/utils/helper_validation.dart';
 import 'package:fashion_fusion/core/utils/navigator_extension.dart';
@@ -190,14 +189,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     )),
                     10.verticalSpace,
                     // Login Using google & facebook
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _socialContainer(AppImages.googleLogo),
-                        10.horizontalSpace,
-                        _socialContainer(AppImages.facebokLogo),
-                      ],
-                    ),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.center,
+                    //   children: [
+                    //     _socialContainer(AppImages.googleLogo),
+                    //     10.horizontalSpace,
+                    //     _socialContainer(AppImages.facebokLogo),
+                    //   ],
+                    // ),
                   ],
                 ),
               )),

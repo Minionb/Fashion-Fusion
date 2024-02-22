@@ -1,9 +1,9 @@
 import 'package:fashion_fusion/config/routes/app_routes.dart';
 import 'package:fashion_fusion/core/utils/app_colors.dart';
-import 'package:fashion_fusion/core/utils/app_images.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/utils/helper_validation.dart';
+import 'package:fashion_fusion/core/utils/jwt_decoder.dart';
 import 'package:fashion_fusion/core/utils/navigator_extension.dart';
 import 'package:fashion_fusion/core/widgets/custom_button.dart';
 import 'package:fashion_fusion/core/widgets/custom_text_field.dart';
@@ -14,7 +14,6 @@ import 'package:fashion_fusion/provider/states/cubit_states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
@@ -146,16 +145,16 @@ class _LoginScreenState extends State<LoginScreen> {
                             )),
                       10.verticalSpace,
                       // Login with facebook & google
-                      widget.isAdmin
-                          ? const SizedBox()
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                _socialContainer(AppImages.googleLogo),
-                                10.horizontalSpace,
-                                _socialContainer(AppImages.facebokLogo),
-                              ],
-                            ),
+                      // widget.isAdmin
+                      //     ? const SizedBox()
+                      //     : Row(
+                      //         mainAxisAlignment: MainAxisAlignment.center,
+                      //         children: [
+                      //           _socialContainer(AppImages.googleLogo),
+                      //           10.horizontalSpace,
+                      //           _socialContainer(AppImages.facebokLogo),
+                      //         ],
+                      //       ),
                       10.verticalSpace,
                       // Text
                       widget.isAdmin

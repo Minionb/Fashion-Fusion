@@ -63,11 +63,10 @@ class _NavBarState extends State<NavBar> {
       const HomeScreen(),
       Container(),
       Container(),
-      Container(),
-      
       BlocProvider(
-        create: (context) => sl<ProfileCubit>()..getProfile(sl<SharedPreferences>().getString("userID")!),
-        child: ProfileDetails(),
+        create: (context) => sl<ProfileCubit>()
+          ..getProfile(sl<SharedPreferences>().getString("userID")!),
+        child: const ProfileDetails(),
       )
     ];
   }
@@ -82,13 +81,7 @@ class _NavBarState extends State<NavBar> {
       ),
       PersistentBottomNavBarItem(
         icon: const Icon(CupertinoIcons.cart),
-        title: "Shop",
-        activeColorPrimary: AppColors.primary,
-        inactiveColorPrimary: CupertinoColors.systemGrey,
-      ),
-      PersistentBottomNavBarItem(
-        icon: const Icon(Icons.shopping_bag_outlined),
-        title: "Bag",
+        title: "Cart",
         activeColorPrimary: AppColors.primary,
         inactiveColorPrimary: CupertinoColors.systemGrey,
       ),
