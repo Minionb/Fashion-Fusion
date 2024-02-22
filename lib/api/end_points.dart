@@ -8,5 +8,5 @@ class EndPoints {
   static const String adminLogin = "$adminUrl/login";
   static const String signup = '$customerUrl/register';
   static const String profile = '$customerUrl/';
-
+  static const String product = '$customerUrl/product';
 }
