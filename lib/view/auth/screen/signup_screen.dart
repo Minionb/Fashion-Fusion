@@ -9,7 +9,6 @@ import 'package:fashion_fusion/core/widgets/custom_text_field.dart';
 import 'package:fashion_fusion/data/auth/model/signup_model.dart';
 import 'package:fashion_fusion/provider/auth/auth_cubit.dart';
 import 'package:fashion_fusion/provider/states/cubit_states.dart';
-import 'package:fashion_fusion/view/auth/screen/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -19,7 +18,9 @@ import 'package:phone_form_field/phone_form_field.dart';
 import 'package:toastification/toastification.dart';
 
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key});
+  final bool isAdmin;
+
+  const SignUpScreen({super.key, this.isAdmin = false});
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -156,22 +157,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 );
 
                             showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: Text('Successfully registered account!'),
-                                      content: Text('Enjoy shopping!'),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          onPressed: () {
-                                            context.pushReplacementName(Routes.login);
-                                          },
-                                          child: Text('OK'),
-                                        ),
-                                      ],
-                                    );
-                                  },
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text(
+                                      'Successfully registered account!'),
+                                  content: const Text('Enjoy shopping!'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        context
+                                            .pushReplacementName(Routes.login);
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
                                 );
+                              },
+                            );
                           }
                         },
                         label: "SIGN UP",

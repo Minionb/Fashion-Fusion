@@ -1,29 +1,28 @@
 const {
   UserManagementController,
   ProductManagementController,
+  OrderManagementController,
+  ResetPasswordController,
 } = require("./controllers/index");
 const express = require("express");
 const dbConfig = require("./dbConfig");
+const { app_properties } = require("./util/properties");
 
 let SERVER_NAME = "fashion_fusion-api";
-let HOST = "127.0.0.1";
-let PORT = process.env.PORT || 3000;
+let HOST = app_properties.host;
+let PORT = app_properties.port;
 
 dbConfig.connectDB();
 const server = express();
 // Middleware to parse JSON bodies
 server.use(express.json());
 
-server.listen(PORT, HOST, function () {
-  console.log("Server %s listening at %s", server.name, server.url);
-  console.log("**** Resources: ****");
-  console.log("********************");
-  console.log(" /customers/register");
-  console.log(" /customer/:id");
-  console.log(" /admins");
-  console.log(" /admins/:id");
-});
-
 // Launch apis:
 new UserManagementController().initApis(server);
 new ProductManagementController().initApis(server);
+new OrderManagementController().initApis(server);
+new ResetPasswordController().initApis(server);
+
+server.listen(PORT, HOST, function () {
+  console.log("Server %s listening at http://%s:%s", server.name, HOST, PORT);
+});

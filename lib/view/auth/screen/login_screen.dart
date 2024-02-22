@@ -20,7 +20,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final bool isAdmin;
+  const LoginScreen({super.key, this.isAdmin = false});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -53,16 +54,24 @@ class _LoginScreenState extends State<LoginScreen> {
                       // {userId: 65cd78f72785cad53c71ab43, userType: customer, iat: 1708367703, exp: 1708371303}
                       Map<String, dynamic> decodedToken =
                           JwtDecoder.decode(model.accessToken ?? "");
-                          // Save the token
+                      // Save the token
                       sl<SharedPreferences>()
                           .setString("token", model.accessToken ?? "");
-                          // Save the status of login if the login is successful
+                      // Save the status of login if the login is successful
                       sl<SharedPreferences>().setBool("isLogin", true);
                       // Save userID if the login is successful
-                      sl<SharedPreferences>().setString("userID", decodedToken["userId"]);
-                      // Push to navBar Screen
-                      context.pushNamedAndRemoveUntil(Routes.mainScren);
+                      sl<SharedPreferences>()
+                          .setString("userID", decodedToken["userId"]);
+                      // to check The user type if customer or admin
+                      // context.pushNamedAndRemoveUntil(Routes.mainScren);
 
+                      if (decodedToken["userType"] == "customer") {
+                        // Push to navBar Screen for Customer
+                        context.pushNamedAndRemoveUntil(Routes.mainScren);
+                      } else {
+                        // Push to navBar Screen for Admin
+                        context.pushNamedAndRemoveUntil(Routes.adminMainScreen);
+                      }
                     }
                     if (state is DataFailure) {
                       context.loaderOverlay.hide();
@@ -119,7 +128,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (_formKey.currentState!.validate()) {
                             context.read<AuthCubit>().login(LoginModel(
                                 email: _emailCtrl.text,
-                                password: _passwordCtrl.text));
+                                password: _passwordCtrl.text,
+                                isAdmin: widget.isAdmin));
                           }
                         },
                         label: "LOGIN",
@@ -127,44 +137,52 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       40.verticalSpace,
                       // Text
-                      const Center(
-                          child: Text(
-                        "Or login with social account",
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      )),
+                      widget.isAdmin
+                          ? const SizedBox()
+                          : const Center(
+                              child: Text(
+                              "Or login with social account",
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            )),
                       10.verticalSpace,
                       // Login with facebook & google
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _socialContainer(AppImages.googleLogo),
-                          10.horizontalSpace,
-                          _socialContainer(AppImages.facebokLogo),
-                        ],
-                      ),
+                      widget.isAdmin
+                          ? const SizedBox()
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _socialContainer(AppImages.googleLogo),
+                                10.horizontalSpace,
+                                _socialContainer(AppImages.facebokLogo),
+                              ],
+                            ),
                       10.verticalSpace,
                       // Text
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            "Don't have an account?",
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          // To Go to sing up screen
-                          TextButton(
-                              style: TextButton.styleFrom(
-                                  padding: EdgeInsets.zero),
-                              onPressed: () {
-                                // push and replacment screen that the user can't come back form previous screeen
-                                context.pushReplacementName(Routes.signup);
-                              },
-                              child: Text(
-                                "Sign Up",
-                                style: TextStyle(color: AppColors.primary),
-                              ))
-                        ],
-                      ),
+                      widget.isAdmin
+                          ? const SizedBox()
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  "Don't have an account?",
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                // To Go to sing up screen
+                                TextButton(
+                                    style: TextButton.styleFrom(
+                                        padding: EdgeInsets.zero),
+                                    onPressed: () {
+                                      // push and replacment screen that the user can't come back form previous screeen
+                                      context
+                                          .pushReplacementName(Routes.signup);
+                                    },
+                                    child: Text(
+                                      "Sign Up",
+                                      style:
+                                          TextStyle(color: AppColors.primary),
+                                    ))
+                              ],
+                            ),
                     ],
                   ),
                 ),

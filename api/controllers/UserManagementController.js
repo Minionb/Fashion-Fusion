@@ -2,35 +2,7 @@ const bcrypt = require("bcrypt");
 const { CustomersModel, AdminsModel } = require("../schema/index");
 const { verifyToken, verifyAdminToken } = require("../util/verifyToken");
 const { generateTokens } = require("../util/generateTokens");
-
-// Reusable function to reset password for both customers and admins
-async function resetPassword(req, res, userModel) {
-  try {
-    const { email, newPassword } = req.body;
-
-    // Find the user with the provided email
-    const user = await userModel.findOne({ email });
-
-    // If user is not found, return an error
-    if (!user) {
-      return res.send(404, { message: "User not found" });
-    }
-
-    // Hash the new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    // Update the user's password
-    await userModel.updateOne(
-      { email },
-      { $set: { password: hashedPassword } }
-    );
-
-    res.send(200, { message: "Password reset successfully" });
-  } catch (error) {
-    console.error("Password reset error:", error);
-    res.send(500, { message: "Internal server error" });
-  }
-}
+const { maskCreditNumber } = require("../util/cardUtils");
 
 // Function to handle customer and admin login
 async function login(req, res, userModel) {
@@ -89,7 +61,7 @@ async function getUserById(req, res, userModel) {
     ) {
       user.payments.forEach((payment) => {
         if (payment.cardNumber) {
-          payment.cardNumber = "************" + payment.cardNumber.slice(-4);
+          payment.cardNumber = maskCreditNumber(payment.cardNumber);
         }
       });
     }
@@ -178,13 +150,6 @@ function logoutAdmin(server) {
   // Logout API for admins
   server.post("/admins/logout", verifyToken, async (req, res) => {
     res.send("Admin logged out successfully");
-  });
-}
-
-function resetAdminsPassword(server) {
-  // Password reset API for admins
-  server.post("/admins/reset-password", async (req, res) => {
-    await resetPassword(req, res, AdminsModel);
   });
 }
 
@@ -336,13 +301,6 @@ function logoutCustomer(server) {
   });
 }
 
-function resetCustomerPassword(server) {
-  // Password reset API for customers
-  server.post("/customers/reset-password", async (req, res) => {
-    await resetPassword(req, res, CustomersModel);
-  });
-}
-
 function getCustomersById(server) {
   // API endpoint to get customer by ID
   server.get("/customers/:id", async (req, res) => {
@@ -360,7 +318,6 @@ class UserManagementController {
     registerAdmin(server);
     loginAdmin(server);
     logoutAdmin(server);
-    resetAdminsPassword(server);
     getAdminsById(server);
 
     getCustomers(server);
@@ -368,7 +325,6 @@ class UserManagementController {
     registerCustomer(server);
     loginCustomer(server);
     logoutCustomer(server);
-    resetCustomerPassword(server);
     getCustomersById(server);
   }
 }

@@ -7,33 +7,35 @@ class ProfilePaymentMethods extends StatelessWidget {
   void toAddPaymentMethod(BuildContext context) {
     //Navigator.of(context).push(route)
 
-    Navigator.push(context, MaterialPageRoute(builder: (context) => AddPaymentMethod()));
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => AddPaymentMethod()));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            // InkWell(
-            //   onTap: () {
-            //     toAddPaymentMethod(context);
-            //   },
-            //   child: const Text("Add a payment method"),
-            // ),
-            const Text("Your payment cards"),
-            /// Cards of entered payment methods
-            
-            FloatingActionButton(onPressed: () {
-                toAddPaymentMethod(context);
-              },
-              child: Text("Add Payment Method"),
-            ),
-          ],
-        ),
-      )
-    );
+        body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          // InkWell(
+          //   onTap: () {
+          //     toAddPaymentMethod(context);
+          //   },
+          //   child: const Text("Add a payment method"),
+          // ),
+          const Text("Your payment cards"),
+
+          /// Cards of entered payment methods
+
+          FloatingActionButton(
+            onPressed: () {
+              toAddPaymentMethod(context);
+            },
+            child: const Text("Add Payment Method"),
+          ),
+        ],
+      ),
+    ));
   }
 }
