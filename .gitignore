@@ -282,3 +282,9 @@ dist
 .dart_tool/package_config.json
 pubspec.lock
 *.lock
+pubspec.yaml
+pubspec.lock
+package.json
+package-lock.json
+.DS_Store
+.dart_tool/version
