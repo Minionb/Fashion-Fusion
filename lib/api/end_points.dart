@@ -9,4 +9,11 @@ class EndPoints {
   static const String signup = '$customerUrl/register';
   static const String profile = '$customerUrl/';
   static const String product = '$customerUrl/product';
+
+  // Favorites
+  static const String favoriteResourcePath = '$baseUrl/favorite/items';
+  static const String getFavoriteItems = favoriteResourcePath;
+  static const String putFavoriteItems = favoriteResourcePath;
+  static const String deleteFavoriteItems = favoriteResourcePath;
+
 }

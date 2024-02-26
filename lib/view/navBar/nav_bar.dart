@@ -1,5 +1,6 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
+import 'package:fashion_fusion/provider/favorite_cubit/favorite_edit/favorite_edit_cubit.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
 import 'package:fashion_fusion/view/home/screen/home_screen.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_details.dart';
@@ -60,7 +61,10 @@ class _NavBarState extends State<NavBar> {
 
   List<Widget> _buildScreens() {
     return [
-      const HomeScreen(),
+      BlocProvider(
+        create: (context) => sl<FavoriteEditCubit>(),
+        child: const HomeScreen(),
+      ),
       Container(),
       Container(),
       BlocProvider(
