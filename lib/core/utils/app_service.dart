@@ -7,6 +7,12 @@ import 'package:fashion_fusion/data/auth/datasource/auth_remote_datasource.dart'
 import 'package:fashion_fusion/data/auth/repository/auth_repository.dart';
 import 'package:fashion_fusion/data/auth/usecase/login_usecase.dart';
 import 'package:fashion_fusion/data/auth/usecase/register_usecase.dart';
+import 'package:fashion_fusion/data/favorite/datasource/favorite_remote_datasource.dart';
+import 'package:fashion_fusion/data/favorite/model/put_favorite_model.dart';
+import 'package:fashion_fusion/data/favorite/repository/favorite_repository.dart';
+import 'package:fashion_fusion/data/favorite/usecase/delete_favorite_usecase.dart';
+import 'package:fashion_fusion/data/favorite/usecase/get_favorite_usecase.dart';
+import 'package:fashion_fusion/data/favorite/usecase/put_favorite_usecase.dart';
 import 'package:fashion_fusion/data/product/datasource/product_remote_datasource.dart';
 import 'package:fashion_fusion/data/product/repository/product_repository.dart';
 import 'package:fashion_fusion/data/product/usecase/add_product_usecase.dart';
@@ -20,6 +26,8 @@ import 'package:fashion_fusion/data/profile/usecase/delete_profile_usecase.dart'
 import 'package:fashion_fusion/data/profile/usecase/get_profile_usecase.dart';
 import 'package:fashion_fusion/data/profile/usecase/update_profile_usecase.dart';
 import 'package:fashion_fusion/provider/auth/auth_cubit.dart';
+import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
+import 'package:fashion_fusion/provider/favorite_cubit/favorite_edit/favorite_edit_cubit.dart';
 import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
 import 'package:fashion_fusion/provider/product_cubit/product_edit/product_edit_cubit.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
@@ -67,6 +75,26 @@ Future<void> init() async {
       () => ProductRemoteDataSourceImpl(apiConsumer: sl()));
 
 // Product::END
+
+
+// Favorite::START
+  sl.registerFactory(() => FavoriteCubit(get: sl()));
+  sl.registerFactory(
+      () => FavoriteEditCubit(put: sl(), delete: sl()));
+
+  sl.registerLazySingleton<FavoriteRepository>(() =>
+      FavoriteRepositoryImpl(networkInfo: sl(), remoteDatasource: sl()));
+
+
+  sl.registerLazySingleton(() => GetFavoriteUsecase(repository: sl()));
+  sl.registerLazySingleton(() => PutFavoriteUsecase(repository: sl()));
+  sl.registerLazySingleton(() => DeleteFavoriteUsecase(repository: sl()));
+
+
+  sl.registerLazySingleton<FavoriteRemoteDataSource>(
+      () => FavoriteRemoteDataSourceImpl(apiConsumer: sl()));
+
+// Favorite::END
 
   sl.registerFactory(
       () => ProfileCubit(get: sl()));

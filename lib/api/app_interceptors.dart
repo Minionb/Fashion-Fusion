@@ -10,10 +10,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AppIntercepters extends Interceptor {
   @override
   void onRequest(options, handler) {
-    if (sl<SharedPreferences>().getString("token") != '') {
-      String basicAuth =
-          'Basic ${base64.encode(utf8.encode('${sl<SharedPreferences>().getString("username")}:${sl<SharedPreferences>().getString("password")}'))}';
-      options.headers['authorization'] = basicAuth;
+    String? accessToken = sl<SharedPreferences>().getString("accessToken");
+    if (accessToken != '') {
+      options.headers['authorization'] = accessToken;
     }
     return handler.next(options);
   }

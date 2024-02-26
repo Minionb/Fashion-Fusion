@@ -21,7 +21,7 @@ class ProductCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Expanded(child: _image()),
+          Expanded(child: _image(context)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0).w,
             child: Column(
@@ -41,6 +41,7 @@ class ProductCard extends StatelessWidget {
     );
   }
 
+// Method to create the add packet button
   Container _addPacket() {
     return Container(
       padding: const EdgeInsets.all(4),
@@ -54,6 +55,7 @@ class ProductCard extends StatelessWidget {
     );
   }
 
+// Method to create the price text widget
   Text _price() {
     return Text(
       "\$${model.price.toStringAsFixed(2)}",
@@ -61,6 +63,7 @@ class ProductCard extends StatelessWidget {
     );
   }
 
+// Method to create the label text widget
   Text _label() {
     return Text(
       model.label,
@@ -71,7 +74,8 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  ClipRRect _image() {
+// Method to create the image widget
+  ClipRRect _image(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(12).w,
       child: Stack(
@@ -82,6 +86,7 @@ class ProductCard extends StatelessWidget {
             alignment: Alignment.topCenter,
             width: double.infinity,
           ),
+          // Adding a like button at the top right corner of the image
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Align(
@@ -92,7 +97,7 @@ class ProductCard extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: AppColors.bg,
                   ),
-                  child: LikeButton()),
+                  child: LikeButton(productId: model.id)),
             ),
           )
         ],

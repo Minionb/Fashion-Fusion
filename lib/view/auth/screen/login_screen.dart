@@ -56,6 +56,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Save the token
                       sl<SharedPreferences>()
                           .setString("token", model.accessToken ?? "");
+                      sl<SharedPreferences>()
+                          .setString("accessToken", model.accessToken ?? "");
+                      sl<SharedPreferences>()
+                          .setString("refreshToken", model.refreshToken ?? "");
                       // Save the status of login if the login is successful
                       sl<SharedPreferences>().setBool("isLogin", true);
                       // Save userID if the login is successful

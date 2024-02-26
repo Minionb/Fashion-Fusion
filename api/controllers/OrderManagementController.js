@@ -362,6 +362,8 @@ const addFavoriteItem = async (req, res) => {
   await verifyToken(req, res);
   const customerId = req.userId;
   const { productId } = req.body;
+  if (productId == null)
+    res.status(400).json({error:"Bad request. productId is required"});
 
   try {
     const productIdObj = new mongoose.Types.ObjectId(productId);
@@ -412,7 +414,7 @@ const getFavoriteItems = async (req, res) => {
     const favorite = await getOrDefaultFavorites(customerId);
     const favoriteProductIds = favorite.favoriteItems;
     if (!favoriteProductIds || favoriteProductIds.length == 0)
-      return res.status(200).json(responseItems);
+      return res.status(200).json(favoriteProductIds);
     const faveProducts = await ProductsModel.find({
       _id: { $in: favoriteProductIds },
     });
@@ -421,7 +423,7 @@ const getFavoriteItems = async (req, res) => {
     const responseItems = favoriteProductIds.map((productId) => {
       const product = OrderService.getProduct(faveProducts, productId);
       return {
-        productId: productId.productId,
+        productId: productId,
         price: product ? product.price : null,
         productName: product ? product.product_name : null,
       };
