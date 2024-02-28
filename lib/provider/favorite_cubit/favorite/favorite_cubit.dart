@@ -6,16 +6,14 @@ import '../../../data/favorite/usecase/get_favorite_usecase.dart';
 part 'favorite_state.dart';
 
 class FavoriteCubit extends Cubit<FavoriteState> {
-    final GetFavoriteUsecase get;
+  final GetFavoriteUsecase get;
   FavoriteCubit({required this.get}) : super(FavoriteInitial());
 
-    void getFavorite() async {
+  void getFavorite() async {
     emit(FavoriteIsLoadingState());
     final response = await get();
     emit(response.fold(
         (l) => FavoriteErrorState(message: HelperMethod.mapFailureToMsg(l)),
-        (r) =>FavoriteLoadedState(model: r)));
+        (r) => FavoriteLoadedState(models: r)));
   }
-
 }
-

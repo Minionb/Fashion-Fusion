@@ -7,7 +7,7 @@ import '../datasource/favorite_remote_datasource.dart';
 import '../model/favorite_model.dart';
 
 abstract class FavoriteRepository {
-  Future<Either<Failure, FavoriteModel>> get();
+  Future<Either<Failure, List<FavoriteModel>>> get();
   Future<Either<Failure, Unit>> delete(PutDeleteFavoriteModel model);
   Future<Either<Failure, Unit>> put(PutDeleteFavoriteModel model);
 }
@@ -19,7 +19,7 @@ class FavoriteRepositoryImpl implements FavoriteRepository {
       {required this.networkInfo, required this.remoteDatasource});
 
   @override
-  Future<Either<Failure, FavoriteModel>> get() async {
+  Future<Either<Failure, List<FavoriteModel>>> get() async {
     if (await networkInfo.isConnected) {
       try {
         final response = await remoteDatasource.get();

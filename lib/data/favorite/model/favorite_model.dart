@@ -1,18 +1,24 @@
 class FavoriteModel {
-  String? id;
+  String? productId;
   double? price;
   String? productName;
+  String? imageId;
+  bool? isFavorite;
 
   FavoriteModel({
-    required this.id,
+    required this.productId,
     required this.price,
     required this.productName,
+    required this.imageId,
+    isFavorite = true
   });
 
    FavoriteModel.fromJson(Map<String, dynamic> json) {
     
-      id = json['_id'];
+      productId = json['productId'];
       price = json['price'];
       productName = json['productName'];  
+      imageId = json['imageId'];  
   }
 }
+

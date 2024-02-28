@@ -8,7 +8,6 @@ import 'package:fashion_fusion/data/auth/repository/auth_repository.dart';
 import 'package:fashion_fusion/data/auth/usecase/login_usecase.dart';
 import 'package:fashion_fusion/data/auth/usecase/register_usecase.dart';
 import 'package:fashion_fusion/data/favorite/datasource/favorite_remote_datasource.dart';
-import 'package:fashion_fusion/data/favorite/model/put_favorite_model.dart';
 import 'package:fashion_fusion/data/favorite/repository/favorite_repository.dart';
 import 'package:fashion_fusion/data/favorite/usecase/delete_favorite_usecase.dart';
 import 'package:fashion_fusion/data/favorite/usecase/get_favorite_usecase.dart';

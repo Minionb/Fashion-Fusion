@@ -363,7 +363,7 @@ const addFavoriteItem = async (req, res) => {
   const customerId = req.userId;
   const { productId } = req.body;
   if (productId == null)
-    res.status(400).json({error:"Bad request. productId is required"});
+    res.status(400).json({ error: "Bad request. productId is required" });
 
   try {
     const productIdObj = new mongoose.Types.ObjectId(productId);
@@ -422,10 +422,16 @@ const getFavoriteItems = async (req, res) => {
     // Construct separate response objects for cart items with prices
     const responseItems = favoriteProductIds.map((productId) => {
       const product = OrderService.getProduct(faveProducts, productId);
+      const imageId = product
+        ? product.images.length > 0
+          ? product.images[0]
+          : ""
+        : "";
       return {
         productId: productId,
         price: product ? product.price : null,
         productName: product ? product.product_name : null,
+        imageId: imageId,
       };
     });
 
