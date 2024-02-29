@@ -12,7 +12,7 @@ class FavoriteInitial extends FavoriteState {}
 class FavoriteIsLoadingState extends FavoriteState {}
 
 class FavoriteLoadedState extends FavoriteState {
-  final List<FavoriteModel> models;
+  final FavoriteModel models;
   
   const FavoriteLoadedState({required this.models});
 }

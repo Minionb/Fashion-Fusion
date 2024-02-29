@@ -78,7 +78,7 @@ class _NavBarState extends State<NavBar> {
                 FavoriteEditCubit>(), // Assuming you have registered FavoriteEditCubit in your dependency injection
           ),
         ],
-        child: const ViewFavoritesScreen(),
+        child: const FavoriteScreen(),
       ),
       BlocProvider(
         create: (context) => sl<ProfileCubit>()

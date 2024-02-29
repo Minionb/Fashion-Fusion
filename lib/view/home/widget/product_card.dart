@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProductCard extends StatelessWidget {
+  final bool? isFav;
   const ProductCard({
     super.key,
     required this.model,
+    this.isFav,
   });
 
   final ProductModel model;
