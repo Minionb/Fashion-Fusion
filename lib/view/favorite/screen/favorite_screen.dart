@@ -69,12 +69,12 @@ class _ViewFavoritesScreenState extends State<ViewFavoritesScreen> {
         return FavoriteListItem(
             favorite: favorite,
             onLikeStatusChanged: (isLiked) {
-              favorite.isFavorite = isLiked;
-              // Get updated list of favorite items from backend
               setState(() {
-                _fetchFavorites(context
-                    .read<FavoriteCubit>()); // Trigger fetching favorites
+                favorite.isFavorite = isLiked;
               });
+              // Get updated list of favorite items from backend
+              // _fetchFavorites(
+              //     context.read<FavoriteCubit>()); // Trigger fetching favorites
             });
       },
     );
