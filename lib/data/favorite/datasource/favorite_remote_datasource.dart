@@ -9,7 +9,7 @@ import '../model/favorite_model.dart';
 import 'package:dio/dio.dart';
 
 abstract class FavoriteRemoteDataSource {
-  Future<FavoriteModel> get();
+  Future<List<FavoriteModel>> get();
   Future<Unit> put(PutDeleteFavoriteModel model);
   Future<Unit> delete(PutDeleteFavoriteModel model);
 }
@@ -19,12 +19,15 @@ class FavoriteRemoteDataSourceImpl implements FavoriteRemoteDataSource {
 
   FavoriteRemoteDataSourceImpl({required this.apiConsumer});
   @override
-  Future<FavoriteModel> get() async {
+  Future<List<FavoriteModel>> get() async {
     final Response response = await apiConsumer.get(EndPoints.getFavoriteItems);
     if (response.statusCode == StatusCode.ok) {
       try {
-        final jsonData = json.decode(response.data);
-        return FavoriteModel.fromJson(jsonData);
+        final List<dynamic> jsonList = json.decode(response.data);
+        final List<FavoriteModel> favoriteModels =
+            jsonList.map((json) => FavoriteModel.fromJson(json)).toList();
+
+        return favoriteModels;
       } catch (e) {
         throw const FetchDataException();
       }
