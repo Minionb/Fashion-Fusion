@@ -109,13 +109,24 @@ function putCartItems(server) {
   });
 }
 
-const clearCart = async (customerId) => {
+const clearCart = async (customerId, cartItems = null) => {
   const cart = await CartsModel.findOne({ customerId });
 
-  if (cart) {
+  if (cartItems !== null && cartItems.length > 0) {
+    // Extract productId values from cartItems parameter
+    const cartItemProductIds = cartItems.map(item => item.productId);
+    cartItemProductIds.forEach(element => {
+      // Filter out items that are not in cartItemProductIds
+      var existingCartItemIndex = getCartItemIndex(cart, element);
+      if (existingCartItemIndex > -1){
+        cart.cartItems.splice(existingCartItemIndex, 1);
+      }
+    });
+  } else {
+    // If cartItems is null or empty, clear the entire cart
     cart.cartItems = [];
-    await cart.save();
   }
+  await cart.save();
 };
 
 // DELETE /cart/items
@@ -246,6 +257,44 @@ function checkoutCart(server) {
       );
 
       await clearCart(customerId);
+
+      res.status(201).json({ message: "Order created successfully", order });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
+}
+// POST /checkout
+function checkout(server) {
+  server.post("/checkout", async (req, res) => {
+    await verifyToken(req, res);
+    try {
+      const customerId = req.userId;
+
+      // Assuming delivery method and courier are provided in the request body
+      const paymentMethod = req.body.paymentMethod;
+      const deliveryMethod = req.body.deliveryMethod;
+      const courier = req.body.courier;
+      const cardNumber = req.body.cardNumber
+      const cartItems = req.body.cartItems;
+      // Check if cartItems is empty
+      if (cartItems.length === 0) {
+        return res
+          .status(400)
+          .json({ message: "Cart is empty. Cannot proceed with checkout." });
+      }
+
+      const order = await OrderService.createOrder(
+        customerId,
+        cartItems,
+        paymentMethod,
+        cardNumber,
+        deliveryMethod,
+        courier
+      );
+
+      await clearCart(customerId, cartItems);
 
       res.status(201).json({ message: "Order created successfully", order });
     } catch (error) {
@@ -459,7 +508,8 @@ class OrderManagementController {
     deleteCartItems(server);
     deleteCartItemsProduct(server);
     getCartItems(server);
-    checkoutCart(server);
+    // checkoutCart(server);
+    checkout(server);
 
     getOrders(server);
     getOrderById(server);
