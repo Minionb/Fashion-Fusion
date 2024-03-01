@@ -19,7 +19,9 @@ class _ViewFavoritesScreenState extends State<ViewFavoritesScreen> {
   late List<FavoriteModel> _favorites;
 
   Future<void> _fetchFavorites(FavoriteCubit favoriteCubit) async {
-    favoriteCubit.get();
+    setState(() {
+      favoriteCubit.getFavorite();
+    });
   }
 
   @override
@@ -37,13 +39,19 @@ class _ViewFavoritesScreenState extends State<ViewFavoritesScreen> {
         ),
         body: BlocBuilder<FavoriteCubit, FavoriteState>(
           builder: (context, state) {
+            if (state is FavoriteIsLoadingState) {}
             if (state is FavoriteLoadedState) {
               _favorites = state.models
                   .where((favorite) => favorite.isFavorite ?? true)
                   .toList();
-              return _buildFavoriteList(_favorites);
+              return RefreshIndicator(
+                  onRefresh: () async {
+                    _fetchFavorites(context
+                        .read<FavoriteCubit>()); // Trigger fetching favorites
+                  },
+                  child: _buildFavoriteList());
             } else {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             }
@@ -53,11 +61,11 @@ class _ViewFavoritesScreenState extends State<ViewFavoritesScreen> {
     );
   }
 
-  Widget _buildFavoriteList(List<FavoriteModel> favorites) {
+  Widget _buildFavoriteList() {
     return ListView.builder(
-      itemCount: favorites.length,
+      itemCount: _favorites.length,
       itemBuilder: (context, index) {
-        final favorite = favorites[index];
+        final favorite = _favorites[index];
         return FavoriteListItem(
             favorite: favorite,
             onLikeStatusChanged: (isLiked) {
