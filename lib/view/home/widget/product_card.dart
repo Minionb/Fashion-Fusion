@@ -1,4 +1,5 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
+import 'package:fashion_fusion/core/widgets/add_to_cart_button.dart';
 import 'package:fashion_fusion/core/widgets/like_button.dart';
 import 'package:fashion_fusion/view/home/screen/home_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -31,26 +32,12 @@ class ProductCard extends StatelessWidget {
                 _label(),
                 7.verticalSpace,
                 Row(
-                  children: [_price(), const Spacer(), _addPacket()],
+                  children: [_price(), const Spacer(), AddCartButton(productId: model.id, isDark: true,)],
                 ),
               ],
             ),
           )
         ],
-      ),
-    );
-  }
-
-// Method to create the add packet button
-  Container _addPacket() {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration:
-          const BoxDecoration(color: Colors.black, shape: BoxShape.circle),
-      child: Icon(
-        CupertinoIcons.add,
-        color: Colors.white,
-        size: 18.sp,
       ),
     );
   }
@@ -97,7 +84,7 @@ class ProductCard extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: AppColors.bg,
                   ),
-                  child: LikeButton(productId: model.id)),
+                  child: LikeButton(productId: model.id, isFavorite: model.isFavorite,)),
             ),
           )
         ],

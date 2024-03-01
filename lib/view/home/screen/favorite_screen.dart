@@ -35,7 +35,7 @@ class _ViewFavoritesScreenState extends State<ViewFavoritesScreen> {
     return HelperMethod.loader(
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Favorites'),
+          title: const Text('Favorites'),
         ),
         body: BlocBuilder<FavoriteCubit, FavoriteState>(
           builder: (context, state) {
