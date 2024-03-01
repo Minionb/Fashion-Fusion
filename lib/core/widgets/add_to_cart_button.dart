@@ -1,5 +1,4 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
-import 'package:fashion_fusion/data/favorite/model/put_favorite_model.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite_edit/favorite_edit_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -60,10 +59,10 @@ class _AddCartButtonState extends State<AddCartButton>
                     : const BoxDecoration(
                         color: Colors.white, shape: BoxShape.circle),
                 child: widget.isDark
-                    ? Icon(Icons.add_shopping_cart,
+                    ? Icon(Icons.add,
                         color: Colors.white, size: 16.sp)
                     : Icon(
-                        Icons.add_shopping_cart,
+                        Icons.add,
                         size: 16.sp,
                         color: AppColors.grayDK,
                       ),

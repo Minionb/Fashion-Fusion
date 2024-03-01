@@ -10,7 +10,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
-import '../../../data/favorite/model/favorite_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
