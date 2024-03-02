@@ -88,6 +88,9 @@ class _NavBarState extends State<NavBar> {
             create: (context) => sl<
                 FavoriteEditCubit>(), // Assuming you have registered FavoriteEditCubit in your dependency injection
           ),
+          BlocProvider<CartCubit>(
+            create: (context) => sl<CartCubit>()..getCartItems(),
+          ),
         ],
         child: const ViewFavoritesScreen(),
       ),

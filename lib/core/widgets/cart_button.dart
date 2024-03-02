@@ -1,25 +1,50 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/data/cart/model/put_item_model.dart';
 import 'package:fashion_fusion/provider/cart_cubit/cart_cubit.dart';
-import 'package:fashion_fusion/provider/favorite_cubit/favorite_edit/favorite_edit_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class AddCartButton extends StatefulWidget {
+abstract class CartButton extends StatefulWidget {
   final bool isDark;
+  final IconData icon;
+  final int quantityUpdate;
   final String productId;
 
-  const AddCartButton(
+  const CartButton(
       {super.key,
       this.isDark = true,
-      required this.productId}); // Updated constructor
-
-  @override
-  State<AddCartButton> createState() => _AddCartButtonState();
+      required this.icon,
+      required this.quantityUpdate,
+      required this.productId});
 }
 
-class _AddCartButtonState extends State<AddCartButton>
+class AddCartButton extends CartButton {
+  const AddCartButton(
+      {super.key,
+      super.isDark,
+      super.icon = Icons.add,
+      super.quantityUpdate = 1,
+      required super.productId}); // Updated constructor
+
+  @override
+  State<CartButton> createState() => _AddCartButtonState();
+}
+
+class RemoveCartButton extends CartButton {
+  const RemoveCartButton({
+    super.key,
+    super.isDark = true,
+    super.icon = Icons.remove,
+    super.quantityUpdate = -1,
+    required super.productId,
+  }); // Updated constructor
+
+  @override
+  State<CartButton> createState() => _AddCartButtonState();
+}
+
+class _AddCartButtonState extends State<CartButton>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
       duration: const Duration(milliseconds: 200), vsync: this, value: 1.0);
@@ -43,10 +68,10 @@ class _AddCartButtonState extends State<AddCartButton>
         return GestureDetector(
           // Define onTap callback, executed when the widget is tapped
           onTap: () {
-            print("Add to Cart Tapped");
             // Reverse the animation controller and then forward it to trigger the scale animation
             _controller.reverse().then((value) => _controller.forward());
-            cartCubit.putCartItems(PutCartItemModel(productId: widget.productId, quantity: 1));
+            cartCubit.putCartItems(
+                PutCartItemModel(productId: widget.productId, quantity: widget.quantityUpdate));
           },
           // Child widget wrapped with ScaleTransition for scaling animation
           child: ScaleTransition(
@@ -62,10 +87,9 @@ class _AddCartButtonState extends State<AddCartButton>
                     : const BoxDecoration(
                         color: Colors.white, shape: BoxShape.circle),
                 child: widget.isDark
-                    ? Icon(Icons.add,
-                        color: Colors.white, size: 16.sp)
+                    ? Icon(widget.icon, color: Colors.white, size: 16.sp)
                     : Icon(
-                        Icons.add,
+                        widget.icon,
                         size: 16.sp,
                         color: AppColors.grayDK,
                       ),
