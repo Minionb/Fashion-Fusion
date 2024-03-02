@@ -1,4 +1,6 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
+import 'package:fashion_fusion/data/cart/model/put_item_model.dart';
+import 'package:fashion_fusion/provider/cart_cubit/cart_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite_edit/favorite_edit_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,10 +34,11 @@ class _AddCartButtonState extends State<AddCartButton>
   @override
   Widget build(BuildContext context) {
     // Access the FavoriteEditCubit instance
-    final favoriteCubit = context.watch<FavoriteEditCubit>();
+    final cartCubit = context.watch<CartCubit>();
 
     // Wrap the widget with BlocBuilder to rebuild the widget based on cubit state changes
-    return BlocBuilder<FavoriteEditCubit, FavoriteEditState>(
+    // return BlocBuilder<FavoriteEditCubit, FavoriteEditState>(
+    return BlocBuilder<CartCubit, CartState>(
       builder: (context, state) {
         return GestureDetector(
           // Define onTap callback, executed when the widget is tapped
@@ -43,6 +46,7 @@ class _AddCartButtonState extends State<AddCartButton>
             print("Add to Cart Tapped");
             // Reverse the animation controller and then forward it to trigger the scale animation
             _controller.reverse().then((value) => _controller.forward());
+            cartCubit.putCartItems(PutCartItemModel(productId: widget.productId, quantity: 1));
           },
           // Child widget wrapped with ScaleTransition for scaling animation
           child: ScaleTransition(

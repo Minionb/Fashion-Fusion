@@ -7,6 +7,8 @@ import 'package:fashion_fusion/data/auth/datasource/auth_remote_datasource.dart'
 import 'package:fashion_fusion/data/auth/repository/auth_repository.dart';
 import 'package:fashion_fusion/data/auth/usecase/login_usecase.dart';
 import 'package:fashion_fusion/data/auth/usecase/register_usecase.dart';
+import 'package:fashion_fusion/data/cart/datasource/cart_remote_datasource.dart';
+import 'package:fashion_fusion/data/cart/repository/cart_repository.dart';
 import 'package:fashion_fusion/data/favorite/datasource/favorite_remote_datasource.dart';
 import 'package:fashion_fusion/data/favorite/repository/favorite_repository.dart';
 import 'package:fashion_fusion/data/favorite/usecase/delete_favorite_usecase.dart';
@@ -25,6 +27,7 @@ import 'package:fashion_fusion/data/profile/usecase/delete_profile_usecase.dart'
 import 'package:fashion_fusion/data/profile/usecase/get_profile_usecase.dart';
 import 'package:fashion_fusion/data/profile/usecase/update_profile_usecase.dart';
 import 'package:fashion_fusion/provider/auth/auth_cubit.dart';
+import 'package:fashion_fusion/provider/cart_cubit/cart_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite_edit/favorite_edit_cubit.dart';
 import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
@@ -94,6 +97,17 @@ Future<void> init() async {
       () => FavoriteRemoteDataSourceImpl(apiConsumer: sl()));
 
 // Favorite::END
+
+// Cart::START
+  sl.registerFactory(() => CartCubit(repository: sl()));
+ 
+  sl.registerLazySingleton<CartRepository>(() =>
+      CartRepositoryImpl(networkInfo: sl(), remoteDatasource: sl()));
+
+  sl.registerLazySingleton<CartRemoteDataSource>(
+      () => CartRemoteDataSourceImpl(apiConsumer: sl()));
+
+// Cart::END
 
   sl.registerFactory(
       () => ProfileCubit(get: sl()));

@@ -1,5 +1,6 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
+import 'package:fashion_fusion/provider/cart_cubit/cart_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite_edit/favorite_edit_cubit.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
@@ -69,8 +70,10 @@ class _NavBarState extends State<NavBar> {
             create: (context) => sl<FavoriteCubit>()..getFavorite(),
           ),
           BlocProvider<FavoriteEditCubit>(
-            create: (context) => sl<
-                FavoriteEditCubit>(), // Assuming you have registered FavoriteEditCubit in your dependency injection
+            create: (context) => sl<FavoriteEditCubit>(),
+          ),
+          BlocProvider<CartCubit>(
+            create: (context) => sl<CartCubit>()..getCartItems(),
           ),
         ],
         child: const HomeScreen(),
