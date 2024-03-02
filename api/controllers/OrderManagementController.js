@@ -98,10 +98,13 @@ function putCartItems(server) {
         return res.status(404).json({ message: "Product not found" });
 
       addOrUpdateCartItem(cart, product, quantity);
-
       await cart.save();
 
-      return res.status(201).send(cart);
+      const productIds = cart.cartItems.map((cartItem) => cartItem.productId);
+      const cartProducts = await ProductsModel.find({
+        _id: { $in: productIds },
+      });
+      return res.status(201).send(mapToCartResponse(cart.cartItems, cartProducts));
     } catch (error) {
       console.error(error);
       return res.status(400).json({ message: error.message });
@@ -202,25 +205,32 @@ async function getCartItems(server) {
       });
 
       // Construct separate response objects for cart items with prices
-      const responseItems = cartItems.map((cartItem) => {
-        const product = OrderService.getProduct(
-          cartProducts,
-          cartItem.productId
-        );
-        return {
-          productId: cartItem.productId,
-          quantity: cartItem.quantity,
-          price: product ? product.price : null,
-          productName: product ? product.product_name : null,
-        };
-      });
-
-      return res.status(200).json(responseItems);
+      const cartReponse = mapToCartResponse(cartItems, cartProducts);
+      return res.status(200).json(cartReponse);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Internal Server Error" });
     }
   });
+}
+
+function mapToCartResponse(cartItems, cartProducts) {
+  return cartItems.map((cartItem) => {
+    const product = OrderService.getProduct(
+      cartProducts,
+      cartItem.productId
+    );
+    return mapToCartItemResponse(cartItem, product);
+  });
+}
+
+function mapToCartItemResponse(cartItem, product) {
+  return {
+    productId: cartItem.productId,
+    quantity: cartItem.quantity,
+    price: product ? product.price : null,
+    productName: product ? product.product_name : null,
+  };
 }
 
 // POST /cart/checkout
