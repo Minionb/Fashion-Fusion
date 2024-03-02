@@ -104,7 +104,9 @@ function putCartItems(server) {
       const cartProducts = await ProductsModel.find({
         _id: { $in: productIds },
       });
-      return res.status(201).send(mapToCartResponse(cart.cartItems, cartProducts));
+      return res
+        .status(201)
+        .send(mapToCartResponse(cart.cartItems, cartProducts));
     } catch (error) {
       console.error(error);
       return res.status(400).json({ message: error.message });
@@ -117,11 +119,11 @@ const clearCart = async (customerId, cartItems = null) => {
 
   if (cartItems !== null && cartItems.length > 0) {
     // Extract productId values from cartItems parameter
-    const cartItemProductIds = cartItems.map(item => item.productId);
-    cartItemProductIds.forEach(element => {
+    const cartItemProductIds = cartItems.map((item) => item.productId);
+    cartItemProductIds.forEach((element) => {
       // Filter out items that are not in cartItemProductIds
       var existingCartItemIndex = getCartItemIndex(cart, element);
-      if (existingCartItemIndex > -1){
+      if (existingCartItemIndex > -1) {
         cart.cartItems.splice(existingCartItemIndex, 1);
       }
     });
@@ -216,10 +218,7 @@ async function getCartItems(server) {
 
 function mapToCartResponse(cartItems, cartProducts) {
   return cartItems.map((cartItem) => {
-    const product = OrderService.getProduct(
-      cartProducts,
-      cartItem.productId
-    );
+    const product = OrderService.getProduct(cartProducts, cartItem.productId);
     return mapToCartItemResponse(cartItem, product);
   });
 }
@@ -230,6 +229,11 @@ function mapToCartItemResponse(cartItem, product) {
     quantity: cartItem.quantity,
     price: product ? product.price : null,
     productName: product ? product.product_name : null,
+    imageId: product
+      ? product.images.length > 0
+        ? product.images[0]
+        : ""
+      : "",
   };
 }
 
@@ -286,7 +290,7 @@ function checkout(server) {
       const paymentMethod = req.body.paymentMethod;
       const deliveryMethod = req.body.deliveryMethod;
       const courier = req.body.courier;
-      const cardNumber = req.body.cardNumber
+      const cardNumber = req.body.cardNumber;
       const cartItems = req.body.cartItems;
       // Check if cartItems is empty
       if (cartItems.length === 0) {
