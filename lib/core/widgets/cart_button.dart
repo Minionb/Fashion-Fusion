@@ -9,14 +9,28 @@ abstract class CartButton extends StatefulWidget {
   final bool isDark;
   final IconData icon;
   final int quantityUpdate;
+
+  final Function onTap;
+  final bool Function() onTapCondition;
+
   final String productId;
 
-  const CartButton(
-      {super.key,
-      this.isDark = true,
-      required this.icon,
-      required this.quantityUpdate,
-      required this.productId});
+  const CartButton({
+    super.key,
+    this.isDark = true,
+    required this.icon,
+    required this.quantityUpdate,
+    this.onTap = _defaultOnTap,
+    this.onTapCondition = _defaultOnTapCondition,
+    required this.productId,
+  });
+  // Default function for
+  static void _defaultOnTap() {
+    // No operation
+  }
+  static bool _defaultOnTapCondition() {
+    return true;
+  }
 }
 
 class AddCartButton extends CartButton {
@@ -70,8 +84,11 @@ class _AddCartButtonState extends State<CartButton>
           onTap: () {
             // Reverse the animation controller and then forward it to trigger the scale animation
             _controller.reverse().then((value) => _controller.forward());
-            cartCubit.putCartItems(
-                PutCartItemModel(productId: widget.productId, quantity: widget.quantityUpdate));
+            if (widget.onTapCondition()) {
+              cartCubit.putCartItems(PutCartItemModel(
+                  productId: widget.productId,
+                  quantity: widget.quantityUpdate));
+            }
           },
           // Child widget wrapped with ScaleTransition for scaling animation
           child: ScaleTransition(
