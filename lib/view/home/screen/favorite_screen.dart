@@ -7,6 +7,7 @@ import 'package:fashion_fusion/data/favorite/model/favorite_model.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
 import 'package:fashion_fusion/view/home/widget/app_bar.dart';
 import 'package:fashion_fusion/view/home/widget/empty_list_widget.dart';
+import 'package:fashion_fusion/view/home/widget/list_tile_product_image.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -133,19 +134,7 @@ class FavoriteListItem extends StatelessWidget {
         ),
         margin: const EdgeInsets.only(bottom: 16.0), // Add margin
         child: ListTile(
-          leading: ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(8.0),
-              bottomLeft: Radius.circular(8.0),
-            ),
-            clipBehavior: Clip.hardEdge,
-            child: Image.network(
-              _imageUrl(),
-              width: 80,
-              height: double.infinity,
-              fit: BoxFit.cover,
-            ),
-          ),
+          leading: ListTileImageWidget(imageId: model.imageId,),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -173,16 +162,6 @@ class FavoriteListItem extends StatelessWidget {
             ],
           ),
         ));
-  }
-
-  String _imageUrl() {
-    var imageUrl =
-        'https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png';
-    if (model.imageId.isNotEmpty) {
-      imageUrl = EndPoints.getProductImagesByImageId
-          .replaceAll(":imageId", model.imageId);
-    }
-    return imageUrl;
   }
 
   Widget _price() {
