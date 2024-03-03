@@ -3,7 +3,7 @@ class EndPoints {
   static const String customerUrl = '$baseUrl/customers';
   static const String adminUrl = '$baseUrl/admins';
 
-  //
+  // Auth
   static const String login = '$customerUrl/login';
   static const String adminLogin = "$adminUrl/login";
   static const String signup = '$customerUrl/register';
@@ -17,9 +17,12 @@ class EndPoints {
   static const String getProductsById = '$productResourcePath/:productId';
   static const String deleteProductsById = '$productResourcePath/:productId';
   static const String putProductsById = getProductsById;
-  static const String postProductImagesForProductId = '$productResourcePath/:productId/images';
-  static const String getProductImagesByImageId = '$productResourcePath/images/:imageId';
-  static const String deleteProductImagesByImageId = '$productResourcePath/images/:imageId';
+  static const String postProductImagesForProductId =
+      '$productResourcePath/:productId/images';
+  static const String getProductImagesByImageId =
+      '$productResourcePath/images/:imageId';
+  static const String deleteProductImagesByImageId =
+      '$productResourcePath/images/:imageId';
 
   // Favorites
   static const String favoriteResourcePath = '$baseUrl/favorite/items';
@@ -40,4 +43,6 @@ class EndPoints {
   static const String getOrdersById = '$orderResourcePath/:orderId';
   static const String patchOrdersById = '$orderResourcePath/:orderId';
 
+  // Customers
+  static const String customer = '$baseUrl/customers';
 }

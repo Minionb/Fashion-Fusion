@@ -7,6 +7,7 @@ import 'package:fashion_fusion/data/favorite/model/favorite_model.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
 import 'package:fashion_fusion/view/home/widget/app_bar.dart';
 import 'package:fashion_fusion/view/home/widget/empty_list_widget.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';

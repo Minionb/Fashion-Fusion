@@ -69,9 +69,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       // context.pushNamedAndRemoveUntil(Routes.mainScren);
 
                       if (decodedToken["userType"] == "customer") {
+                        sl<SharedPreferences>()
+                            .setString("userType", "customer");
                         // Push to navBar Screen for Customer
                         context.pushNamedAndRemoveUntil(Routes.mainScren);
                       } else {
+                        sl<SharedPreferences>()
+                            .setString("userType", "admin");
                         // Push to navBar Screen for Admin
                         context.pushNamedAndRemoveUntil(Routes.adminMainScreen);
                       }

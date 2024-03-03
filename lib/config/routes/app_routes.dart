@@ -1,5 +1,6 @@
 import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/provider/auth/auth_cubit.dart';
+import 'package:fashion_fusion/provider/customerCubit/customer/customer_cubit.dart';
 import 'package:fashion_fusion/view/admin/view/adminNavBar/screen/admin_navbar.dart';
 import 'package:fashion_fusion/view/auth/screen/forget_password.dart';
 import 'package:fashion_fusion/view/auth/screen/login_screen.dart';
@@ -9,6 +10,7 @@ import 'package:fashion_fusion/view/navBar/nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 
 class Routes {
   static const String init = "/";
@@ -24,14 +26,20 @@ class AppRoutes {
     switch (routeSettings.name) {
       case Routes.init:
         return MaterialPageRoute(builder: (context) {
-          return
-              sl<SharedPreferences>().getBool("isLogin") == true
+          // TODO
+          // return WelcomePage();
+          return sl<SharedPreferences>().getBool("isLogin") == true
+              ? ((sl<SharedPreferences>().getString("userType") == "customer")
                   ? const NavBar()
-                  :
-              BlocProvider(
-            create: (context) => sl<AuthCubit>(),
-            child: const WelcomePage(),
-          );
+                  // To check if the user is admin or customer
+                  : BlocProvider(
+                      create: (context) => sl<CustomerCubit>()..getCustomer(),
+                      child: const AdminNavBar(),
+                    ))
+              : BlocProvider(
+                  create: (context) => sl<AuthCubit>(),
+                  child: const WelcomePage(),
+                );
         });
       case Routes.signup:
         return MaterialPageRoute(
