@@ -100,15 +100,9 @@ class FavoriteListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var imageUrl =
-        'https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png';
-    if (favorite.imageId?.isNotEmpty ?? true) {
-      imageUrl = EndPoints.getProductImagesByImageId
-          .replaceAll(":imageId", favorite.imageId ?? '');
-    }
     return ListTile(
       leading: Image.network(
-        imageUrl,
+        _imageUrl(),
         width: 50,
         height: 50,
         fit: BoxFit.cover,
@@ -128,5 +122,15 @@ class FavoriteListItem extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _imageUrl() {
+    var imageUrl =
+        'https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png';
+    if (favorite.imageId?.isNotEmpty ?? true) {
+      imageUrl = EndPoints.getProductImagesByImageId
+          .replaceAll(":imageId", favorite.imageId ?? '');
+    }
+    return imageUrl;
   }
 }
