@@ -1,11 +1,10 @@
 import 'package:fashion_fusion/api/end_points.dart';
-import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/widgets/cart_button.dart';
 import 'package:fashion_fusion/core/widgets/like_button.dart';
 import 'package:fashion_fusion/data/favorite/model/favorite_model.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -120,7 +119,10 @@ class FavoriteListItem extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AddCartButton(productId: favorite.productId?? '', isDark: false,),
+          AddCartButton(
+            productId: favorite.productId ?? '',
+            isDark: false,
+          ),
           const SizedBox(width: 16), // Add some spacing between the buttons
           LikeButton(
             isFavorite: favorite.isFavorite ?? true,

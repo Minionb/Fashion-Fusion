@@ -1,7 +1,4 @@
-import 'dart:ffi';
-
 import 'package:fashion_fusion/core/utils/helper_method.dart';
-import 'package:fashion_fusion/data/profile/model/profile_model.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
 import 'package:fashion_fusion/view/auth/screen/welcome_screen.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_payment_methods.dart';
@@ -18,6 +15,7 @@ class ProfileDetails extends StatefulWidget {
   @override
   State<ProfileDetails> createState() => _ProfileDetails();
 }
+
 class _ProfileDetails extends State<ProfileDetails> {
   final _userID = sl<SharedPreferences>().getString("userID");
   final profileFirstName = "";
@@ -27,49 +25,50 @@ class _ProfileDetails extends State<ProfileDetails> {
   @override
   Widget build(BuildContext context) {
     print(sl<SharedPreferences>().getString("userID"));
+
     /// Details
     /// Payment Methods
     return HelperMethod.loader(
-      child: Scaffold(
-        appBar: AppBar(),
-        body: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column( crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(bottom: 8),
-                child: Text("My profile", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
-              ),
-              BlocBuilder<ProfileCubit, ProfileState>(
-                builder: (context, state) {
-                  if (state is ProfileIsLoadingState) {
-                    print("Profile LOADING");
-                    context.loaderOverlay.show();
-                  }
-                  if (state is ProfileLoadedState) {
-                    context.loaderOverlay.hide();
-                    profile = state.model;
-                    //print(profile!.payments);
-                    print("Profile LOADED");
-                    return ProfileTitle(name: "${profile!.firstName} ${profile.lastName}", email: profile.email!,);
-                  }
-                  if (state is ProfileErrorState) {
-                    context.loaderOverlay.hide();
+        child: Scaffold(
+            appBar: AppBar(),
+            body: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 8),
+                    child: Text("My profile",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 30)),
+                  ),
+                  BlocBuilder<ProfileCubit, ProfileState>(
+                      builder: (context, state) {
+                    if (state is ProfileIsLoadingState) {
+                      print("Profile LOADING");
+                      context.loaderOverlay.show();
+                    }
+                    if (state is ProfileLoadedState) {
+                      context.loaderOverlay.hide();
+                      profile = state.model;
+                      //print(profile!.payments);
+                      print("Profile LOADED");
+                      return ProfileTitle(
+                        name: "${profile!.firstName} ${profile.lastName}",
+                        email: profile.email!,
+                      );
+                    }
+                    if (state is ProfileErrorState) {
+                      context.loaderOverlay.hide();
                       HelperMethod.showToast(context,
                           title: Text(state.errorMessage),
                           type: ToastificationType.error);
-                  }
-                  return SizedBox();
-                }
-              ), 
-
-              
-              
-            ],
-          ),
-        )
-      )
-    );
+                    }
+                    return const SizedBox();
+                  }),
+                ],
+              ),
+            )));
   }
 }
 
@@ -79,14 +78,12 @@ class ProfileTitle extends StatelessWidget {
   //final List payments;
 
   const ProfileTitle({
-      super.key,
-      required this.name,
-      required this.email,
-      //required this.payments
-    });
+    super.key,
+    required this.name,
+    required this.email,
+    //required this.payments
+  });
 
-
-  
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -97,38 +94,55 @@ class ProfileTitle extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.lightBlue[400]
-              ),
+                  shape: BoxShape.circle, color: Colors.lightBlue[400]),
               child: Center(
-                child: Text(name.substring(0,1), style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold))
-              ),
+                  child: Text(name.substring(0, 1),
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold))),
             ),
-            Column( crossAxisAlignment: CrossAxisAlignment.start,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.only(left: 10),
-                  child: Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
+                  padding: const EdgeInsets.only(left: 10),
+                  child: Text(name,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(left: 10),
-                  child: Text(email, style: TextStyle(color: Colors.grey, fontSize: 12))
-                ),
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Text(email,
+                        style:
+                            const TextStyle(color: Colors.grey, fontSize: 12))),
               ],
             )
           ],
         ),
         const Padding(padding: EdgeInsets.all(15)),
-        const ProfileOptionsCard(title: "My orders", subtitle: "Already have [] orders", routeWidget: ProfilePaymentMethods()),
-        const ProfileOptionsCard(title: "Shipping addresses", subtitle: "[] addresses", routeWidget: ProfilePaymentMethods()),
-        const ProfileOptionsCard(title: "Payment methods", subtitle: "Visa **[]", routeWidget: ProfilePaymentMethods()),
-        const ProfileOptionsCard(title: "Settings", subtitle: "Notifications, password", routeWidget: ProfilePaymentMethods()),
-        const SignOutCard(title: "Sign Out", subtitle: "Sign out from your account", routeWidget: WelcomePage()),
+        const ProfileOptionsCard(
+            title: "My orders",
+            subtitle: "Already have [] orders",
+            routeWidget: ProfilePaymentMethods()),
+        const ProfileOptionsCard(
+            title: "Shipping addresses",
+            subtitle: "[] addresses",
+            routeWidget: ProfilePaymentMethods()),
+        const ProfileOptionsCard(
+            title: "Payment methods",
+            subtitle: "Visa **[]",
+            routeWidget: ProfilePaymentMethods()),
+        const ProfileOptionsCard(
+            title: "Settings",
+            subtitle: "Notifications, password",
+            routeWidget: ProfilePaymentMethods()),
+        const SignOutCard(
+            title: "Sign Out",
+            subtitle: "Sign out from your account",
+            routeWidget: WelcomePage()),
       ],
     );
-    
   }
-  
 }
 
 class ProfileOptionsCard extends StatelessWidget {
@@ -173,7 +187,6 @@ class ProfileOptionsCard extends StatelessWidget {
         ));
   }
 }
-
 
 class SignOutCard extends StatelessWidget {
   final String title;

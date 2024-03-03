@@ -9,6 +9,12 @@ import 'package:fashion_fusion/data/auth/usecase/login_usecase.dart';
 import 'package:fashion_fusion/data/auth/usecase/register_usecase.dart';
 import 'package:fashion_fusion/data/cart/datasource/cart_remote_datasource.dart';
 import 'package:fashion_fusion/data/cart/repository/cart_repository.dart';
+import 'package:fashion_fusion/data/customer/datasource/customer_remote_datasource.dart';
+import 'package:fashion_fusion/data/customer/repository/customer_repository.dart';
+import 'package:fashion_fusion/data/customer/usecase/add_customer_usecase.dart';
+import 'package:fashion_fusion/data/customer/usecase/delete_customer_usecase.dart';
+import 'package:fashion_fusion/data/customer/usecase/get_customer_usecase.dart';
+import 'package:fashion_fusion/data/customer/usecase/update_customer_usecase.dart';
 import 'package:fashion_fusion/data/favorite/datasource/favorite_remote_datasource.dart';
 import 'package:fashion_fusion/data/favorite/repository/favorite_repository.dart';
 import 'package:fashion_fusion/data/favorite/usecase/delete_favorite_usecase.dart';
@@ -28,6 +34,12 @@ import 'package:fashion_fusion/data/profile/usecase/get_profile_usecase.dart';
 import 'package:fashion_fusion/data/profile/usecase/update_profile_usecase.dart';
 import 'package:fashion_fusion/provider/auth/auth_cubit.dart';
 import 'package:fashion_fusion/provider/cart_cubit/cart_cubit.dart';
+
+import 'package:fashion_fusion/provider/customerCubit/customer/customer_cubit.dart';
+import 'package:fashion_fusion/provider/customerCubit/customer_edit/customer_edit_cubit.dart';
+
+
+
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite_edit/favorite_edit_cubit.dart';
 import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
@@ -63,35 +75,29 @@ Future<void> init() async {
   sl.registerFactory(
       () => ProductEditCubit(add: sl(), update: sl(), delete: sl()));
 
-  sl.registerLazySingleton<ProductRepository>(() =>
-      ProductRepositoryImpl(networkInfo: sl(), remoteDatasource: sl()));
-
+  sl.registerLazySingleton<ProductRepository>(
+      () => ProductRepositoryImpl(networkInfo: sl(), remoteDatasource: sl()));
 
   sl.registerLazySingleton(() => GetProductUsecase(repository: sl()));
   sl.registerLazySingleton(() => AddProductUsecase(repository: sl()));
   sl.registerLazySingleton(() => DeleteProductUsecase(repository: sl()));
   sl.registerLazySingleton(() => UpdateProductUsecase(repository: sl()));
 
-
   sl.registerLazySingleton<ProductRemoteDataSource>(
       () => ProductRemoteDataSourceImpl(apiConsumer: sl()));
 
 // Product::END
 
-
 // Favorite::START
   sl.registerFactory(() => FavoriteCubit(get: sl()));
-  sl.registerFactory(
-      () => FavoriteEditCubit(put: sl(), delete: sl()));
+  sl.registerFactory(() => FavoriteEditCubit(put: sl(), delete: sl()));
 
-  sl.registerLazySingleton<FavoriteRepository>(() =>
-      FavoriteRepositoryImpl(networkInfo: sl(), remoteDatasource: sl()));
-
+  sl.registerLazySingleton<FavoriteRepository>(
+      () => FavoriteRepositoryImpl(networkInfo: sl(), remoteDatasource: sl()));
 
   sl.registerLazySingleton(() => GetFavoriteUsecase(repository: sl()));
   sl.registerLazySingleton(() => PutFavoriteUsecase(repository: sl()));
   sl.registerLazySingleton(() => DeleteFavoriteUsecase(repository: sl()));
-
 
   sl.registerLazySingleton<FavoriteRemoteDataSource>(
       () => FavoriteRemoteDataSourceImpl(apiConsumer: sl()));
@@ -100,23 +106,22 @@ Future<void> init() async {
 
 // Cart::START
   sl.registerFactory(() => CartCubit(repository: sl()));
- 
-  sl.registerLazySingleton<CartRepository>(() =>
-      CartRepositoryImpl(networkInfo: sl(), remoteDatasource: sl()));
+
+  sl.registerLazySingleton<CartRepository>(
+      () => CartRepositoryImpl(networkInfo: sl(), remoteDatasource: sl()));
 
   sl.registerLazySingleton<CartRemoteDataSource>(
       () => CartRemoteDataSourceImpl(apiConsumer: sl()));
 
 // Cart::END
 
-  sl.registerFactory(
-      () => ProfileCubit(get: sl()));
+  sl.registerFactory(() => ProfileCubit(get: sl()));
 
   sl.registerFactory(
       () => ProfileEditCubit(add: sl(), update: sl(), delete: sl()));
 
-  sl.registerLazySingleton<ProfileRepository>(() =>
-      ProfileRepositoryImpl(networkInfo: sl(), remoteDatasource: sl()));
+  sl.registerLazySingleton<ProfileRepository>(
+      () => ProfileRepositoryImpl(networkInfo: sl(), remoteDatasource: sl()));
 
   sl.registerLazySingleton(() => GetProfileUsecase(repository: sl()));
   sl.registerLazySingleton(() => AddProfileUsecase(repository: sl()));
@@ -125,7 +130,24 @@ Future<void> init() async {
 
   sl.registerLazySingleton<ProfileRemoteDataSource>(
       () => ProfileRemoteDataSourceImpl(apiConsumer: sl()));
+      
+// Customer::START
+  sl.registerFactory(() => CustomerCubit(get: sl()));
+  sl.registerFactory(
+      () => CustomerEditCubit(add: sl(), update: sl(), delete: sl()));
 
+  sl.registerLazySingleton<CustomerRepository>(
+      () => CustomerRepositoryImpl(networkInfo: sl(), remoteDatasource: sl()));
+
+  sl.registerLazySingleton(() => GetCustomerUsecase(repository: sl()));
+  sl.registerLazySingleton(() => AddCustomerUsecase(repository: sl()));
+  sl.registerLazySingleton(() => DeleteCustomerUsecase(repository: sl()));
+  sl.registerLazySingleton(() => UpdateCustomerUsecase(repository: sl()));
+
+  sl.registerLazySingleton<CustomerRemoteDataSource>(
+      () => CustomerRemoteDataSourceImpl(apiConsumer: sl()));
+
+// Customer::END
   //! External
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
