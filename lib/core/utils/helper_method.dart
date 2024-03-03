@@ -1,3 +1,5 @@
+import 'package:fashion_fusion/core/components/empty_widgte/widget.dart';
+import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_string.dart';
 import 'package:fashion_fusion/error/failures.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +12,7 @@ class HelperMethod {
     return PreferredSize(
       preferredSize: const Size.fromHeight(4.0),
       child: Container(
-        // color: AppColors.erieBlack,
+        color: AppColors.lightSeliver,
         height: 1.0,
       ),
     );
@@ -23,6 +25,24 @@ class HelperMethod {
       closeOnBackButton: true,
       overlayColor: Colors.black.withOpacity(0.3),
       child: child,
+    );
+  }
+
+  static EmptyWidget emptyWidget({String? title, String? subtitle}) {
+    return EmptyWidget(
+      image: "assets/images/error_widget.json",
+      title: title ?? "Something went wrong",
+      subTitle: subtitle,
+      hideBackgroundAnimation: true,
+    );
+  }
+
+  static EmptyWidget loadinWidget({String? title, String? subtitle}) {
+    return EmptyWidget(
+      image: "assets/images/loading_widget.json",
+      title: title ?? "Loading...",
+      subTitle: subtitle,
+      hideBackgroundAnimation: true,
     );
   }
 

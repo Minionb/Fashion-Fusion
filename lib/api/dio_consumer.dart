@@ -81,8 +81,12 @@ class DioConsumer implements ApiConsumer {
   Future put(String path,
       {Map<String, dynamic>? body,
       Map<String, dynamic>? queryParameters}) async {
-    final response =
-        await client.put(path, queryParameters: queryParameters, data: body);
+    var jsonBody = json.encode(body);
+    final response = await client.put(path,
+        queryParameters: queryParameters,
+        options: Options(
+            headers: {HttpHeaders.contentTypeHeader: "application/json"}),
+        data: jsonBody);
     return response;
   }
 
@@ -92,9 +96,12 @@ class DioConsumer implements ApiConsumer {
       bool formDataIsEnabled = false,
       Map<String, dynamic>? queryParameters}) async {
     try {
+      var jsonBody = json.encode(body);
       final response = await client.delete(path,
           queryParameters: queryParameters,
-          data: formDataIsEnabled ? FormData.fromMap(body!) : body);
+          options: Options(
+              headers: {HttpHeaders.contentTypeHeader: "application/json"}),
+          data: formDataIsEnabled ? FormData.fromMap(body!) : jsonBody);
       return response;
     } on DioException catch (error) {
       _handleDioError(error);

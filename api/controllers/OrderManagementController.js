@@ -98,10 +98,15 @@ function putCartItems(server) {
         return res.status(404).json({ message: "Product not found" });
 
       addOrUpdateCartItem(cart, product, quantity);
-
       await cart.save();
 
-      return res.status(201).send(cart);
+      const productIds = cart.cartItems.map((cartItem) => cartItem.productId);
+      const cartProducts = await ProductsModel.find({
+        _id: { $in: productIds },
+      });
+      return res
+        .status(201)
+        .send(mapToCartResponse(cart.cartItems, cartProducts));
     } catch (error) {
       console.error(error);
       return res.status(400).json({ message: error.message });
@@ -109,13 +114,24 @@ function putCartItems(server) {
   });
 }
 
-const clearCart = async (customerId) => {
+const clearCart = async (customerId, cartItems = null) => {
   const cart = await CartsModel.findOne({ customerId });
 
-  if (cart) {
+  if (cartItems !== null && cartItems.length > 0) {
+    // Extract productId values from cartItems parameter
+    const cartItemProductIds = cartItems.map((item) => item.productId);
+    cartItemProductIds.forEach((element) => {
+      // Filter out items that are not in cartItemProductIds
+      var existingCartItemIndex = getCartItemIndex(cart, element);
+      if (existingCartItemIndex > -1) {
+        cart.cartItems.splice(existingCartItemIndex, 1);
+      }
+    });
+  } else {
+    // If cartItems is null or empty, clear the entire cart
     cart.cartItems = [];
-    await cart.save();
   }
+  await cart.save();
 };
 
 // DELETE /cart/items
@@ -191,25 +207,34 @@ async function getCartItems(server) {
       });
 
       // Construct separate response objects for cart items with prices
-      const responseItems = cartItems.map((cartItem) => {
-        const product = OrderService.getProduct(
-          cartProducts,
-          cartItem.productId
-        );
-        return {
-          productId: cartItem.productId,
-          quantity: cartItem.quantity,
-          price: product ? product.price : null,
-          productName: product ? product.product_name : null,
-        };
-      });
-
-      return res.status(200).json(responseItems);
+      const cartReponse = mapToCartResponse(cartItems, cartProducts);
+      return res.status(200).json(cartReponse);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Internal Server Error" });
     }
   });
+}
+
+function mapToCartResponse(cartItems, cartProducts) {
+  return cartItems.map((cartItem) => {
+    const product = OrderService.getProduct(cartProducts, cartItem.productId);
+    return mapToCartItemResponse(cartItem, product);
+  });
+}
+
+function mapToCartItemResponse(cartItem, product) {
+  return {
+    productId: cartItem.productId,
+    quantity: cartItem.quantity,
+    price: product ? product.price : null,
+    productName: product ? product.product_name : null,
+    imageId: product
+      ? product.images.length > 0
+        ? product.images[0]
+        : ""
+      : "",
+  };
 }
 
 // POST /cart/checkout
@@ -246,6 +271,44 @@ function checkoutCart(server) {
       );
 
       await clearCart(customerId);
+
+      res.status(201).json({ message: "Order created successfully", order });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
+}
+// POST /checkout
+function checkout(server) {
+  server.post("/checkout", async (req, res) => {
+    await verifyToken(req, res);
+    try {
+      const customerId = req.userId;
+
+      // Assuming delivery method and courier are provided in the request body
+      const paymentMethod = req.body.paymentMethod;
+      const deliveryMethod = req.body.deliveryMethod;
+      const courier = req.body.courier;
+      const cardNumber = req.body.cardNumber;
+      const cartItems = req.body.cartItems;
+      // Check if cartItems is empty
+      if (cartItems.length === 0) {
+        return res
+          .status(400)
+          .json({ message: "Cart is empty. Cannot proceed with checkout." });
+      }
+
+      const order = await OrderService.createOrder(
+        customerId,
+        cartItems,
+        paymentMethod,
+        cardNumber,
+        deliveryMethod,
+        courier
+      );
+
+      await clearCart(customerId, cartItems);
 
       res.status(201).json({ message: "Order created successfully", order });
     } catch (error) {
@@ -362,6 +425,8 @@ const addFavoriteItem = async (req, res) => {
   await verifyToken(req, res);
   const customerId = req.userId;
   const { productId } = req.body;
+  if (productId == null)
+    res.status(400).json({ error: "Bad request. productId is required" });
 
   try {
     const productIdObj = new mongoose.Types.ObjectId(productId);
@@ -412,7 +477,7 @@ const getFavoriteItems = async (req, res) => {
     const favorite = await getOrDefaultFavorites(customerId);
     const favoriteProductIds = favorite.favoriteItems;
     if (!favoriteProductIds || favoriteProductIds.length == 0)
-      return res.status(200).json(responseItems);
+      return res.status(200).json(favoriteProductIds);
     const faveProducts = await ProductsModel.find({
       _id: { $in: favoriteProductIds },
     });
@@ -420,10 +485,16 @@ const getFavoriteItems = async (req, res) => {
     // Construct separate response objects for cart items with prices
     const responseItems = favoriteProductIds.map((productId) => {
       const product = OrderService.getProduct(faveProducts, productId);
+      const imageId = product
+        ? product.images.length > 0
+          ? product.images[0]
+          : ""
+        : "";
       return {
-        productId: productId.productId,
+        productId: productId,
         price: product ? product.price : null,
         productName: product ? product.product_name : null,
+        imageId: imageId,
       };
     });
 
@@ -451,7 +522,8 @@ class OrderManagementController {
     deleteCartItems(server);
     deleteCartItemsProduct(server);
     getCartItems(server);
-    checkoutCart(server);
+    // checkoutCart(server);
+    checkout(server);
 
     getOrders(server);
     getOrderById(server);

@@ -33,6 +33,8 @@ dependencies:
   flutter_staggered_animations: ^1.1.1
 
   lottie: ^3.0.0
+  mason: ^0.1.0-dev.52
+  shimmer: ^3.0.0
 
 
 

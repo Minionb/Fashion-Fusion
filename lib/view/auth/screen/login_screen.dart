@@ -56,6 +56,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Save the token
                       sl<SharedPreferences>()
                           .setString("token", model.accessToken ?? "");
+                      sl<SharedPreferences>()
+                          .setString("accessToken", model.accessToken ?? "");
+                      sl<SharedPreferences>()
+                          .setString("refreshToken", model.refreshToken ?? "");
                       // Save the status of login if the login is successful
                       sl<SharedPreferences>().setBool("isLogin", true);
                       // Save userID if the login is successful
@@ -65,9 +69,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       // context.pushNamedAndRemoveUntil(Routes.mainScren);
 
                       if (decodedToken["userType"] == "customer") {
+                        sl<SharedPreferences>()
+                            .setString("userType", "customer");
                         // Push to navBar Screen for Customer
                         context.pushNamedAndRemoveUntil(Routes.mainScren);
                       } else {
+                        sl<SharedPreferences>()
+                            .setString("userType", "admin");
                         // Push to navBar Screen for Admin
                         context.pushNamedAndRemoveUntil(Routes.adminMainScreen);
                       }

@@ -219,7 +219,6 @@ function postProductImages(server) {
 function getProductImages(server) {
   // GET /products/images/:id
   server.get("/products/images/:id", async (req, res) => {
-    await verifyToken(req, res);
     try {
       const productImageId = req.params.id;
 
