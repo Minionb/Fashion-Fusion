@@ -1,12 +1,15 @@
 import 'package:fashion_fusion/api/end_points.dart';
+import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/widgets/cart_button.dart';
 import 'package:fashion_fusion/core/widgets/like_button.dart';
 import 'package:fashion_fusion/data/favorite/model/favorite_model.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
 import 'package:fashion_fusion/view/home/widget/app_bar.dart';
+import 'package:fashion_fusion/view/home/widget/empty_list_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 class ViewFavoritesScreen extends StatefulWidget {
   const ViewFavoritesScreen({super.key});
@@ -18,16 +21,16 @@ class ViewFavoritesScreen extends StatefulWidget {
 class _ViewFavoritesScreenState extends State<ViewFavoritesScreen> {
   late List<FavoriteModel> _favorites;
 
-  Future<void> _fetchFavorites(FavoriteCubit favoriteCubit) async {
+  Future<void> _fetchFavorites() async {
     setState(() {
-      favoriteCubit.getFavorite();
+      context.read<FavoriteCubit>().getFavorite();
     });
   }
 
   @override
   void initState() {
     super.initState();
-    _fetchFavorites(context.read<FavoriteCubit>());
+    _fetchFavorites();
   }
 
   @override
@@ -39,7 +42,7 @@ class _ViewFavoritesScreenState extends State<ViewFavoritesScreen> {
           child: NestedScrollView(
             headerSliverBuilder: (BuildContext context, bool innerBoxScrolled) {
               return <Widget>[
-                const HomescreenAppBar(title: "Favorite"),
+                const HomescreenAppBar(title: "Favorites"),
               ];
             },
             body: BlocBuilder<FavoriteCubit, FavoriteState>(
@@ -49,20 +52,40 @@ class _ViewFavoritesScreenState extends State<ViewFavoritesScreen> {
                   _favorites = state.models
                       .where((favorite) => favorite.isFavorite ?? true)
                       .toList();
+                  return _buildFavoriteBody(context);
+                } else {
                   return RefreshIndicator(
                       onRefresh: () async {
-                        _fetchFavorites(context.read<FavoriteCubit>());
+                        _fetchFavorites();
                       },
-                      child: _buildFavoriteList());
-                } else {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
+                      child: const Center(
+                        child: CircularProgressIndicator(),
+                      ));
                 }
               },
             ),
           )),
     ));
+  }
+
+  RefreshIndicator _buildFavoriteBody(BuildContext context) {
+    var buildFavoriteList = _favorites.isNotEmpty
+        ? _buildFavoriteList()
+        : const EmptyListWidget(text: "No favorites yet");
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        _fetchFavorites();
+      },
+      child: AnimationLimiter(
+        child: Scaffold(
+          body: Padding(
+            padding: const EdgeInsets.all(16.0), // Add padding
+            child: buildFavoriteList,
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildFavoriteList() {
@@ -71,7 +94,7 @@ class _ViewFavoritesScreenState extends State<ViewFavoritesScreen> {
       itemBuilder: (context, index) {
         final favorite = _favorites[index];
         return FavoriteListItem(
-            favorite: favorite,
+            model: favorite,
             onLikeStatusChanged: (isLiked) {
               setState(() {
                 favorite.isFavorite = isLiked;
@@ -83,13 +106,13 @@ class _ViewFavoritesScreenState extends State<ViewFavoritesScreen> {
 }
 
 class FavoriteListItem extends StatelessWidget {
-  final FavoriteModel favorite;
+  final FavoriteModel model;
   final Function(bool isLiked) onLikeStatusChanged; // Callback function
   final VoidCallback onAddToCardPressed; // Callback function for add button
 
   const FavoriteListItem({
     super.key,
-    required this.favorite,
+    required this.model,
     this.onAddToCardPressed = _defaultOnAddToCardPressed,
     this.onLikeStatusChanged = _defaultOnLikeStatusChanged,
   });
@@ -105,40 +128,84 @@ class FavoriteListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Image.network(
-        _imageUrl(),
-        width: 50,
-        height: 50,
-        fit: BoxFit.cover,
-      ),
-      title: Text(favorite.productName ?? 'Product Description'),
-      subtitle: Text('\$${favorite.price ?? 0.toStringAsFixed(2)}'),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AddCartButton(
-            productId: favorite.productId ?? '',
-            isDark: false,
+    return Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.lightGray), // Add border
+          borderRadius: BorderRadius.circular(8.0), // Add border radius
+        ),
+        margin: const EdgeInsets.only(bottom: 16.0), // Add margin
+        child: ListTile(
+          leading: ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(8.0),
+              bottomLeft: Radius.circular(8.0),
+            ),
+            clipBehavior: Clip.hardEdge,
+            child: Image.network(
+              _imageUrl(),
+              width: 80,
+              height: double.infinity,
+              fit: BoxFit.cover,
+            ),
           ),
-          const SizedBox(width: 16), // Add some spacing between the buttons
-          LikeButton(
-            isFavorite: favorite.isFavorite ?? true,
-            productId: favorite.productId ?? '',
-            onLikeStatusChanged: onLikeStatusChanged,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _productName(),
+            ],
           ),
-        ],
-      ),
-    );
+          subtitle: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _price(),
+              Row(
+                children: [
+                  AddCartButton(
+                    productId: model.productId,
+                    isDark: false,
+                  ),
+                  const SizedBox(width: 16),
+                  LikeButton(
+                    isFavorite: model.isFavorite ?? true,
+                    productId: model.productId,
+                    onLikeStatusChanged: onLikeStatusChanged,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ));
   }
 
   String _imageUrl() {
     var imageUrl =
         'https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png';
-    if (favorite.imageId?.isNotEmpty ?? true) {
+    if (model.imageId.isNotEmpty) {
       imageUrl = EndPoints.getProductImagesByImageId
-          .replaceAll(":imageId", favorite.imageId ?? '');
+          .replaceAll(":imageId", model.imageId);
     }
     return imageUrl;
+  }
+
+  Widget _price() {
+    return Padding(
+        padding: const EdgeInsets.only(left: 8.0),
+        child: Text(
+          "\$${model.price.toStringAsFixed(2)}",
+          style: TextStyle(color: AppColors.textGray),
+        ));
+  }
+
+  Widget _productName() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0), // Add padding
+      child: Text(
+        model.productName,
+        maxLines: 2,
+        textAlign: TextAlign.left,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+    );
   }
 }

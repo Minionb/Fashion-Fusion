@@ -111,7 +111,7 @@ class CartItemWidget extends StatelessWidget {
   String _imageUrl() {
     var imageUrl =
         'https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png';
-    if (model.imageId?.isNotEmpty ?? true) {
+    if (model.imageId.isNotEmpty) {
       imageUrl = EndPoints.getProductImagesByImageId
           .replaceAll(":imageId", model.imageId);
     }
@@ -173,12 +173,12 @@ class CartItemWidget extends StatelessWidget {
               children: [
                 const SizedBox(width: 16),
                 RemoveCartButton(
-                  productId: model.productId,
-                ),
+                    productId: model.productId, animateCondition: () => false),
                 const SizedBox(width: 16),
                 Text(model.quantity.toString()), // Quantity
                 const SizedBox(width: 16),
-                AddCartButton(productId: model.productId),
+                AddCartButton(
+                    productId: model.productId, animateCondition: () => false),
               ],
             ),
             _price(),
