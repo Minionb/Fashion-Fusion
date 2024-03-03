@@ -53,7 +53,7 @@ class _ViewFavoritesScreenState extends State<ViewFavoritesScreen> {
                   _favorites = state.models
                       .where((favorite) => favorite.isFavorite ?? true)
                       .toList();
-                  return _buildFavoriteBody(context);
+                  return _buildFavoriteBody();
                 } else {
                   return RefreshIndicator(
                       onRefresh: () async {
@@ -69,7 +69,7 @@ class _ViewFavoritesScreenState extends State<ViewFavoritesScreen> {
     ));
   }
 
-  RefreshIndicator _buildFavoriteBody(BuildContext context) {
+  RefreshIndicator _buildFavoriteBody() {
     var buildFavoriteList = _favorites.isNotEmpty
         ? _buildFavoriteList()
         : const EmptyListWidget(text: "No favorites yet");
@@ -90,19 +90,16 @@ class _ViewFavoritesScreenState extends State<ViewFavoritesScreen> {
   }
 
   Widget _buildFavoriteList() {
-    return ListView.builder(
-      itemCount: _favorites.length,
-      itemBuilder: (context, index) {
-        final favorite = _favorites[index];
-        return FavoriteListItem(
+    List<FavoriteListItem> favoriteList = _favorites
+        .map((favorite) => FavoriteListItem(
             model: favorite,
             onLikeStatusChanged: (isLiked) {
               setState(() {
                 favorite.isFavorite = isLiked;
               });
-            });
-      },
-    );
+            }))
+        .toList();
+    return ListView(children: [...favoriteList]);
   }
 }
 

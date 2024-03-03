@@ -440,8 +440,17 @@ const addFavoriteItem = async (req, res) => {
       favorite.favoriteItems.push(productId);
       await favorite.save();
     }
+    const favoriteProductIds = favorite.favoriteItems;
+    const faveProducts = await ProductsModel.find({
+      _id: { $in: favoriteProductIds },
+    });
 
-    res.status(201).json({ message: "Item added to favorites successfully" });
+    // Construct separate response objects for cart items with prices
+    const responseItems = favoriteProductIds.map((productId) => {
+      return mapFavoriteItemResponse(faveProducts, productId);
+    });
+
+    res.status(201).json(responseItems);
   } catch (error) {
     console.error("Error adding item to favorites:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -462,7 +471,16 @@ const removeFavoriteItem = async (req, res) => {
     );
     await favorite.save();
 
-    res.json({ message: "Item removed from favorites successfully" });
+    const favoriteProductIds = favorite.favoriteItems;
+    const faveProducts = await ProductsModel.find({
+      _id: { $in: favoriteProductIds },
+    });
+
+    // Construct separate response objects for cart items with prices
+    const responseItems = favoriteProductIds.map((productId) => {
+      return mapFavoriteItemResponse(faveProducts, productId);
+    });
+    res.status(201).json(responseItems);
   } catch (error) {
     console.error("Error removing item from favorites:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -484,18 +502,7 @@ const getFavoriteItems = async (req, res) => {
 
     // Construct separate response objects for cart items with prices
     const responseItems = favoriteProductIds.map((productId) => {
-      const product = OrderService.getProduct(faveProducts, productId);
-      const imageId = product
-        ? product.images.length > 0
-          ? product.images[0]
-          : ""
-        : "";
-      return {
-        productId: productId,
-        price: product ? product.price : null,
-        productName: product ? product.product_name : null,
-        imageId: imageId,
-      };
+      return mapFavoriteItemResponse(faveProducts, productId);
     });
 
     return res.status(200).json(responseItems);
@@ -505,6 +512,20 @@ const getFavoriteItems = async (req, res) => {
   }
 };
 
+function mapFavoriteItemResponse(faveProducts, productId) {
+  const product = OrderService.getProduct(faveProducts, productId);
+  const imageId = product
+    ? product.images.length > 0
+      ? product.images[0]
+      : ""
+    : "";
+  return {
+    productId: productId,
+    price: product ? product.price : null,
+    productName: product ? product.product_name : null,
+    imageId: imageId,
+  };
+}
 // Enclose each endpoint handler in a function that accepts a server
 const attachFavoritesRoutes = (server) => {
   server.put("/favorite/items", addFavoriteItem);
@@ -534,3 +555,4 @@ class OrderManagementController {
 }
 
 module.exports = OrderManagementController;
+
