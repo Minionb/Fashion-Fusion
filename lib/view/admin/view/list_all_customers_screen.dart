@@ -34,7 +34,7 @@ class ListAllCustomersScreen extends StatelessWidget {
                 itemCount: mdoel.model?.length ?? 0);
           }
           if (state is CustomerErrorState) {
-            return HelperMethod.loadinWidget();
+            return HelperMethod.emptyWidget();
           }
           return const SizedBox();
         },
