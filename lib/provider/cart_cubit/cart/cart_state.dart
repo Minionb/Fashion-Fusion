@@ -11,11 +11,14 @@ class CartInitial extends CartState {}
 
 class CartIsLoadingState extends CartState {}
 
-class CartSuccessState extends CartState {}
+class CartSuccessState extends CartState {
+  final List<CartItemModel> models;
+  const CartSuccessState({required this.models});
+}
 
 class CartLoadedState extends CartState {
   final List<CartItemModel> models;
-  
+
   const CartLoadedState({required this.models});
 }
 

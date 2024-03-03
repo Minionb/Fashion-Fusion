@@ -27,7 +27,7 @@ import 'package:fashion_fusion/data/profile/usecase/delete_profile_usecase.dart'
 import 'package:fashion_fusion/data/profile/usecase/get_profile_usecase.dart';
 import 'package:fashion_fusion/data/profile/usecase/update_profile_usecase.dart';
 import 'package:fashion_fusion/provider/auth/auth_cubit.dart';
-import 'package:fashion_fusion/provider/cart_cubit/cart_cubit.dart';
+import 'package:fashion_fusion/provider/cart_cubit/cart/cart_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite_edit/favorite_edit_cubit.dart';
 import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';

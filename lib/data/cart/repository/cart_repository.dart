@@ -10,7 +10,7 @@ import '../model/cart_item_model.dart';
 abstract class CartRepository {
   Future<Either<Failure, List<CartItemModel>>> getCartItems();
   Future<Either<Failure, Unit>> deleteCartItems(DeleteCartItemModel model);
-  Future<Either<Failure, Unit>> putCartItems(PutCartItemModel model);
+  Future<Either<Failure, List<CartItemModel>>> putCartItems(PutCartItemModel model);
 }
 
 class CartRepositoryImpl implements CartRepository {
@@ -33,7 +33,7 @@ class CartRepositoryImpl implements CartRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> putCartItems(PutCartItemModel model) async {
+  Future<Either<Failure, List<CartItemModel>>> putCartItems(PutCartItemModel model) async {
     if (await networkInfo.isConnected) {
       try {
         final response = await remoteDatasource.putCartItems(model);

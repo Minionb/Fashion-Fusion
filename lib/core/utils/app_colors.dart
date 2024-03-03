@@ -5,6 +5,7 @@ class AppColors {
   static Color primary = HexColor("DB3022");
   static Color bg = HexColor("F9F9F9");
   static Color textGray = HexColor("9B9B9B");
+  static Color lightGray = const Color.fromARGB(255, 214, 214, 214);
   static Color lightSeliver = HexColor("D9D9D9");
   static Color darkSeliver = HexColor("707070");
 
