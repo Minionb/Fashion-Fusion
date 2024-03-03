@@ -1,6 +1,11 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
+import 'package:fashion_fusion/provider/cart_cubit/cart/cart_cubit.dart';
+import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
+import 'package:fashion_fusion/provider/favorite_cubit/favorite_edit/favorite_edit_cubit.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
+import 'package:fashion_fusion/view/home/screen/cart_screen.dart';
+import 'package:fashion_fusion/view/home/screen/favorite_screen.dart';
 import 'package:fashion_fusion/view/home/screen/home_screen.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_details.dart';
 import 'package:flutter/cupertino.dart';
@@ -60,9 +65,40 @@ class _NavBarState extends State<NavBar> {
 
   List<Widget> _buildScreens() {
     return [
-      const HomeScreen(),
-      Container(),
-      Container(),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<FavoriteCubit>(
+            create: (context) => sl<FavoriteCubit>()..getFavorite(),
+          ),
+          BlocProvider<FavoriteEditCubit>(
+            create: (context) => sl<FavoriteEditCubit>(),
+          ),
+          BlocProvider<CartCubit>(
+            create: (context) => sl<CartCubit>()..getCartItems(),
+          ),
+        ],
+        child: const HomeScreen(),
+      ),
+      BlocProvider(
+        create: (context) => sl<CartCubit>()
+          ..getCartItems(),
+        child: const CartScreen(),
+      ),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<FavoriteCubit>(
+            create: (context) => sl<FavoriteCubit>()..getFavorite(),
+          ),
+          BlocProvider<FavoriteEditCubit>(
+            create: (context) => sl<
+                FavoriteEditCubit>(), // Assuming you have registered FavoriteEditCubit in your dependency injection
+          ),
+          BlocProvider<CartCubit>(
+            create: (context) => sl<CartCubit>()..getCartItems(),
+          ),
+        ],
+        child: const ViewFavoritesScreen(),
+      ),
       BlocProvider(
         create: (context) => sl<ProfileCubit>()
           ..getProfile(sl<SharedPreferences>().getString("userID")!),

@@ -1,4 +1,5 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
+import 'package:fashion_fusion/core/widgets/cart_button.dart';
 import 'package:fashion_fusion/core/widgets/like_button.dart';
 import 'package:fashion_fusion/view/home/screen/home_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,7 +22,7 @@ class ProductCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Expanded(child: _image()),
+          Expanded(child: _image(context)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0).w,
             child: Column(
@@ -31,7 +32,7 @@ class ProductCard extends StatelessWidget {
                 _label(),
                 7.verticalSpace,
                 Row(
-                  children: [_price(), const Spacer(), _addPacket()],
+                  children: [_price(), const Spacer(), AddCartButton(productId: model.id, isDark: true,)],
                 ),
               ],
             ),
@@ -41,19 +42,7 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  Container _addPacket() {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration:
-          const BoxDecoration(color: Colors.black, shape: BoxShape.circle),
-      child: Icon(
-        CupertinoIcons.add,
-        color: Colors.white,
-        size: 18.sp,
-      ),
-    );
-  }
-
+// Method to create the price text widget
   Text _price() {
     return Text(
       "\$${model.price.toStringAsFixed(2)}",
@@ -61,6 +50,7 @@ class ProductCard extends StatelessWidget {
     );
   }
 
+// Method to create the label text widget
   Text _label() {
     return Text(
       model.label,
@@ -71,7 +61,8 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  ClipRRect _image() {
+// Method to create the image widget
+  ClipRRect _image(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(12).w,
       child: Stack(
@@ -82,6 +73,7 @@ class ProductCard extends StatelessWidget {
             alignment: Alignment.topCenter,
             width: double.infinity,
           ),
+          // Adding a like button at the top right corner of the image
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Align(
@@ -92,7 +84,7 @@ class ProductCard extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: AppColors.bg,
                   ),
-                  child: LikeButton()),
+                  child: LikeButton(productId: model.id, isFavorite: model.isFavorite,)),
             ),
           )
         ],
