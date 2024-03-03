@@ -1,6 +1,5 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
-import 'package:fashion_fusion/core/widgets/skelton.dart';
 import 'package:fashion_fusion/provider/customerCubit/customer/customer_cubit.dart';
 import 'package:fashion_fusion/view/admin/widget/customer_card.dart';
 import 'package:flutter/material.dart';
@@ -41,17 +40,5 @@ class ListAllCustomersScreen extends StatelessWidget {
         },
       ),
     );
-  }
-
-  ListView _loadinList() {
-    return ListView.separated(
-        padding: const EdgeInsets.fromLTRB(15, 15, 15, 50).w,
-        itemBuilder: (context, index) {
-          return const Skelton(
-            height: 80,
-          );
-        },
-        separatorBuilder: (context, index) => 10.verticalSpace,
-        itemCount: 10);
   }
 }

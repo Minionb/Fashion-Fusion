@@ -1,5 +1,4 @@
-
-import 'package:fashion_fusion/core/utils/avatar_picture.dart';
+import 'package:fashion_fusion/core/widgets/profile_avatar.dart';
 import 'package:fashion_fusion/data/customer/model/customer_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -17,14 +16,9 @@ class CustomerCard extends StatelessWidget {
     return ListTile(
       title: Text("${user?.firstName} ${user?.lastName}"),
       subtitle: Text(user?.email ?? ""),
-      leading: CircleAvatar(
-        backgroundColor: getUserAvatarNameColor(user?.sId ?? ""),
-        child: Text(
-          user?.firstName?.isNotEmpty == true
-              ? user!.firstName![0].toUpperCase()
-              : user!.lastName![0].toUpperCase(),
-          style: const TextStyle(color: Colors.white),
-        ),
+      leading: ProfileAvatar(
+        id: user?.sId ?? "",
+        name: user?.firstName ?? "",
       ),
       trailing: const Icon(Icons.arrow_forward_ios),
     );
