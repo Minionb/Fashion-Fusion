@@ -4,6 +4,7 @@ import 'package:fashion_fusion/core/widgets/cart_button.dart';
 import 'package:fashion_fusion/core/widgets/like_button.dart';
 import 'package:fashion_fusion/data/favorite/model/favorite_model.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
+import 'package:fashion_fusion/view/home/widget/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -32,32 +33,36 @@ class _ViewFavoritesScreenState extends State<ViewFavoritesScreen> {
   @override
   Widget build(BuildContext context) {
     return HelperMethod.loader(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Favorites'),
-        ),
-        body: BlocBuilder<FavoriteCubit, FavoriteState>(
-          builder: (context, state) {
-            if (state is FavoriteIsLoadingState) {}
-            if (state is FavoriteLoadedState) {
-              _favorites = state.models
-                  .where((favorite) => favorite.isFavorite ?? true)
-                  .toList();
-              return RefreshIndicator(
-                  onRefresh: () async {
-                    _fetchFavorites(context
-                        .read<FavoriteCubit>()); // Trigger fetching favorites
-                  },
-                  child: _buildFavoriteList());
-            } else {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-          },
-        ),
-      ),
-    );
+        child: Scaffold(
+      body: SafeArea(
+          bottom: false,
+          child: NestedScrollView(
+            headerSliverBuilder: (BuildContext context, bool innerBoxScrolled) {
+              return <Widget>[
+                const HomescreenAppBar(title: "Favorite"),
+              ];
+            },
+            body: BlocBuilder<FavoriteCubit, FavoriteState>(
+              builder: (context, state) {
+                if (state is FavoriteIsLoadingState) {}
+                if (state is FavoriteLoadedState) {
+                  _favorites = state.models
+                      .where((favorite) => favorite.isFavorite ?? true)
+                      .toList();
+                  return RefreshIndicator(
+                      onRefresh: () async {
+                        _fetchFavorites(context.read<FavoriteCubit>());
+                      },
+                      child: _buildFavoriteList());
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              },
+            ),
+          )),
+    ));
   }
 
   Widget _buildFavoriteList() {
@@ -112,7 +117,10 @@ class FavoriteListItem extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AddCartButton(productId: favorite.productId?? '', isDark: false,),
+          AddCartButton(
+            productId: favorite.productId ?? '',
+            isDark: false,
+          ),
           const SizedBox(width: 16), // Add some spacing between the buttons
           LikeButton(
             isFavorite: favorite.isFavorite ?? true,

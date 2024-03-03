@@ -4,11 +4,9 @@ import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/widgets/cart_button.dart';
 import 'package:fashion_fusion/data/cart/model/cart_item_model.dart';
 import 'package:fashion_fusion/view/home/widget/app_bar.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:fashion_fusion/view/home/widget/empty_list_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 import '../../../provider/cart_cubit/cart/cart_cubit.dart';
@@ -24,9 +22,9 @@ class _CartScreenState extends State<CartScreen> {
   int catIndex = 0;
   late List<CartItemModel> cartItems;
 
-  Future<void> _fetchCartItems(CartCubit cartCubit) async {
+  Future<void> _fetchCartItems() async {
     setState(() {
-      cartCubit.getCartItems();
+      context.read<CartCubit>().getCartItems();
     });
   }
 
@@ -56,7 +54,7 @@ class _CartScreenState extends State<CartScreen> {
           } else {
             return RefreshIndicator(
                 onRefresh: () async {
-                  _fetchCartItems(context.read<CartCubit>());
+                  _fetchCartItems();
                 },
                 child: const Center(
                   child: CircularProgressIndicator(),
@@ -73,11 +71,11 @@ class _CartScreenState extends State<CartScreen> {
     if (cartItemWidgets.isNotEmpty) {
       cartBody = _buildShoppingCartItems(cartItemWidgets);
     } else {
-      cartBody = const Text("No items in cart");
+      cartBody = const EmptyListWidget(text: "No items in shopping cart.");
     }
     return RefreshIndicator(
       onRefresh: () async {
-        _fetchCartItems(context.read<CartCubit>());
+        _fetchCartItems();
       },
       child: AnimationLimiter(
         child: Scaffold(
