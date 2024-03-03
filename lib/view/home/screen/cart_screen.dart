@@ -3,6 +3,7 @@ import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/widgets/cart_button.dart';
 import 'package:fashion_fusion/data/cart/model/cart_item_model.dart';
+import 'package:fashion_fusion/view/home/widget/app_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -38,19 +39,19 @@ class _CartScreenState extends State<CartScreen> {
         child: NestedScrollView(
             headerSliverBuilder: (BuildContext context, bool innerBoxScrolled) {
           return <Widget>[
-            _buildAppBar1(),
+            const HomescreenAppBar(title: "Shopping Cart"),
           ];
         }, body: BlocBuilder<CartCubit, CartState>(builder: (context, state) {
           if (state is CartSuccessState) {
             cartItems = state.models;
-            return _buildShoppingCart(cartItems
+            return _buildShoppingCartBody(cartItems
                 .map((item) => CartItemWidget(
                       model: item,
                     ))
                 .toList());
           } else if (state is CartLoadedState) {
             cartItems = state.models;
-            return _buildShoppingCart(
+            return _buildShoppingCartBody(
                 cartItems.map((item) => CartItemWidget(model: item)).toList());
           } else {
             return RefreshIndicator(
@@ -66,72 +67,40 @@ class _CartScreenState extends State<CartScreen> {
     ));
   }
 
-RefreshIndicator _buildShoppingCart(List<CartItemWidget> cartItemWidgets) {
-  return RefreshIndicator(
-    onRefresh: () async {
-      _fetchCartItems(context.read<CartCubit>());
-    },
-    child: AnimationLimiter(
-      child: Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.all(16.0), // Add padding
-          child: ListView(
-            children: [
-              ...cartItemWidgets,
-              const SizedBox(height: 16),
-              const CouponCodeField(),
-              const SizedBox(height: 16),
-              TotalAmountWidget(cartItems: cartItems),
-              const SizedBox(height: 16),
-              const CheckoutButton(),
-            ],
+  RefreshIndicator _buildShoppingCartBody(
+      List<CartItemWidget> cartItemWidgets) {
+    Widget cartBody;
+    if (cartItemWidgets.isNotEmpty) {
+      cartBody = _buildShoppingCartItems(cartItemWidgets);
+    } else {
+      cartBody = const Text("No items in cart");
+    }
+    return RefreshIndicator(
+      onRefresh: () async {
+        _fetchCartItems(context.read<CartCubit>());
+      },
+      child: AnimationLimiter(
+        child: Scaffold(
+          body: Padding(
+            padding: const EdgeInsets.all(16.0), // Add padding
+            child: cartBody,
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-
-  SliverAppBar _buildAppBar1() {
-    return SliverAppBar(
-      expandedHeight: 90.sp,
-      floating: false,
-      elevation: 0,
-      systemOverlayStyle: SystemUiOverlayStyle.dark,
-      flexibleSpace: FlexibleSpaceBar(
-        collapseMode: CollapseMode.parallax,
-        background: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AppBar(
-              systemOverlayStyle: SystemUiOverlayStyle.dark,
-              leading: const Icon(CupertinoIcons.line_horizontal_3),
-              elevation: 0,
-              actions: [
-                Row(
-                  children: [
-                    const Icon(CupertinoIcons.search),
-                    10.horizontalSpace,
-                    const Icon(CupertinoIcons.bell),
-                    15.horizontalSpace
-                  ],
-                )
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0).w,
-              child: Text(
-                "Shopping Cart",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24.sp,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+  ListView _buildShoppingCartItems(List<CartItemWidget> cartItemWidgets) {
+    return ListView(
+      children: [
+        ...cartItemWidgets,
+        const SizedBox(height: 16),
+        const CouponCodeField(),
+        const SizedBox(height: 16),
+        TotalAmountWidget(cartItems: cartItems),
+        const SizedBox(height: 16),
+        const CheckoutButton(),
+      ],
     );
   }
 }
