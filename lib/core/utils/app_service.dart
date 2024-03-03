@@ -33,6 +33,7 @@ import 'package:fashion_fusion/data/profile/usecase/delete_profile_usecase.dart'
 import 'package:fashion_fusion/data/profile/usecase/get_profile_usecase.dart';
 import 'package:fashion_fusion/data/profile/usecase/update_profile_usecase.dart';
 import 'package:fashion_fusion/provider/auth/auth_cubit.dart';
+<<<<<<< HEAD
 import 'package:fashion_fusion/provider/cart_cubit/cart_cubit.dart';
 
 import 'package:fashion_fusion/provider/customerCubit/customer/customer_cubit.dart';
@@ -40,6 +41,9 @@ import 'package:fashion_fusion/provider/customerCubit/customer_edit/customer_edi
 
 
 
+=======
+import 'package:fashion_fusion/provider/cart_cubit/cart/cart_cubit.dart';
+>>>>>>> 11d197b7ad7116288440c08aa6112f53afd85d35
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite_edit/favorite_edit_cubit.dart';
 import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';

@@ -1,9 +1,10 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/data/cart/model/put_item_model.dart';
-import 'package:fashion_fusion/provider/cart_cubit/cart_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../../provider/cart_cubit/cart/cart_cubit.dart';
 
 abstract class CartButton extends StatefulWidget {
   final bool isDark;
@@ -42,7 +43,7 @@ class AddCartButton extends CartButton {
       required super.productId}); // Updated constructor
 
   @override
-  State<CartButton> createState() => _AddCartButtonState();
+  State<CartButton> createState() => _CartButtonState();
 }
 
 class RemoveCartButton extends CartButton {
@@ -51,14 +52,16 @@ class RemoveCartButton extends CartButton {
     super.isDark = true,
     super.icon = Icons.remove,
     super.quantityUpdate = -1,
+    super.onTap,
+    super.onTapCondition,
     required super.productId,
   }); // Updated constructor
 
   @override
-  State<CartButton> createState() => _AddCartButtonState();
+  State<CartButton> createState() => _CartButtonState();
 }
 
-class _AddCartButtonState extends State<CartButton>
+class _CartButtonState extends State<CartButton>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
       duration: const Duration(milliseconds: 200), vsync: this, value: 1.0);
@@ -83,7 +86,7 @@ class _AddCartButtonState extends State<CartButton>
           // Define onTap callback, executed when the widget is tapped
           onTap: () {
             // Reverse the animation controller and then forward it to trigger the scale animation
-            _controller.reverse().then((value) => _controller.forward());
+            // _controller.reverse().then((value) => _controller.forward());
             if (widget.onTapCondition()) {
               cartCubit.putCartItems(PutCartItemModel(
                   productId: widget.productId,

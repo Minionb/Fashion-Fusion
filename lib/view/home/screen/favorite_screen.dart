@@ -4,7 +4,10 @@ import 'package:fashion_fusion/core/widgets/cart_button.dart';
 import 'package:fashion_fusion/core/widgets/like_button.dart';
 import 'package:fashion_fusion/data/favorite/model/favorite_model.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
+<<<<<<< HEAD
 
+=======
+>>>>>>> 11d197b7ad7116288440c08aa6112f53afd85d35
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

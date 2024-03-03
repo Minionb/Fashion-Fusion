@@ -23,6 +23,6 @@ class CartCubit extends Cubit<CartState> {
     final response = await repository.putCartItems(models);
     emit(response.fold(
         (l) => CartErrorState(message: HelperMethod.mapFailureToMsg(l)),
-        (r) => CartSuccessState()));
+        (r) => CartSuccessState(models: r)));
   }
 }

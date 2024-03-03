@@ -12,7 +12,7 @@ import 'package:dio/dio.dart';
 abstract class CartRemoteDataSource {
   Future<List<CartItemModel>> getCartItems();
   Future<Unit> deleteCartItems(DeleteCartItemModel model);
-  Future<Unit> putCartItems(PutCartItemModel model);
+  Future<List<CartItemModel>> putCartItems(PutCartItemModel model);
 }
 
 class CartRemoteDataSourceImpl implements CartRemoteDataSource {
@@ -49,11 +49,15 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   }
 
   @override
-  Future<Unit> putCartItems(PutCartItemModel model) async {
+  Future<List<CartItemModel>> putCartItems(PutCartItemModel model) async {
     final response =
         await apiConsumer.put(EndPoints.putCartItems, body: model.toJson());
     if (response.statusCode == 201 || response.statusCode == 200) {
-      return Future.value(unit);
+      final List<dynamic> jsonList = json.decode(response.data);
+      final List<CartItemModel> cartItemModels =
+            jsonList.map((json) => CartItemModel.fromJson(json)).toList();
+
+      return Future.value(cartItemModels);
     } else {
       throw const ServerException();
     }
