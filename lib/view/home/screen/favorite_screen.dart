@@ -1,4 +1,3 @@
-import 'package:fashion_fusion/api/end_points.dart';
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/widgets/cart_button.dart';
