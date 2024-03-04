@@ -46,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
           if (state is FavoriteLoadedState) {
             _favoriteIds = state.models
             .map((model) => model.productId)
-            .where((element) => element != null && element.isNotEmpty)
+            .where((element) => element.isNotEmpty)
             .toList().cast<String>();
             return AnimationLimiter(
               child: GridView.builder(
