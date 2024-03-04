@@ -2,6 +2,7 @@ import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_images.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
+import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
 import 'package:fashion_fusion/view/home/widget/product_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:fashion_fusion/data/product/model/product_model.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -21,6 +23,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int catIndex = 0;
   late List<String> _favoriteIds;
+  late List<ProductModel> products;
 
   Future<void> _fetchFavorites(FavoriteCubit favoriteCubit) async {
     setState(() {
@@ -28,8 +31,23 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+    Future<void> _fetchProducts(ProductCubit productCubit) async {
+    setState(() {
+      productCubit.getProduct();
+    });
+  }
+
+    @override
+  void initState() {
+    super.initState();
+    _fetchProducts(context.read<ProductCubit>());
+  }
+
+  
+
   @override
   Widget build(BuildContext context) {
+
     return HelperMethod.loader(
         child: Scaffold(
       body: SafeArea(
@@ -48,6 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
             .map((model) => model.productId)
             .where((element) => element != null && element.isNotEmpty)
             .toList().cast<String>();
+            
             return AnimationLimiter(
               child: GridView.builder(
                 padding: const EdgeInsets.fromLTRB(15, 15, 15, 50).w,

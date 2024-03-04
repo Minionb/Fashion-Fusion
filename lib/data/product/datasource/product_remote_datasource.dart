@@ -23,7 +23,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   Future<ProductModel> get() async {
  
 
-    final Response response = await apiConsumer.get(EndPoints.product);
+    final Response response = await apiConsumer.get(EndPoints.getProducts);
     if (response.statusCode == StatusCode.ok) {
       try {
         final ProductModel decodedJson =
@@ -41,7 +41,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<ResponseUploadProductModel> add(UploadProductModel model) async{
      final response = await apiConsumer
-        .post(EndPoints.product);
+        .post(EndPoints.postProducts);
     if (response.statusCode == 201 || response.statusCode == 200) {
       try {
         final ResponseUploadProductModel decodedJson =

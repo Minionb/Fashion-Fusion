@@ -17,6 +17,12 @@ class ProductLoadedState extends ProductState {
   const ProductLoadedState({required this.model});
 }
 
+class ProductsLoadedState extends ProductState {
+  final List<ProductModel> models;
+  
+  const ProductsLoadedState({required this.models});
+}
+
 class ProductErrorState extends ProductState {
   final String message;
 
