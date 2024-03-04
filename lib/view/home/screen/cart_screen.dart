@@ -2,9 +2,11 @@ import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/widgets/cart_button.dart';
 import 'package:fashion_fusion/data/cart/model/cart_item_model.dart';
+import 'package:fashion_fusion/view/home/screen/checkout_screen.dart';
 import 'package:fashion_fusion/view/home/widget/app_bar.dart';
 import 'package:fashion_fusion/view/home/widget/empty_list_widget.dart';
 import 'package:fashion_fusion/view/home/widget/list_tile_product_image.dart';
+import 'package:fashion_fusion/view/home/widget/total_amount_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -42,15 +44,10 @@ class _CartScreenState extends State<CartScreen> {
         }, body: BlocBuilder<CartCubit, CartState>(builder: (context, state) {
           if (state is CartSuccessState) {
             cartItems = state.models;
-            return _buildShoppingCartBody(cartItems
-                .map((item) => CartItemWidget(
-                      model: item,
-                    ))
-                .toList());
+            return _buildShoppingCartBody();
           } else if (state is CartLoadedState) {
             cartItems = state.models;
-            return _buildShoppingCartBody(
-                cartItems.map((item) => CartItemWidget(model: item)).toList());
+            return _buildShoppingCartBody();
           } else {
             return RefreshIndicator(
                 onRefresh: () async {
@@ -65,11 +62,10 @@ class _CartScreenState extends State<CartScreen> {
     ));
   }
 
-  RefreshIndicator _buildShoppingCartBody(
-      List<CartItemWidget> cartItemWidgets) {
+  RefreshIndicator _buildShoppingCartBody() {
     Widget cartBody;
-    if (cartItemWidgets.isNotEmpty) {
-      cartBody = _buildShoppingCartItems(cartItemWidgets);
+    if (cartItems.isNotEmpty) {
+      cartBody = _buildShoppingCartItems();
     } else {
       cartBody = const EmptyListWidget(text: "No items in shopping cart.");
     }
@@ -88,7 +84,8 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  ListView _buildShoppingCartItems(List<CartItemWidget> cartItemWidgets) {
+  ListView _buildShoppingCartItems() {
+    List<CartItemWidget> cartItemWidgets = cartItems.map((item) => CartItemWidget(model: item)).toList();
     return ListView(
       children: [
         ...cartItemWidgets,
@@ -97,7 +94,7 @@ class _CartScreenState extends State<CartScreen> {
         const SizedBox(height: 16),
         TotalAmountWidget(cartItems: cartItems),
         const SizedBox(height: 16),
-        const CheckoutButton(),
+        CheckoutButton(cartItems: cartItems),
       ],
     );
   }
@@ -137,7 +134,9 @@ class CartItemWidget extends StatelessWidget {
       ),
       margin: const EdgeInsets.only(bottom: 16.0), // Add margin
       child: ListTile(
-        leading: ListTileImageWidget(imageId: model.imageId,),
+        leading: ListTileImageWidget(
+          imageId: model.imageId,
+        ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -193,44 +192,21 @@ class CouponCodeField extends StatelessWidget {
   }
 }
 
-class TotalAmountWidget extends StatelessWidget {
-  final List<CartItemModel> cartItems;
-  const TotalAmountWidget({super.key, required this.cartItems});
-
-  @override
-  Widget build(BuildContext context) {
-    double totalAmount = 0.0;
-
-    // Calculate total amount
-    for (var item in cartItems) {
-      totalAmount += (item.price) * item.quantity;
-    }
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          'Total:',
-          style: TextStyle(
-              fontSize: 18, fontStyle: FontStyle.italic, color: Colors.grey),
-        ),
-        Text(
-          '\$${totalAmount.toStringAsFixed(2)}',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-      ],
-    );
-  }
-}
 
 class CheckoutButton extends StatelessWidget {
-  const CheckoutButton({super.key});
+  final List<CartItemModel> cartItems;
+  const CheckoutButton({super.key, required this.cartItems});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        // Checkout logic
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OrderCheckoutScreen(cartItems: cartItems),
+          ),
+        );
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary, // Set button color

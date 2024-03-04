@@ -36,6 +36,7 @@ dependencies:
   mason: ^0.1.0-dev.52
   shimmer: ^3.0.0
 
+  intl: ^0.17.0
 
 
 

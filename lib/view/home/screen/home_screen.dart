@@ -22,12 +22,6 @@ class _HomeScreenState extends State<HomeScreen> {
   int catIndex = 0;
   late List<String> _favoriteIds;
 
-  Future<void> _fetchFavorites(FavoriteCubit favoriteCubit) async {
-    setState(() {
-      favoriteCubit.getFavorite();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return HelperMethod.loader(
