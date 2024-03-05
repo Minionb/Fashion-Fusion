@@ -133,7 +133,9 @@ class FavoriteListItem extends StatelessWidget {
         ),
         margin: const EdgeInsets.only(bottom: 16.0), // Add margin
         child: ListTile(
-          leading: ListTileImageWidget(imageId: model.imageId,),
+          leading: ListTileImageWidget(
+            imageId: model.imageId,
+          ),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -173,14 +175,16 @@ class FavoriteListItem extends StatelessWidget {
   }
 
   Widget _productName() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0), // Add padding
-      child: Text(
-        model.productName,
-        maxLines: 2,
-        textAlign: TextAlign.left,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(fontWeight: FontWeight.w600),
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          model.productName,
+          maxLines: 2,
+          textAlign: TextAlign.left,
+          overflow: TextOverflow.fade,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
       ),
     );
   }
