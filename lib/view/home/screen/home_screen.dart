@@ -101,60 +101,6 @@ class _HomeScreenState extends State<HomeScreen> {
   );
 }
 
-  // @override
-  // Widget build(BuildContext context) {
-
-  //   return HelperMethod.loader(
-  //       child: Scaffold(
-  //     body: SafeArea(
-  //       bottom: false,
-  //       child: NestedScrollView(
-  //           headerSliverBuilder: (BuildContext context, bool innerBoxScrolled) {
-  //         return <Widget>[
-  //           _buildAppBar1(),
-  //           _buildAppBar2(),
-  //         ];
-  //       }, body: BlocBuilder<FavoriteCubit, FavoriteState>(
-  //               builder: (context, state) {
-  //         if (state is FavoriteIsLoadingState) {}
-  //         if (state is FavoriteLoadedState) {
-  //           _favoriteIds = state.models
-  //           .map((model) => model.productId)
-  //           .where((element) => element != null && element.isNotEmpty)
-  //           .toList().cast<String>();
-            
-  //           return AnimationLimiter(
-  //             child: GridView.builder(
-  //               padding: const EdgeInsets.fromLTRB(15, 15, 15, 50).w,
-  //               itemCount: ProductModel.products.length,
-  //               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-  //                   crossAxisCount: 2,
-  //                   mainAxisSpacing: 20,
-  //                   crossAxisSpacing: 20,
-  //                   childAspectRatio: 0.72),
-  //               itemBuilder: (context, index) {
-  //                 final model = ProductModel.products[index];
-  //                 // ignore: collection_methods_unrelated_type
-  //                 model.isFavorite = _favoriteIds.contains(model.id);
-  //                 return AnimationConfiguration.staggeredList(
-  //                     position: index,
-  //                     duration: const Duration(milliseconds: 900),
-  //                     child: SlideAnimation(
-  //                         child: FadeInAnimation(
-  //                             child: ProductCard(model: model))));
-  //               },
-  //             ),
-  //           );
-  //         } else {
-  //           return const Center(
-  //             child: CircularProgressIndicator(),
-  //           );
-  //         }
-  //       })),
-  //     ),
-  //   ));
-  // }
-
   SliverAppBar _buildAppBar1() {
     return SliverAppBar(
       expandedHeight: 150.sp,
