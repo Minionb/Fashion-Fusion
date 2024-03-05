@@ -7,7 +7,7 @@ import '../model/product_model.dart';
 class GetProductUsecase {
   final ProductRepository repository;
   GetProductUsecase({required this.repository});
-  Future<Either<Failure, ProductModel>> call() async {
+  Future<Either<Failure, List<ProductModel>>> call() async {
     return await repository.get();
   }
 }

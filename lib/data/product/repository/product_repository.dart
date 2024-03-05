@@ -7,7 +7,7 @@ import '../model/product_model.dart';
 import '../model/upload_product_model.dart';
 
 abstract class ProductRepository {
-  Future<Either<Failure, ProductModel>> get();
+  Future<Either<Failure, List<ProductModel>>> get();
   Future<Either<Failure, ResponseUploadProductModel>> add(UploadProductModel model);
   Future<Either<Failure, Unit>> update(UploadProductModel model);
   Future<Either<Failure, Unit>> delete(int id);
@@ -21,7 +21,7 @@ class ProductRepositoryImpl implements ProductRepository {
   
   
   @override
-  Future<Either<Failure, ProductModel>> get() async {
+  Future<Either<Failure, List<ProductModel>>> get() async {
     if (await networkInfo.isConnected) {
       try {
         final reposnse = await remoteDatasource.get();

@@ -14,7 +14,7 @@ class ProductCubit extends Cubit<ProductState> {
     final response = await get();
     emit(response.fold(
         (l) => ProductErrorState(message: HelperMethod.mapFailureToMsg(l)),
-        (r) =>ProductLoadedState(model: r)));
+        (r) =>ProductLoadedState(models: r)));
   }
 
 }
