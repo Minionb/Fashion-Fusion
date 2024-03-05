@@ -105,16 +105,18 @@ class CartItemWidget extends StatelessWidget {
   const CartItemWidget({super.key, required this.model});
 
   Widget _productName() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(
-        model.productName,
-        maxLines: 1,
-        textAlign: TextAlign.left,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(fontWeight: FontWeight.w600),
-      ))
-    ;
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          model.productName,
+          maxLines: 2,
+          textAlign: TextAlign.left,
+          overflow: TextOverflow.fade,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+      ),
+    );
   }
 
   Text _price() {
