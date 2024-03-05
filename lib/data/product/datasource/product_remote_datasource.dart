@@ -9,7 +9,7 @@ import 'package:dio/dio.dart';
 import '../model/upload_product_model.dart';
 
 abstract class ProductRemoteDataSource {
-  Future<ProductModel> get();
+  Future<List<ProductModel>> get();
   Future<ResponseUploadProductModel> add(UploadProductModel model);
   Future<Unit> update(UploadProductModel model);
   Future<Unit> delete(int id);
@@ -20,14 +20,14 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
 
   ProductRemoteDataSourceImpl({required this.apiConsumer});
   @override
-  Future<ProductModel> get() async {
- 
+  Future<List<ProductModel>> get() async {
 
     final Response response = await apiConsumer.get(EndPoints.getProducts);
     if (response.statusCode == StatusCode.ok) {
       try {
-        final ProductModel decodedJson =
-            ProductModel.fromJson(json.decode(response.data));
+        final List<dynamic> jsonList = json.decode(response.data);
+        final List<ProductModel> decodedJson =
+            jsonList.map((json) =>  ProductModel.fromJson(json)).toList();
         return decodedJson;
       } catch (e) {
         throw const FetchDataException();
