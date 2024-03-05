@@ -78,7 +78,20 @@ class ProductCard extends StatelessWidget {
           fit: BoxFit.cover,
           alignment: Alignment.topCenter,
           width: double.infinity,
-          )
+          ),
+          // Adding a like button at the top right corner of the image
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Container(
+                  padding: const EdgeInsets.all(4).w,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.bg,
+                  ),
+                  child: LikeButton(productId: model.id!,)),
+            ))
         ],
       ),
     );
