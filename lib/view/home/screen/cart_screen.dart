@@ -1,4 +1,5 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
+import 'package:fashion_fusion/core/utils/cart_decorator_utils.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/widgets/cart_button.dart';
 import 'package:fashion_fusion/data/cart/model/cart_item_model.dart';
@@ -23,6 +24,7 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen> {
   int catIndex = 0;
   late List<CartItemModel> cartItems;
+  late CartDecorator cartDecorator;
 
   Future<void> _fetchCartItems() async {
     setState(() {
@@ -44,9 +46,11 @@ class _CartScreenState extends State<CartScreen> {
         }, body: BlocBuilder<CartCubit, CartState>(builder: (context, state) {
           if (state is CartSuccessState) {
             cartItems = state.models;
+            cartDecorator = CartDecorator(cartItems: cartItems);
             return _buildShoppingCartBody();
           } else if (state is CartLoadedState) {
             cartItems = state.models;
+            cartDecorator = CartDecorator(cartItems: cartItems);
             return _buildShoppingCartBody();
           } else {
             return RefreshIndicator(
@@ -85,16 +89,21 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   ListView _buildShoppingCartItems() {
-    List<CartItemWidget> cartItemWidgets = cartItems.map((item) => CartItemWidget(model: item)).toList();
+    List<CartItemWidget> cartItemWidgets =
+        cartItems.map((item) => CartItemWidget(model: item)).toList();
     return ListView(
       children: [
         ...cartItemWidgets,
         const SizedBox(height: 16),
         const CouponCodeField(),
         const SizedBox(height: 16),
-        TotalAmountWidget(cartItems: cartItems),
+        CartCheckoutAmountWidget(
+          label: 'Subtotal Amount',
+          value: cartDecorator.getFormattedSubtotalAmount(),
+          isHighlight: true,
+        ),
         const SizedBox(height: 16),
-        CheckoutButton(cartItems: cartItems),
+        CheckoutButton(cartItems: cartItems, cartDecorator: cartDecorator),
       ],
     );
   }
@@ -192,10 +201,11 @@ class CouponCodeField extends StatelessWidget {
   }
 }
 
-
 class CheckoutButton extends StatelessWidget {
   final List<CartItemModel> cartItems;
-  const CheckoutButton({super.key, required this.cartItems});
+  final CartDecorator cartDecorator;
+  const CheckoutButton(
+      {super.key, required this.cartItems, required this.cartDecorator});
 
   @override
   Widget build(BuildContext context) {
@@ -204,7 +214,10 @@ class CheckoutButton extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => OrderCheckoutScreen(cartItems: cartItems),
+            builder: (context) => OrderCheckoutScreen(
+              cartItems: cartItems,
+              cartDecorator: cartDecorator,
+            ),
           ),
         );
       },

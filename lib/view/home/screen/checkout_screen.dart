@@ -1,4 +1,5 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
+import 'package:fashion_fusion/core/utils/cart_decorator_utils.dart';
 import 'package:fashion_fusion/data/cart/model/cart_item_model.dart';
 import 'package:fashion_fusion/view/home/widget/list_tile_product_image.dart';
 import 'package:fashion_fusion/view/home/widget/total_amount_widget.dart';
@@ -7,7 +8,8 @@ import 'package:intl/intl.dart';
 
 class OrderCheckoutScreen extends StatelessWidget {
   final List<CartItemModel> cartItems;
-  const OrderCheckoutScreen({Key? key, required this.cartItems});
+  final CartDecorator cartDecorator;
+  const OrderCheckoutScreen({super.key, required this.cartItems, required this.cartDecorator});
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +77,11 @@ Widget _buildSection({required String title, required Widget content, bool initi
       children: [
         ...cartItemWidgets,
         const SizedBox(height: 16),
-        TotalAmountWidget(cartItems: cartItems),
+        CartCheckoutAmountWidget(label: 'Subtotal Amount', value: cartDecorator.getFormattedSubtotalAmount()),
+        const SizedBox(height: 16),
+        CartCheckoutAmountWidget(label: 'GST/HST', value: cartDecorator.getFormattedGstAmount()),
+        const SizedBox(height: 16),
+        CartCheckoutAmountWidget(label: 'Total Amount', value: cartDecorator.getFormattedTotalAmount(), isHighlight: true,),
         const SizedBox(height: 16),
       ],
     );
