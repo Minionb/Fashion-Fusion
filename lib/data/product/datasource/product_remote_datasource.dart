@@ -9,7 +9,8 @@ import 'package:dio/dio.dart';
 import '../model/upload_product_model.dart';
 
 abstract class ProductRemoteDataSource {
-  Future<ProductModel> get();
+  Future<ProductModel> getProductById(id);
+  Future<List<ProductModel>> get();
   Future<ResponseUploadProductModel> add(UploadProductModel model);
   Future<Unit> update(UploadProductModel model);
   Future<Unit> delete(int id);
@@ -19,11 +20,12 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   final ApiConsumer apiConsumer;
 
   ProductRemoteDataSourceImpl({required this.apiConsumer});
+
   @override
-  Future<ProductModel> get() async {
+  Future<ProductModel> getProductById(id) async {
  
 
-    final Response response = await apiConsumer.get(EndPoints.product);
+    final Response response = await apiConsumer.get(EndPoints.getProductsById);
     if (response.statusCode == StatusCode.ok) {
       try {
         final ProductModel decodedJson =
@@ -38,10 +40,30 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
 
   }
 
+
+  @override
+  Future<List<ProductModel>> get() async {
+
+    final Response response = await apiConsumer.get(EndPoints.getProducts);
+    if (response.statusCode == StatusCode.ok) {
+      try {
+        final List<dynamic> jsonList = json.decode(response.data);
+        final List<ProductModel> decodedJson =
+            jsonList.map((json) =>  ProductModel.fromJson(json)).toList();
+        return decodedJson;
+      } catch (e) {
+        throw const FetchDataException();
+      }
+    } else {
+      throw const ServerException();
+    }
+
+  }
+
   @override
   Future<ResponseUploadProductModel> add(UploadProductModel model) async{
      final response = await apiConsumer
-        .post(EndPoints.product);
+        .post(EndPoints.postProducts);
     if (response.statusCode == 201 || response.statusCode == 200) {
       try {
         final ResponseUploadProductModel decodedJson =

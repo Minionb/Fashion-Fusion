@@ -1,13 +1,15 @@
-import 'package:fashion_fusion/api/end_points.dart';
 import 'package:fashion_fusion/core/utils/app_colors.dart';
+import 'package:fashion_fusion/core/utils/cart_decorator_utils.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/widgets/cart_button.dart';
 import 'package:fashion_fusion/data/cart/model/cart_item_model.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:fashion_fusion/view/home/screen/checkout_screen.dart';
+import 'package:fashion_fusion/view/home/widget/app_bar.dart';
+import 'package:fashion_fusion/view/home/widget/empty_list_widget.dart';
+import 'package:fashion_fusion/view/home/widget/list_tile_product_image.dart';
+import 'package:fashion_fusion/view/home/widget/total_amount_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 import '../../../provider/cart_cubit/cart/cart_cubit.dart';
@@ -22,10 +24,11 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen> {
   int catIndex = 0;
   late List<CartItemModel> cartItems;
+  late CartDecorator cartDecorator;
 
-  Future<void> _fetchCartItems(CartCubit cartCubit) async {
+  Future<void> _fetchCartItems() async {
     setState(() {
-      cartCubit.getCartItems();
+      context.read<CartCubit>().getCartItems();
     });
   }
 
@@ -38,24 +41,21 @@ class _CartScreenState extends State<CartScreen> {
         child: NestedScrollView(
             headerSliverBuilder: (BuildContext context, bool innerBoxScrolled) {
           return <Widget>[
-            _buildAppBar1(),
+            const HomescreenAppBar(title: "Shopping Cart"),
           ];
         }, body: BlocBuilder<CartCubit, CartState>(builder: (context, state) {
           if (state is CartSuccessState) {
             cartItems = state.models;
-            return _buildShoppingCart(cartItems
-                .map((item) => CartItemWidget(
-                      model: item,
-                    ))
-                .toList());
+            cartDecorator = CartDecorator(cartItems: cartItems);
+            return _buildShoppingCartBody();
           } else if (state is CartLoadedState) {
             cartItems = state.models;
-            return _buildShoppingCart(
-                cartItems.map((item) => CartItemWidget(model: item)).toList());
+            cartDecorator = CartDecorator(cartItems: cartItems);
+            return _buildShoppingCartBody();
           } else {
             return RefreshIndicator(
                 onRefresh: () async {
-                  _fetchCartItems(context.read<CartCubit>());
+                  _fetchCartItems();
                 },
                 child: const Center(
                   child: CircularProgressIndicator(),
@@ -66,72 +66,45 @@ class _CartScreenState extends State<CartScreen> {
     ));
   }
 
-RefreshIndicator _buildShoppingCart(List<CartItemWidget> cartItemWidgets) {
-  return RefreshIndicator(
-    onRefresh: () async {
-      _fetchCartItems(context.read<CartCubit>());
-    },
-    child: AnimationLimiter(
-      child: Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.all(16.0), // Add padding
-          child: ListView(
-            children: [
-              ...cartItemWidgets,
-              const SizedBox(height: 16),
-              const CouponCodeField(),
-              const SizedBox(height: 16),
-              TotalAmountWidget(cartItems: cartItems),
-              const SizedBox(height: 16),
-              const CheckoutButton(),
-            ],
+  RefreshIndicator _buildShoppingCartBody() {
+    Widget cartBody;
+    if (cartItems.isNotEmpty) {
+      cartBody = _buildShoppingCartItems();
+    } else {
+      cartBody = const EmptyListWidget(text: "No items in shopping cart.");
+    }
+    return RefreshIndicator(
+      onRefresh: () async {
+        _fetchCartItems();
+      },
+      child: AnimationLimiter(
+        child: Scaffold(
+          body: Padding(
+            padding: const EdgeInsets.all(16.0), // Add padding
+            child: cartBody,
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-
-  SliverAppBar _buildAppBar1() {
-    return SliverAppBar(
-      expandedHeight: 90.sp,
-      floating: false,
-      elevation: 0,
-      systemOverlayStyle: SystemUiOverlayStyle.dark,
-      flexibleSpace: FlexibleSpaceBar(
-        collapseMode: CollapseMode.parallax,
-        background: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AppBar(
-              systemOverlayStyle: SystemUiOverlayStyle.dark,
-              leading: const Icon(CupertinoIcons.line_horizontal_3),
-              elevation: 0,
-              actions: [
-                Row(
-                  children: [
-                    const Icon(CupertinoIcons.search),
-                    10.horizontalSpace,
-                    const Icon(CupertinoIcons.bell),
-                    15.horizontalSpace
-                  ],
-                )
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0).w,
-              child: Text(
-                "Shopping Cart",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24.sp,
-                ),
-              ),
-            ),
-          ],
+  ListView _buildShoppingCartItems() {
+    List<CartItemWidget> cartItemWidgets =
+        cartItems.map((item) => CartItemWidget(model: item)).toList();
+    return ListView(
+      children: [
+        ...cartItemWidgets,
+        const SizedBox(height: 16),
+        const CouponCodeField(),
+        const SizedBox(height: 16),
+        CartCheckoutAmountWidget(
+          label: 'Subtotal Amount',
+          value: cartDecorator.getFormattedSubtotalAmount(),
+          isHighlight: true,
         ),
-      ),
+        const SizedBox(height: 16),
+        CheckoutButton(cartItems: cartItems, cartDecorator: cartDecorator),
+      ],
     );
   }
 }
@@ -141,25 +114,17 @@ class CartItemWidget extends StatelessWidget {
 
   const CartItemWidget({super.key, required this.model});
 
-  String _imageUrl() {
-    var imageUrl =
-        'https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png';
-    if (model.imageId?.isNotEmpty ?? true) {
-      imageUrl = EndPoints.getProductImagesByImageId
-          .replaceAll(":imageId", model.imageId);
-    }
-    return imageUrl;
-  }
-
   Widget _productName() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0), // Add padding
-      child: Text(
-        model.productName,
-        maxLines: 1,
-        textAlign: TextAlign.left,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(fontWeight: FontWeight.w600),
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          model.productName,
+          maxLines: 2,
+          textAlign: TextAlign.left,
+          overflow: TextOverflow.fade,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
       ),
     );
   }
@@ -180,18 +145,8 @@ class CartItemWidget extends StatelessWidget {
       ),
       margin: const EdgeInsets.only(bottom: 16.0), // Add margin
       child: ListTile(
-        leading: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(8.0),
-            bottomLeft: Radius.circular(8.0),
-          ),
-          clipBehavior: Clip.hardEdge,
-          child: Image.network(
-            _imageUrl(),
-            width: 80,
-            height: double.infinity,
-            fit: BoxFit.cover,
-          ),
+        leading: ListTileImageWidget(
+          imageId: model.imageId,
         ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -206,12 +161,12 @@ class CartItemWidget extends StatelessWidget {
               children: [
                 const SizedBox(width: 16),
                 RemoveCartButton(
-                  productId: model.productId,
-                ),
+                    productId: model.productId, animateCondition: () => false),
                 const SizedBox(width: 16),
                 Text(model.quantity.toString()), // Quantity
                 const SizedBox(width: 16),
-                AddCartButton(productId: model.productId),
+                AddCartButton(
+                    productId: model.productId, animateCondition: () => false),
               ],
             ),
             _price(),
@@ -248,44 +203,25 @@ class CouponCodeField extends StatelessWidget {
   }
 }
 
-class TotalAmountWidget extends StatelessWidget {
-  final List<CartItemModel> cartItems;
-  const TotalAmountWidget({super.key, required this.cartItems});
-
-  @override
-  Widget build(BuildContext context) {
-    double totalAmount = 0.0;
-
-    // Calculate total amount
-    for (var item in cartItems) {
-      totalAmount += (item.price) * item.quantity;
-    }
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          'Total:',
-          style: TextStyle(
-              fontSize: 18, fontStyle: FontStyle.italic, color: Colors.grey),
-        ),
-        Text(
-          '\$${totalAmount.toStringAsFixed(2)}',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-      ],
-    );
-  }
-}
-
 class CheckoutButton extends StatelessWidget {
-  const CheckoutButton({super.key});
+  final List<CartItemModel> cartItems;
+  final CartDecorator cartDecorator;
+  const CheckoutButton(
+      {super.key, required this.cartItems, required this.cartDecorator});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        // Checkout logic
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OrderCheckoutScreen(
+              cartItems: cartItems,
+              cartDecorator: cartDecorator,
+            ),
+          ),
+        );
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary, // Set button color
