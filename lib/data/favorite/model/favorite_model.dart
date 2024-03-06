@@ -1,8 +1,8 @@
 class FavoriteModel {
-  String? productId;
-  double? price;
-  String? productName;
-  String? imageId;
+  String productId;
+  double price;
+  String productName;
+  String imageId;
   bool? isFavorite;
 
   FavoriteModel({
@@ -13,12 +13,10 @@ class FavoriteModel {
     isFavorite = true
   });
 
-   FavoriteModel.fromJson(Map<String, dynamic> json) {
-    
-      productId = json['productId'];
-      price = json['price'];
-      productName = json['productName'];  
-      imageId = json['imageId'];  
-  }
+   FavoriteModel.fromJson(Map<String, dynamic> json) 
+      : productId = json['productId'],
+        price = json['price'].toDouble(),
+        productName = json['productName'],
+        imageId = json['imageId'];
 }
 

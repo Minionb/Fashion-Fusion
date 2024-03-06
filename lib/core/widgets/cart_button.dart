@@ -11,8 +11,7 @@ abstract class CartButton extends StatefulWidget {
   final IconData icon;
   final int quantityUpdate;
 
-  final Function onTap;
-  final bool Function() onTapCondition;
+  final bool Function() animateCondition;
 
   final String productId;
 
@@ -21,14 +20,10 @@ abstract class CartButton extends StatefulWidget {
     this.isDark = true,
     required this.icon,
     required this.quantityUpdate,
-    this.onTap = _defaultOnTap,
-    this.onTapCondition = _defaultOnTapCondition,
+    this.animateCondition = _defaultOnTapCondition,
     required this.productId,
   });
-  // Default function for
-  static void _defaultOnTap() {
-    // No operation
-  }
+
   static bool _defaultOnTapCondition() {
     return true;
   }
@@ -40,6 +35,7 @@ class AddCartButton extends CartButton {
       super.isDark,
       super.icon = Icons.add,
       super.quantityUpdate = 1,
+      super.animateCondition,
       required super.productId}); // Updated constructor
 
   @override
@@ -52,8 +48,7 @@ class RemoveCartButton extends CartButton {
     super.isDark = true,
     super.icon = Icons.remove,
     super.quantityUpdate = -1,
-    super.onTap,
-    super.onTapCondition,
+    super.animateCondition,
     required super.productId,
   }); // Updated constructor
 
@@ -85,12 +80,13 @@ class _CartButtonState extends State<CartButton>
         return GestureDetector(
           // Define onTap callback, executed when the widget is tapped
           onTap: () {
-            // Reverse the animation controller and then forward it to trigger the scale animation
-            // _controller.reverse().then((value) => _controller.forward());
-            if (widget.onTapCondition()) {
-              cartCubit.putCartItems(PutCartItemModel(
-                  productId: widget.productId,
-                  quantity: widget.quantityUpdate));
+            cartCubit.putCartItems(
+              PutCartItemModel(
+                productId: widget.productId,
+                quantity: widget.quantityUpdate));
+            if (widget.animateCondition()) {
+              // Reverse the animation controller and then forward it to trigger the scale animation
+               _controller.reverse().then((value) => {_controller.forward()});
             }
           },
           // Child widget wrapped with ScaleTransition for scaling animation

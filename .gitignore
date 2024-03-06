@@ -282,5 +282,5 @@ pubspec.lock
 package-lock.json
 *.lock
 
-package.json
 .dart_tool/version
+api/package-lock.json

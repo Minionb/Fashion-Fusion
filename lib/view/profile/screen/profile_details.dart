@@ -17,7 +17,6 @@ class ProfileDetails extends StatefulWidget {
 }
 
 class _ProfileDetails extends State<ProfileDetails> {
-  final _userID = sl<SharedPreferences>().getString("userID");
   final profileFirstName = "";
   final profileLastName = "";
   var profile;
