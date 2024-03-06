@@ -148,7 +148,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"email\": \"john.doer@example.com\",\n  \"password\": \"password123\"\n}"
+									"raw": "{\n//   \"email\": \"john.doer@example.com\",\n  \"email\": \"jane.doe@example.com\",\n  \"password\": \"password123\"\n}"
 								},
 								"url": {
 									"raw": "{{ff_base_url}}/customers/login",
@@ -475,7 +475,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"email\": \"{{$ff_random_firstName}}.{{ff_random_lastName}}.customer_{{ff_user_counter}}@sample.com\", // generate unique email\n  \"password\": \"password123\",\n  \"first_name\": \"{{ff_random_firstName}}\",\n  \"last_name\": \"{{ff_random_lastName}}Customer\",\n  \"address\": \"{{$randomStreetAddress}}\",\n  \"date_of_birth\": \"{{randomLegalDob}}\",\n  \"gender\": \"male\",\n  \"telephone_number\": \"1234567890\",\n  \"payments\": [\n    {\n      \"method\": \"credit_card\",\n      \"cardNumber\": \"1234 5678 9012 3456\",\n      \"expirationDate\": \"{{randomCreditCardExpiry}}\",\n      \"cvv\": \"123\"\n    }\n  ]\n}"
+									"raw": "{\n//   \"email\": \"{{$ff_random_firstName}}.{{ff_random_lastName}}.customer_{{ff_user_counter}}@sample.com\", // generate unique email\n//   \"password\": \"password123\",\n//   \"first_name\": \"{{ff_random_firstName}}\",\n//   \"last_name\": \"{{ff_random_lastName}}Customer\",\n//   \"address\": \"{{$randomStreetAddress}}\",\n//   \"date_of_birth\": \"{{randomLegalDob}}\",\n  \"gender\": \"male\",\n//   \"telephone_number\": \"1234567890\",\n//   \"payments\": [\n//     {\n//       \"method\": \"credit_card\",\n//       \"cardNumber\": \"1234 5678 9012 3456\",\n//       \"expirationDate\": \"{{randomCreditCardExpiry}}\",\n//       \"cvv\": \"123\"\n//     }\n//   ]\n}"
 								},
 								"url": {
 									"raw": "{{ff_base_url}}/customers/:id",
@@ -2616,6 +2616,70 @@
 									"mode": "raw",
 									"raw": "{\n  \"productId\": \"{{ff_product_id}}\"\n}"
 								},
+								"url": {
+									"raw": "{{ff_base_url}}/favorite/items",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"favorite",
+										"items"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Favorites Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.collectionVariables.set(\"ff_random_quantity\", Math.floor(Math.random() * 5));\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_customerLogin_token}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_adminLogin_token}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
 								"url": {
 									"raw": "{{ff_base_url}}/favorite/items",
 									"host": [
