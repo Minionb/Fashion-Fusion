@@ -1,5 +1,4 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
-import 'package:fashion_fusion/core/utils/app_images.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
 import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
@@ -11,7 +10,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:fashion_fusion/data/product/model/product_model.dart';
-
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,81 +23,125 @@ class _HomeScreenState extends State<HomeScreen> {
   late List<String> _favoriteIds;
   late List<ProductModel> products;
 
-  Future<void> _fetchFavorites(FavoriteCubit favoriteCubit) async {
-    setState(() {
-      favoriteCubit.getFavorite();
-    });
-  }
-
-    Future<void> _fetchProducts(ProductCubit productCubit) async {
+  Future<void> _fetchProducts(ProductCubit productCubit) async {
     setState(() {
       productCubit.getProduct();
     });
   }
 
-    @override
+  @override
   void initState() {
     super.initState();
     _fetchProducts(context.read<ProductCubit>());
   }
 
   Widget build(BuildContext context) {
-  return HelperMethod.loader(
-    child: Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: NestedScrollView(
-          headerSliverBuilder: (BuildContext context, bool innerBoxScrolled) {
-            return <Widget>[
-              _buildAppBar1(),
-              _buildAppBar2(),
-            ];
-          },
-          body: BlocBuilder<ProductCubit, ProductState>(
-                  builder: (context, state) {
-                    if (state is ProductIsLoadingState) {
-                      // Handle loading state if needed
-                    } else if (state is ProductLoadedState) {
-                      products = state.models;
-                      return AnimationLimiter(
-                        child: GridView.builder(
-                          
-                          padding: const EdgeInsets.fromLTRB(15, 15, 15, 50),
-                          itemCount: products.length,
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 20,
-                            crossAxisSpacing: 20,
-                            childAspectRatio: 0.72,
-                          ),
-                          itemBuilder: (context, index) {
-                            final model = products[index];
-                            return AnimationConfiguration.staggeredList(
-                              position: index,
-                              duration: const Duration(milliseconds: 900),
-                              child: SlideAnimation(
-                                child: FadeInAnimation(
-                                  child: ProductCard(model: model),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    } else {
-                      // Handle other states if needed
-                    }
-              // Return a default widget if none of the conditions are met
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+    // HelperMethod.loader is a custom widget that wraps the child with a loader if needed
+    return HelperMethod.loader(
+      child: Scaffold(
+        body: SafeArea(
+          bottom: false,
+          child: NestedScrollView(
+            headerSliverBuilder: (BuildContext context, bool innerBoxScrolled) {
+              // Building app bar widgets
+              return <Widget>[
+                _buildAppBar1(),
+                _buildAppBar2(),
+              ];
             },
+            body: _buildBody(), // Building the main body of the screen
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
+
+// Building the main body of the screen
+  Widget _buildBody() {
+    return Center(
+      child: BlocConsumer<ProductCubit, ProductState>(
+        listener: (context, productState) {
+          // When products are loaded, get favorite products
+          if (productState is ProductLoadedState) {
+            context.read<FavoriteCubit>().getFavorite();
+          }
+        },
+        builder: (context, productState) {
+          // Building UI based on product state
+          if (productState is ProductIsLoadingState) {
+            // Show loading state
+            return _buildLoadingState();
+          } else if (productState is ProductLoadedState) {
+            // Products are loaded, display products grid
+            products = productState.models;
+            return _buildProductsGrid();
+          } else {
+            // If no products loaded, return empty SizedBox
+            return const SizedBox();
+          }
+        },
+      ),
+    );
+  }
+
+// Building loading state widget
+  Widget _buildLoadingState() {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+// Building the products grid
+  Widget _buildProductsGrid() {
+    return BlocBuilder<FavoriteCubit, FavoriteState>(
+      builder: (context, favoriteState) {
+        if (favoriteState is FavoriteLoadedState) {
+          // When favorite products are loaded, extract favorite ids and build products list
+          _favoriteIds = favoriteState.models
+              .map((model) => model.productId)
+              .where((element) => element.isNotEmpty)
+              .toList()
+              .cast<String>();
+          return _buildProductsList();
+        } else {
+          // If favorite products not loaded, return empty SizedBox
+          return const SizedBox();
+        }
+      },
+    );
+  }
+
+// Building the products list
+  Widget _buildProductsList() {
+    return AnimationLimiter(
+      child: GridView.builder(
+        padding: const EdgeInsets.fromLTRB(15, 15, 15, 50),
+        itemCount: products.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 20,
+          crossAxisSpacing: 20,
+          childAspectRatio: 0.72,
+        ),
+        itemBuilder: (context, index) {
+          final model = products[index];
+          final bool isFavorite = _favoriteIds.contains(model.id);
+          return AnimationConfiguration.staggeredList(
+            position: index,
+            duration: const Duration(milliseconds: 900),
+            child: SlideAnimation(
+              child: FadeInAnimation(
+                child: ProductCard(
+                  model: model,
+                  isFavorite: isFavorite,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   SliverAppBar _buildAppBar1() {
     return SliverAppBar(
@@ -198,6 +240,5 @@ class _HomeScreenState extends State<HomeScreen> {
     "Accessories",
   ];
 }
-
 
 enum User { student, instructor, admin }
