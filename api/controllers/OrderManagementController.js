@@ -207,7 +207,9 @@ async function getCartItems(server) {
       });
 
       // Construct separate response objects for cart items with prices
-      const cartReponse = mapToCartResponse(cartItems, cartProducts);
+      const cartReponse = mapToCartResponse(cartItems, cartProducts).filter(
+        (p) => p != null
+      ).toS;
       return res.status(200).json(cartReponse);
     } catch (error) {
       console.error(error);
@@ -219,6 +221,7 @@ async function getCartItems(server) {
 function mapToCartResponse(cartItems, cartProducts) {
   return cartItems.map((cartItem) => {
     const product = OrderService.getProduct(cartProducts, cartItem.productId);
+    if (product !== null) return null;
     return mapToCartItemResponse(cartItem, product);
   });
 }
@@ -501,9 +504,11 @@ const getFavoriteItems = async (req, res) => {
     });
 
     // Construct separate response objects for cart items with prices
-    const responseItems = favoriteProductIds.map((productId) => {
-      return mapFavoriteItemResponse(faveProducts, productId);
-    });
+    const responseItems = favoriteProductIds
+      .map((productId) => {
+        return mapFavoriteItemResponse(faveProducts, productId);
+      })
+      .filter((f) => f !== null);
 
     return res.status(200).json(responseItems);
   } catch (error) {
@@ -514,6 +519,8 @@ const getFavoriteItems = async (req, res) => {
 
 function mapFavoriteItemResponse(faveProducts, productId) {
   const product = OrderService.getProduct(faveProducts, productId);
+  if (product !== null) return null;
+
   const imageId = product
     ? product.images.length > 0
       ? product.images[0]
@@ -555,4 +562,3 @@ class OrderManagementController {
 }
 
 module.exports = OrderManagementController;
-
