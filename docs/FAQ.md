@@ -7,3 +7,5 @@
 ## What payment methods are accepted?
 ## When will my order arrive?
 ## How can I track my orders?
+## How can I contact support?
+

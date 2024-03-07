@@ -207,10 +207,11 @@ async function getCartItems(server) {
       });
 
       // Construct separate response objects for cart items with prices
-      const cartReponse = mapToCartResponse(cartItems, cartProducts).filter(
-        (p) => p != null
-      ).toS;
-      return res.status(200).json(cartReponse);
+      const cartResponse = mapToCartResponse(cartItems, cartProducts).filter(
+        (p) => p !== null
+      );
+
+      return res.status(200).json(cartResponse);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Internal Server Error" });
@@ -221,7 +222,7 @@ async function getCartItems(server) {
 function mapToCartResponse(cartItems, cartProducts) {
   return cartItems.map((cartItem) => {
     const product = OrderService.getProduct(cartProducts, cartItem.productId);
-    if (product !== null) return null;
+    if (product === null) return null;
     return mapToCartItemResponse(cartItem, product);
   });
 }
@@ -519,7 +520,7 @@ const getFavoriteItems = async (req, res) => {
 
 function mapFavoriteItemResponse(faveProducts, productId) {
   const product = OrderService.getProduct(faveProducts, productId);
-  if (product !== null) return null;
+  if (product == null) return null;
 
   const imageId = product
     ? product.images.length > 0
