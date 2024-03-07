@@ -1,21 +1,17 @@
-import 'package:fashion_fusion/core/utils/app_service.dart';
-import 'package:fashion_fusion/core/utils/navigator_extension.dart';
-import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
-import 'package:fashion_fusion/view/admin/view/admin_product_screen.dart';
+import 'package:fashion_fusion/data/product/model/product_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-class AdminCategoryCard extends StatefulWidget {
-  final String model;
+class AdminProductCard extends StatefulWidget {
+  final ProductModel model;
 
-  const AdminCategoryCard({super.key, required this.model});
+  const AdminProductCard({super.key, required this.model});
 
   @override
-  State<AdminCategoryCard> createState() => _AdminCategoryCardState();
+  State<AdminProductCard> createState() => _AdminProductCardState();
 }
 
-class _AdminCategoryCardState extends State<AdminCategoryCard> {
+class _AdminProductCardState extends State<AdminProductCard> {
   @override
   Widget build(BuildContext context) {
     return Slidable(
@@ -44,18 +40,16 @@ class _AdminCategoryCardState extends State<AdminCategoryCard> {
               label: 'Edit',
             ),
           ]),
-      key: Key(widget.model),
+      key: Key(widget.model.id ?? ""),
       direction: Axis.horizontal,
       child: ListTile(
-        onTap: () {
-          context.pushNamedNAV(BlocProvider(
-            create: (context) => sl<ProductCubit>()..getProduct(),
-            child: const AdminProductScreen(),
-          ));
-        },
+        leading: CircleAvatar(
+          backgroundImage: NetworkImage(_getImageUrl),
+        ),
         style: ListTileStyle.drawer,
+        subtitle: Text("\$${widget.model.price??0}"),
         visualDensity: VisualDensity.comfortable,
-        title: Text(widget.model),
+        title: Text(widget.model.productName ?? ""),
         trailing: Icon(
           Icons.arrow_forward_ios,
           color: Colors.black.withOpacity(0.5),
@@ -63,4 +57,7 @@ class _AdminCategoryCardState extends State<AdminCategoryCard> {
       ),
     );
   }
+
+  String get _getImageUrl =>
+      "http://127.0.0.1:3000/products/images/${widget.model.images?.isNotEmpty ?? true ? widget.model.images![0] : "65de97241f415ab91a7d4ecf"}";
 }
