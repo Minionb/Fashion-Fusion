@@ -22,7 +22,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   ProfileRemoteDataSourceImpl({required this.apiConsumer});
   @override
   Future<ProfileModel> get(String userID) async {
-
+    
     final Response response = await apiConsumer.get(EndPoints.profile + userID);
     if (response.statusCode == StatusCode.ok) {
       try {

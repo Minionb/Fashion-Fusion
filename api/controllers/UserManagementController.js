@@ -262,6 +262,7 @@ async function updateCustomerData(customerId, updateData) {
   }
 
   existingCustomer.set(updateData);
+  existingCustomer.payments[0].set(updateData.payments[0]);
   return existingCustomer.save();
 }
 

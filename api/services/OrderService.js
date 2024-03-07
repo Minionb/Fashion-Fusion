@@ -65,6 +65,8 @@ const createOrder = async (
     _id: { $in: productIds },
   });
 
+  updateProduct(cartItems);
+
   const order = new OrderModel({
     customerId,
     cartItems: cartItems.map((item) => ({
@@ -89,6 +91,20 @@ const createOrder = async (
 
   return order;
 };
+
+async function updateProduct(cartItems) {
+  cartItems.forEach(async (cartItem) => {
+    const product = await ProductsModel.findById(cartItem.productId);
+    if (product.inventory.length > 0) {
+      var defaultInventory = product.inventory[0];
+      if (defaultInventory.quantity >= cartItem.quantity) {
+        defaultInventory.quantity -= cartItem.quantity;
+        product.sold_quantity += cartItem.quantity;
+      }
+    }
+    product.save();
+  });
+}
 
 // Helper function to mask credit card numbers in orders
 function maskCreditNumbersInOrders(orders) {

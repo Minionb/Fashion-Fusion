@@ -3,6 +3,7 @@ import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/provider/cart_cubit/cart/cart_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite_edit/favorite_edit_cubit.dart';
+import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
 import 'package:fashion_fusion/view/home/screen/cart_screen.dart';
 import 'package:fashion_fusion/view/home/screen/favorite_screen.dart';
@@ -76,12 +77,22 @@ class _NavBarState extends State<NavBar> {
           BlocProvider<CartCubit>(
             create: (context) => sl<CartCubit>()..getCartItems(),
           ),
+          BlocProvider<ProductCubit>(
+            create: (context) => sl<ProductCubit>()..getProduct(),
+          ),
         ],
         child: const HomeScreen(),
       ),
-      BlocProvider(
-        create: (context) => sl<CartCubit>()
-          ..getCartItems(),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<ProfileCubit>(
+            create: (context) => sl<ProfileCubit>()
+              ..getProfile(sl<SharedPreferences>().getString("userID")!),
+          ),
+          BlocProvider<CartCubit>(
+            create: (context) => sl<CartCubit>()..getCartItems(),
+          ),
+        ],
         child: const CartScreen(),
       ),
       MultiBlocProvider(

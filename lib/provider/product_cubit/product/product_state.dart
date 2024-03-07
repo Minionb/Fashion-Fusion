@@ -12,10 +12,11 @@ class ProductInitial extends ProductState {}
 class ProductIsLoadingState extends ProductState {}
 
 class ProductLoadedState extends ProductState {
-  final ProductModel model;
+  final List<ProductModel> models;
   
-  const ProductLoadedState({required this.model});
+  const ProductLoadedState({required this.models});
 }
+
 
 class ProductErrorState extends ProductState {
   final String message;

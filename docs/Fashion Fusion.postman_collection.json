@@ -11,588 +11,572 @@
 			"name": "User Management",
 			"item": [
 				{
-					"name": "admins/login",
-					"event": [
+					"name": "Logins",
+					"item": [
 						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();",
-									"pm.collectionVariables.set(\"ff_adminLogin_token\", responseJson.accessToken)",
-									"pm.collectionVariables.set(\"ff_adminLogin_refreshtoken\", responseJson.refreshToken)"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "accept",
-								"value": "*/*"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"fancy_admin@example.com\",\n  \"password\": \"adminpassword123\"\n}"
-						},
-						"url": {
-							"raw": "{{ff_base_url}}/admins/login",
-							"host": [
-								"{{ff_base_url}}"
-							],
-							"path": [
-								"admins",
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "admins/register",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const moment = require('moment');\r",
-									"pm.collectionVariables.set(\"ff_today\", moment().format(\"YYYYMMDD\"));\r",
-									"var counter = pm.collectionVariables.get(\"ff_user_counter\")\r",
-									"if (counter == null) counter = 0\r",
-									"counter = counter + 1\r",
-									"pm.collectionVariables.set(\"ff_user_counter\", counter);\r",
-									"\r",
-									"console.log(pm.request.email)\r",
-									"const jsonRequest = pm.request.toJSON();\r",
-									"if (jsonRequest.email)\r",
-									"  pm.collectionVariables.set(\"latest_email\", jsonRequest.email)\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "accept",
-								"value": "*/*"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"admin.{{$randomFirstName}}_{{ff_user_counter}}@ff.example.com\",\n  \"password\": \"adminpassword123\",\n  \"first_name\": \"{{$randomFirstName}}\",\n  \"last_name\": \"{{$randomLastName}}Admin\",\n  \"telephone_number\": \"1234567890\",\n  \"job_title\": \"Admin - {{$randomJobTitle}}\"\n}"
-						},
-						"url": {
-							"raw": "{{ff_base_url}}/admins/register",
-							"host": [
-								"{{ff_base_url}}"
-							],
-							"path": [
-								"admins",
-								"register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "admins/:id",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "accept",
-								"value": "*/*"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"address\": \"123 Main St, City, Country\",\n  \"date_of_birth\": \"1990-01-01\",\n  \"gender\": \"male\",\n  \"telephone_number\": \"1234567890\",\n  \"payments\": [\n    {\n      \"method\": \"credit_card\",\n      \"cardNumber\": \"1234 5678 9012 3456\",\n      \"expirationDate\": \"2024-12-31\",\n      \"cvv\": \"123\"\n    }\n  ]\n}"
-						},
-						"url": {
-							"raw": "{{ff_base_url}}/admins/:id",
-							"host": [
-								"{{ff_base_url}}"
-							],
-							"path": [
-								"admins",
-								":id"
-							],
-							"variable": [
+							"name": "Login as Admin",
+							"event": [
 								{
-									"key": "id",
-									"value": "65c98e7671237f988fa38e86"
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();",
+											"pm.collectionVariables.set(\"ff_adminLogin_token\", responseJson.accessToken)",
+											"pm.collectionVariables.set(\"ff_adminLogin_refreshtoken\", responseJson.refreshToken)"
+										],
+										"type": "text/javascript"
+									}
 								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "admins",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "accept",
-								"value": "*/*"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWM5NmI5YjUxMTgzYjk2NGUxZDFlZTUiLCJpYXQiOjE3MDc3MDUxMDIsImV4cCI6MTcwNzcwODcwMn0.vC_ffpeR-8UKxB2D3MBDIbwhJbwOfnE0LyBJ7QGCgC8",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"address\": \"123 Main St, City, Country\",\n  \"date_of_birth\": \"1990-01-01\",\n  \"gender\": \"male\",\n  \"telephone_number\": \"1234567890\",\n  \"payments\": [\n    {\n      \"method\": \"credit_card\",\n      \"cardNumber\": \"1234 5678 9012 3456\",\n      \"expirationDate\": \"2024-12-31\",\n      \"cvv\": \"123\"\n    }\n  ]\n}"
-						},
-						"url": {
-							"raw": "{{ff_base_url}}/admins",
-							"host": [
-								"{{ff_base_url}}"
 							],
-							"path": [
-								"admins"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "admins/reset-password",
-					"protocolProfileBehavior": {
-						"followAuthorizationHeader": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "accept",
-								"value": "*/*"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "",
-								"value": "",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"admin@example.com\",\n  \"newPassword\": \"adminpassword123\"\n}"
-						},
-						"url": {
-							"raw": "{{ff_base_url}}/admins/reset-password",
-							"host": [
-								"{{ff_base_url}}"
-							],
-							"path": [
-								"admins",
-								"reset-password"
-							],
-							"query": [
-								{
-									"key": "adminId",
-									"value": "something",
-									"disabled": true
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "admins/logout",
-					"protocolProfileBehavior": {
-						"followAuthorizationHeader": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "accept",
-								"value": "*/*"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "",
-								"value": "",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"admin.3@example.com\",\n  \"password\": \"adminpassword123\"\n}"
-						},
-						"url": {
-							"raw": "{{ff_base_url}}/admins/logout",
-							"host": [
-								"{{ff_base_url}}"
-							],
-							"path": [
-								"admins",
-								"logout"
-							],
-							"query": [
-								{
-									"key": "adminId",
-									"value": "something",
-									"disabled": true
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "customers/register",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"\r",
-									"var moment = require('moment');\r",
-									"function randomDateBetween(start, end, startHour, endHour) {\r",
-									"  var date = new Date(+start + Math.random() * (end - start));\r",
-									"  var hour = startHour + Math.random() * (endHour - startHour) | 0;\r",
-									"  date.setHours(hour);\r",
-									"  return date;\r",
-									"}\r",
-									"function formatDate(age){\r",
-									"    return age.getFullYear() \r",
-									"        + \"-\" + (age.getMonth() < 10 ? \"0\" : \"\" ) + age.getMonth() \r",
-									"        + \"-\" + (age.getDate() < 10 ? \"0\" : \"\" ) + age.getDate() ;\r",
-									"}\r",
-									"\r",
-									"function randomLegalAgedDOB(){\r",
-									"    let startYear = moment().subtract(18, 'years').format(\"YYYY\");\r",
-									"    let maxYear = moment().subtract(100, 'years').format('YYYY');\r",
-									"    let age = randomDateBetween(new Date(startYear, 0, 1), new Date(maxYear, 0, 1));\r",
-									"    console.log('Age :' + age);\r",
-									"    return formatDate(age);\r",
-									"}\r",
-									"\r",
-									"function randomeCreditCardExpiry(){    \r",
-									"    let startYear = moment().add(7, 'years').format(\"YYYY\");\r",
-									"    let maxYear = moment().add(1, 'years').format('YYYY');\r",
-									"    let age = randomDateBetween(new Date(startYear, 0, 1), new Date(maxYear, 0, 1));\r",
-									"    return (age.getMonth() < 10 ? \"0\" : \"\" ) + age.getMonth() \r",
-									"        + \"/\" + age.getFullYear() ; \r",
-									"}\r",
-									"\r",
-									"function randomGender(){\r",
-									"    let genders = [\"Male\", \"Female\", \"Others\"];\r",
-									"    var index = Math.floor(Math.random() * 3);\r",
-									"    console.log(\"gender [\" + index + \"] = \" + genders[index]);\r",
-									"    return genders[index]\r",
-									"}\r",
-									"\r",
-									"pm.collectionVariables.set(\"randomLegalDob\", randomLegalAgedDOB());\r",
-									"pm.collectionVariables.set(\"randomCreditCardExpiry\", randomeCreditCardExpiry());\r",
-									"pm.collectionVariables.set(\"randomGender\", randomGender());\r",
-									""
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
 								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "accept",
-								"value": "*/*"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n//   \"email\": \"{{$randomFirstName}}.customer_{{ff_user_counter}}@sample.com\", // generate unique email\n  \"email\": \"Wilhelm.customer_5@sample.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"{{$randomFirstName}}\",\n  \"last_name\": \"{{$randomLastName}}Customer\",\n  \"address\": \"{{$randomStreetAddress}}\",\n  \"date_of_birth\": \"{{randomLegalDob}}\",\n  \"gender\": \"male\",\n  \"telephone_number\": \"1234567890\",\n  \"payments\": [\n    {\n      \"method\": \"credit_card\",\n      \"cardNumber\": \"1234 5678 9012 3456\",\n      \"expirationDate\": \"{{randomCreditCardExpiry}}\",\n      \"cvv\": \"123\"\n    }\n  ]\n}"
-						},
-						"url": {
-							"raw": "{{ff_base_url}}/customers/register",
-							"host": [
-								"{{ff_base_url}}"
-							],
-							"path": [
-								"customers",
-								"register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "customers/id",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "accept",
-								"value": "*/*"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{ff_base_url}}/customers/:id",
-							"host": [
-								"{{ff_base_url}}"
-							],
-							"path": [
-								"customers",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "65c9542a36a484b2903fdb88"
+								"body": {
+									"mode": "raw",
+									"raw": "{\n//   \"email\": \"fancy_admin@example.com\",\n//   \"password\": \"adminpassword123\"\n  \"email\": \"fancy_admin@example.com\",\n  \"password\": \"adminpassword123\"\n}"
+								},
+								"url": {
+									"raw": "{{ff_base_url}}/admins/login",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"admins",
+										"login"
+									]
 								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "customers/login",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
+							},
+							"response": []
 						},
 						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();",
-									"pm.collectionVariables.set(\"ff_customerLogin_token\", responseJson.accessToken)",
-									"pm.collectionVariables.set(\"ff_customerLogin_refreshtoken\", responseJson.refreshToken)"
+							"name": "Logout Admin",
+							"protocolProfileBehavior": {
+								"followAuthorizationHeader": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
 								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "accept",
-								"value": "*/*"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"john.doer@example.com\",\n  \"password\": \"password123\"\n}"
-						},
-						"url": {
-							"raw": "{{ff_base_url}}/customers/login",
-							"host": [
-								"{{ff_base_url}}"
-							],
-							"path": [
-								"customers",
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "customers/logout",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "accept",
-								"value": "*/*"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"john.doe.2@example.com\",\n  \"password\": \"password123\"\n}"
-						},
-						"url": {
-							"raw": "{{ff_base_url}}/customers/logout",
-							"host": [
-								"{{ff_base_url}}"
-							],
-							"path": [
-								"customers",
-								"logout"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "customers",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "accept",
-								"value": "*/*"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "{{ff_customerLogin_token}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "{{ff_adminLogin_token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{ff_base_url}}/customers",
-							"host": [
-								"{{ff_base_url}}"
-							],
-							"path": [
-								"customers"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "customers/reset-password",
-					"protocolProfileBehavior": {
-						"followAuthorizationHeader": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "accept",
-								"value": "*/*"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "",
-								"value": "",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"newPassword\": \"password123\"\n}"
-						},
-						"url": {
-							"raw": "{{ff_base_url}}/customers/reset-password",
-							"host": [
-								"{{ff_base_url}}"
-							],
-							"path": [
-								"customers",
-								"reset-password"
-							],
-							"query": [
-								{
-									"key": "adminId",
-									"value": "something",
-									"disabled": true
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"admin.3@example.com\",\n  \"password\": \"adminpassword123\"\n}"
+								},
+								"url": {
+									"raw": "{{ff_base_url}}/admins/logout",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"admins",
+										"logout"
+									],
+									"query": [
+										{
+											"key": "adminId",
+											"value": "something",
+											"disabled": true
+										}
+									]
 								}
-							]
+							},
+							"response": []
+						},
+						{
+							"name": "Login as Customer",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();",
+											"pm.collectionVariables.set(\"ff_customerLogin_token\", responseJson.accessToken)",
+											"pm.collectionVariables.set(\"ff_customerLogin_refreshtoken\", responseJson.refreshToken)"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n//   \"email\": \"john.doer@example.com\",\n  \"email\": \"jane.doe@example.com\",\n  \"password\": \"password123\"\n}"
+								},
+								"url": {
+									"raw": "{{ff_base_url}}/customers/login",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"customers",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Logout Customer",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{ff_base_url}}/customers/logout",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"customers",
+										"logout"
+									]
+								}
+							},
+							"response": []
 						}
-					},
-					"response": []
+					]
+				},
+				{
+					"name": "Admins Api",
+					"item": [
+						{
+							"name": "Register an Admin User",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"\r",
+											"var counter = pm.collectionVariables.get(\"ff_user_counter\")\r",
+											"if (counter == null) counter = 0\r",
+											"counter = counter + 1\r",
+											"pm.collectionVariables.set(\"ff_user_counter\", counter);\r",
+											"\r",
+											"function randomFirstName(){\r",
+											"    return pm.variables.replaceIn('{{$randomFirstName}}');\r",
+											"}\r",
+											"function randomLastName(){\r",
+											"    return pm.variables.replaceIn('{{$randomLastName}}');\r",
+											"}\r",
+											"\r",
+											"pm.collectionVariables.set(\"ff_random_firstName\", randomFirstName());\r",
+											"pm.collectionVariables.set(\"ff_random_lastName\", randomLastName());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"admin.{{ff_random_firstName}}.{{ff_random_lastName}}_{{ff_user_counter}}@ff.example.com\",\n  \"password\": \"adminpassword123\",\n  \"first_name\": \"{{ff_random_firstName}}\",\n  \"last_name\": \"{{ff_random_lastName}}Admin\",\n  \"telephone_number\": \"1234567890\",\n  \"job_title\": \"Admin - {{$randomJobTitle}}\"\n}"
+								},
+								"url": {
+									"raw": "{{ff_base_url}}/admins/register",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"admins",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Admin User by Id",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"address\": \"123 Main St, City, Country\",\n  \"date_of_birth\": \"1990-01-01\",\n  \"gender\": \"male\",\n  \"telephone_number\": \"1234567890\",\n  \"payments\": [\n    {\n      \"method\": \"credit_card\",\n      \"cardNumber\": \"1234 5678 9012 3456\",\n      \"expirationDate\": \"2024-12-31\",\n      \"cvv\": \"123\"\n    }\n  ]\n}"
+								},
+								"url": {
+									"raw": "{{ff_base_url}}/admins/:id",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"admins",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "65c98e7671237f988fa38e86"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Admin Users",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWM5NmI5YjUxMTgzYjk2NGUxZDFlZTUiLCJpYXQiOjE3MDc3MDUxMDIsImV4cCI6MTcwNzcwODcwMn0.vC_ffpeR-8UKxB2D3MBDIbwhJbwOfnE0LyBJ7QGCgC8",
+										"type": "text",
+										"disabled": true
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_adminLogin_token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{ff_base_url}}/admins",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"admins"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Customers Api",
+					"item": [
+						{
+							"name": "Register as Customer",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"\r",
+											"var moment = require('moment');\r",
+											"function randomDateBetween(start, end, startHour, endHour) {\r",
+											"  var date = new Date(+start + Math.random() * (end - start));\r",
+											"  var hour = startHour + Math.random() * (endHour - startHour) | 0;\r",
+											"  date.setHours(hour);\r",
+											"  return date;\r",
+											"}\r",
+											"function formatDate(age){\r",
+											"    return age.getFullYear() \r",
+											"        + \"-\" + (age.getMonth() < 10 ? \"0\" : \"\" ) + age.getMonth() \r",
+											"        + \"-\" + (age.getDate() < 10 ? \"0\" : \"\" ) + age.getDate() ;\r",
+											"}\r",
+											"\r",
+											"function randomLegalAgedDOB(){\r",
+											"    let startYear = moment().subtract(18, 'years').format(\"YYYY\");\r",
+											"    let maxYear = moment().subtract(100, 'years').format('YYYY');\r",
+											"    let age = randomDateBetween(new Date(startYear, 0, 1), new Date(maxYear, 0, 1));\r",
+											"    console.log('Age :' + age);\r",
+											"    return formatDate(age);\r",
+											"}\r",
+											"\r",
+											"function randomeCreditCardExpiry(){    \r",
+											"    let startYear = moment().add(7, 'years').format(\"YYYY\");\r",
+											"    let maxYear = moment().add(1, 'years').format('YYYY');\r",
+											"    let age = randomDateBetween(new Date(startYear, 0, 1), new Date(maxYear, 0, 1));\r",
+											"    return (age.getMonth() < 10 ? \"0\" : \"\" ) + age.getMonth() \r",
+											"        + \"/\" + age.getFullYear() ; \r",
+											"}\r",
+											"\r",
+											"function randomGender(){\r",
+											"    let genders = [\"Male\", \"Female\", \"Others\"];\r",
+											"    var index = Math.floor(Math.random() * 3);\r",
+											"    console.log(\"gender [\" + index + \"] = \" + genders[index]);\r",
+											"    return genders[index]\r",
+											"}\r",
+											"\r",
+											"function randomFirstName(){\r",
+											"    return pm.variables.replaceIn('{{$randomFirstName}}');\r",
+											"}\r",
+											"function randomLastName(){\r",
+											"    return pm.variables.replaceIn('{{$randomLastName}}');\r",
+											"}\r",
+											"\r",
+											"pm.collectionVariables.set(\"randomLegalDob\", randomLegalAgedDOB());\r",
+											"pm.collectionVariables.set(\"randomCreditCardExpiry\", randomeCreditCardExpiry());\r",
+											"pm.collectionVariables.set(\"randomGender\", randomGender());\r",
+											"// pm.collectionVariables.set(\"ff_customerFirstName\", $randomFirstName);\r",
+											"pm.collectionVariables.set(\"ff_random_firstName\", randomFirstName());\r",
+											"pm.collectionVariables.set(\"ff_random_lastName\", randomLastName());\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"{{ff_random_firstName}}.{{ff_random_lastName}}.customer_{{ff_user_counter}}@sample.com\", // generate unique email\n  \"password\": \"password123\",\n  \"first_name\": \"{{ff_random_firstName}}\",\n  \"last_name\": \"{{ff_random_lastName}}Customer\",\n  \"address\": \"{{$randomStreetAddress}}\",\n  \"date_of_birth\": \"{{randomLegalDob}}\",\n  \"gender\": \"male\",\n  \"telephone_number\": \"1234567890\",\n  \"payments\": [\n    {\n      \"method\": \"credit_card\",\n      \"cardNumber\": \"1234 5678 9012 3456\",\n      \"expirationDate\": \"{{randomCreditCardExpiry}}\",\n      \"cvv\": \"123\"\n    }\n  ]\n}"
+								},
+								"url": {
+									"raw": "{{ff_base_url}}/customers/register",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"customers",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Customer with Id",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n//   \"email\": \"{{$ff_random_firstName}}.{{ff_random_lastName}}.customer_{{ff_user_counter}}@sample.com\", // generate unique email\n//   \"password\": \"password123\",\n//   \"first_name\": \"{{ff_random_firstName}}\",\n//   \"last_name\": \"{{ff_random_lastName}}Customer\",\n//   \"address\": \"{{$randomStreetAddress}}\",\n//   \"date_of_birth\": \"{{randomLegalDob}}\",\n  \"gender\": \"male\",\n//   \"telephone_number\": \"1234567890\",\n//   \"payments\": [\n//     {\n//       \"method\": \"credit_card\",\n//       \"cardNumber\": \"1234 5678 9012 3456\",\n//       \"expirationDate\": \"{{randomCreditCardExpiry}}\",\n//       \"cvv\": \"123\"\n//     }\n//   ]\n}"
+								},
+								"url": {
+									"raw": "{{ff_base_url}}/customers/:id",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"customers",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "65d257f27ad9c9c50baa4866"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Customer by Id",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{ff_base_url}}/customers/:id",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"customers",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "65d257f27ad9c9c50baa4866"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Customers",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_customerLogin_token}}",
+										"type": "text",
+										"disabled": true
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_adminLogin_token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{ff_base_url}}/customers",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"customers"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			],
 			"description": "User Management API endpoints",
@@ -1005,13 +989,17 @@
 					]
 				},
 				{
-					"name": "products",
+					"name": "Create a Product",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									""
+									"const response = pm.response.json()\r",
+									"if (response){\r",
+									"    console.log(response)\r",
+									"    pm.collectionVariables.set(\"ff_product_id\", response.productId)\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -1089,7 +1077,7 @@
 					"response": []
 				},
 				{
-					"name": "products",
+					"name": "Create a Bottoms product",
 					"event": [
 						{
 							"listen": "test",
@@ -1098,7 +1086,95 @@
 									"const response = pm.response.json()\r",
 									"if (response){\r",
 									"    console.log(response)\r",
-									"    pm.collectionVariables.set(\"ff_product_id\", response[0]._id)\r",
+									"    pm.collectionVariables.set(\"ff_product_id\", response.productId)\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"\r",
+									"\r",
+									"function randomCategory(){\r",
+									"    let categories = [\"Tops\", \"Bottoms\", \"Dresses\", \"Hoodies & Sweats\", \"Accessories\"];\r",
+									"    var index = Math.floor(Math.random() * 5);\r",
+									"    console.log(\"categories [\" + index + \"] = \" + categories[index]);\r",
+									"    return categories[index]\r",
+									"}\r",
+									"pm.collectionVariables.set(\"randomCategory\", randomCategory());\r",
+									"\r",
+									"\r",
+									"function randomSize(){\r",
+									"    let size = [\"XS\", \"S\", \"M\", \"L\", \"XL\"];\r",
+									"    var index = Math.floor(Math.random() * 5);\r",
+									"    console.log(\"size [\" + index + \"] = \" + size[index]);\r",
+									"    return size[index]\r",
+									"}\r",
+									"pm.collectionVariables.set(\"randomSize\", randomSize());\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "*/*",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{ff_customerLogin_token}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{ff_adminLogin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"product_name\": \"{{$randomProductMaterial}} Bottoms\",\n  \"category\": \"Bottoms\",\n  \"product_description\": \"Bottoms with {{$randomLoremSentences}}\",\n\n  \"price\": {{$randomPrice}},\n  \"tags\": \"#bottom #{{$randomProduct}},#{{$randomProductMaterial}}\",\n  \"sold_quantity\": 0,\n  \"inventory\": [{\n        \"size\": \"{{randomSize}}\",\n        \"quantity\": {{$randomInt}}\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{ff_base_url}}/products",
+							"host": [
+								"{{ff_base_url}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all or search Products",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json()\r",
+									"if (response){\r",
+									"    console.log(response)\r",
+									"    //pm.collectionVariables.set(\"ff_product_id\", response[0]._id)\r",
 									"}"
 								],
 								"type": "text/javascript"
@@ -1167,13 +1243,50 @@
 							],
 							"path": [
 								"products"
+							],
+							"query": [
+								{
+									"key": "productName",
+									"value": "L",
+									"disabled": true
+								},
+								{
+									"key": "description",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "tags",
+									"value": "metal",
+									"disabled": true
+								},
+								{
+									"key": "category",
+									"value": "Dresses",
+									"disabled": true
+								},
+								{
+									"key": "price",
+									"value": "1-100",
+									"disabled": true
+								},
+								{
+									"key": "sort",
+									"value": "price_low_to_high",
+									"disabled": true
+								},
+								{
+									"key": "sort",
+									"value": "price_high_to_low",
+									"disabled": true
+								}
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "products/:productId",
+					"name": "Get Product by Id",
 					"event": [
 						{
 							"listen": "test",
@@ -1260,7 +1373,7 @@
 					"response": []
 				},
 				{
-					"name": "products/:productId",
+					"name": "Update Product with Id",
 					"event": [
 						{
 							"listen": "test",
@@ -1334,7 +1447,7 @@
 					"response": []
 				},
 				{
-					"name": "products/:productId",
+					"name": "Remove Product by Id",
 					"event": [
 						{
 							"listen": "test",
@@ -1408,7 +1521,7 @@
 					"response": []
 				},
 				{
-					"name": "products/:productId/images",
+					"name": "Add Image to a Product",
 					"event": [
 						{
 							"listen": "test",
@@ -1467,7 +1580,13 @@
 								{
 									"key": "image",
 									"type": "file",
-									"src": "ftYO4Asrx/64c590c754d6bc13ebd90cbc_ai_product_photo_styles.webp"
+									"src": "/Users/adrianmarkdalipe/Downloads/handmade_cotton_chicken.jpeg"
+								},
+								{
+									"key": "image",
+									"value": "https://picsum.photos/seed/picsum/200/300",
+									"type": "text",
+									"disabled": true
 								}
 							]
 						},
@@ -1493,7 +1612,7 @@
 					"response": []
 				},
 				{
-					"name": "products/images/:imageId",
+					"name": "Get a Product Image by Id",
 					"event": [
 						{
 							"listen": "test",
@@ -1539,8 +1658,7 @@
 							{
 								"key": "Authorization",
 								"value": "{{ff_adminLogin_token}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"url": {
@@ -1558,6 +1676,1199 @@
 									"key": "id",
 									"value": "{{ff_productImages_id}}"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Product Image by Id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "*/*",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{ff_customerLogin_token}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{ff_adminLogin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{ff_base_url}}/products/images/:id",
+							"host": [
+								"{{ff_base_url}}"
+							],
+							"path": [
+								"products",
+								"images",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{ff_productImages_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Order Management",
+			"item": [
+				{
+					"name": "Cart",
+					"item": [
+						{
+							"name": "Add Product to Cart",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.collectionVariables.set(\"ff_random_quantity\", Math.ceil(Math.random() * 4));\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_customerLogin_token}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_adminLogin_token}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"productId\": \"{{ff_product_id}}\",\n  \"quantity\": {{ff_random_quantity}}\n}"
+								},
+								"url": {
+									"raw": "{{ff_base_url}}/cart/items",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"cart",
+										"items"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Deduct Product quantity from Cart",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.collectionVariables.set(\"ff_random_quantity\", Math.ceil(Math.random() * 4));\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_customerLogin_token}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_adminLogin_token}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"productId\": \"{{ff_product_id}}\",\n  \"quantity\": -{{ff_random_quantity}}\n}"
+								},
+								"url": {
+									"raw": "{{ff_base_url}}/cart/items",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"cart",
+										"items"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all Products from Cart",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.collectionVariables.set(\"ff_random_quantity\", Math.floor(Math.random() * 5));\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_customerLogin_token}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_adminLogin_token}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{ff_base_url}}/cart/items",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"cart",
+										"items"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove Product from Cart",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.collectionVariables.set(\"ff_random_quantity\", Math.floor(Math.random() * 5));\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_customerLogin_token}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_adminLogin_token}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{ff_base_url}}/cart/items/:productId",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"cart",
+										"items",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "{{ff_product_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Empty Cart",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.collectionVariables.set(\"ff_random_quantity\", Math.floor(Math.random() * 5));\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_customerLogin_token}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_adminLogin_token}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{ff_base_url}}/cart/items",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"cart",
+										"items"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Checkout",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"\r",
+											"\r",
+											"function randomDeliveryCourier (){\r",
+											"    const deliveryCourier = [\"pickup\", \"DHL\", \"UPS\"];\r",
+											"    const index = Math.floor(Math.random() * 3);\r",
+											"    return deliveryCourier[index];\r",
+											"}\r",
+											"\r",
+											"function randomDeliveryMethod (){\r",
+											"    const deliveryMethod = [\"pickup\", \"standard_delivery\", \"express_delivery\"];\r",
+											"    const index = Math.floor(Math.random() * 3);\r",
+											"    return deliveryMethod[index];\r",
+											"}\r",
+											"\r",
+											"pm.collectionVariables.set(\"ff_delivery_courier\", randomDeliveryCourier());\r",
+											"pm.collectionVariables.set(\"ff_delivery_method\", randomDeliveryMethod());\r",
+											"\r",
+											"pm.collectionVariables.set(\"ff_random_quantity\", Math.ceil(Math.random() * 4));\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_customerLogin_token}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_adminLogin_token}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"paymentMethod\": \"credit card\",\n    \"cardNumber\": \"1111 1111 1111 {{$randomCreditCardMask}}\",\n    //   \"cardNumber\": \"1234 5678 9012 3456\",\n    \"deliveryMethod\": \"{{ff_delivery_method}}\",\n    \"courier\": \"{{ff_delivery_courier}}\",\n    \"cartItems\": [\n        {\n            \"productId\": \"{{ff_product_id}}\",\n            \"quantity\": {{ff_random_quantity}}\n        }\n    ]\n}"
+								},
+								"url": {
+									"raw": "{{ff_base_url}}/checkout",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"checkout"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[Legacy] Checkout Cart",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"\r",
+											"\r",
+											"function randomDeliveryCourier (){\r",
+											"    const deliveryCourier = [\"pickup\", \"DHL\", \"UPS\"];\r",
+											"    const index = Math.floor(Math.random() * 3);\r",
+											"    return deliveryCourier[index];\r",
+											"}\r",
+											"\r",
+											"function randomDeliveryMethod (){\r",
+											"    const deliveryMethod = [\"pickup\", \"standard_delivery\", \"express_delivery\"];\r",
+											"    const index = Math.floor(Math.random() * 3);\r",
+											"    return deliveryMethod[index];\r",
+											"}\r",
+											"\r",
+											"pm.collectionVariables.set(\"ff_delivery_courier\", randomDeliveryCourier());\r",
+											"pm.collectionVariables.set(\"ff_delivery_method\", randomDeliveryMethod());\r",
+											"\r",
+											"pm.collectionVariables.set(\"ff_random_quantity\", Math.ceil(Math.random() * 4));\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_customerLogin_token}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_adminLogin_token}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"paymentMethod\": \"credit card\",\n  \"cardNumber\": \"1111 1111 1111 {{$randomCreditCardMask}}\",\n//   \"cardNumber\": \"1234 5678 9012 3456\",\n  \"deliveryMethod\": \"{{ff_delivery_method}}\",\n  \"courier\": \"{{ff_delivery_courier}}\"\n}\n"
+								},
+								"url": {
+									"raw": "{{ff_base_url}}/cart/checkout",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"cart",
+										"checkout"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Orders",
+					"item": [
+						{
+							"name": "Get all Orders",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const response = pm.response.json()\r",
+											"if (response){\r",
+											"    console.log(response)\r",
+											"    pm.collectionVariables.set(\"ff_order_id\", response[0].orderId)\r",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.collectionVariables.set(\"ff_random_quantity\", Math.floor(Math.random() * 5));\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_customerLogin_token}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_adminLogin_token}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{ff_base_url}}/orders",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Orders by Id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const response = pm.response.json()\r",
+											"if (response){\r",
+											"    console.log(response)\r",
+											"    pm.collectionVariables.set(\"ff_order_id\", response[0]._id)\r",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.collectionVariables.set(\"ff_random_quantity\", Math.floor(Math.random() * 5));\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_customerLogin_token}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_adminLogin_token}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{ff_base_url}}/orders/:orderId",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"orders",
+										":orderId"
+									],
+									"variable": [
+										{
+											"key": "orderId",
+											"value": "{{ff_order_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Order status",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.collectionVariables.set(\"ff_random_quantity\", Math.floor(Math.random() * 5));\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_customerLogin_token}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_adminLogin_token}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"orderStatus\": \"delivered\",\r\n    \"payment\": {\r\n        \"method\": \"credit card\",\r\n        \"cardNumber\": \"1111 1111 1111 2963\",\r\n        \"status\": \"pending\"\r\n    },\r\n    \"delivery\": {\r\n        \"method\": \"standard_delivery\",\r\n        \"courier\": \"pickup\",\r\n        \"status\": \"pending\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{ff_base_url}}/orders/:orderId",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"orders",
+										":orderId"
+									],
+									"variable": [
+										{
+											"key": "orderId",
+											"value": "{{ff_order_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Favorites",
+					"item": [
+						{
+							"name": "Add Product to Favorites",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.collectionVariables.set(\"ff_random_quantity\", Math.ceil(Math.random() * 4));\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_customerLogin_token}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_adminLogin_token}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"productId\": \"{{ff_product_id}}\"\n}"
+								},
+								"url": {
+									"raw": "{{ff_base_url}}/favorite/items",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"favorite",
+										"items"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove Product from Favorites",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.collectionVariables.set(\"ff_random_quantity\", Math.ceil(Math.random() * 4));\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_customerLogin_token}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_adminLogin_token}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"productId\": \"{{ff_product_id}}\"\n}"
+								},
+								"url": {
+									"raw": "{{ff_base_url}}/favorite/items",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"favorite",
+										"items"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Favorites Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.collectionVariables.set(\"ff_random_quantity\", Math.floor(Math.random() * 5));\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_customerLogin_token}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_adminLogin_token}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{ff_base_url}}/favorite/items",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"favorite",
+										"items"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Favorites",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.collectionVariables.set(\"ff_random_quantity\", Math.floor(Math.random() * 5));\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "*/*",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_customerLogin_token}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{ff_adminLogin_token}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{ff_base_url}}/favorite/items",
+									"host": [
+										"{{ff_base_url}}"
+									],
+									"path": [
+										"favorite",
+										"items"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Reset Password",
+			"item": [
+				{
+					"name": "Request Password Reset",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "*/*"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"maggiegelz@gmail.com\"\n}"
+						},
+						"url": {
+							"raw": "{{ff_base_url}}//customers/reset-password",
+							"host": [
+								"{{ff_base_url}}"
+							],
+							"path": [
+								"",
+								"customers",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Request Password Reset Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "*/*"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"token\": \"fdfad38005bb485f00f295ca84c9861c7246b2d4\",\n  \"newPassword\": \"newPassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{ff_base_url}}/customers/set-password/",
+							"host": [
+								"{{ff_base_url}}"
+							],
+							"path": [
+								"customers",
+								"set-password",
+								""
 							]
 						}
 					},
@@ -1587,7 +2898,8 @@
 			"script": {
 				"type": "text/javascript",
 				"exec": [
-					""
+					"const moment = require('moment');",
+					"pm.collectionVariables.set(\"ff_today\", moment().format(\"YYYYMMDD\"));"
 				]
 			}
 		},
@@ -1606,6 +2918,12 @@
 			"key": "ff_base_url",
 			"value": "http://127.0.0.1:3000",
 			"type": "string"
+		},
+		{
+			"key": "ff_base_url",
+			"value": "http://192.168.2.156:3000",
+			"type": "string",
+			"disabled": true
 		},
 		{
 			"key": "ff_customerLogin_token",
@@ -1657,6 +2975,34 @@
 		},
 		{
 			"key": "ff_productImages_id",
+			"value": ""
+		},
+		{
+			"key": "ff_random_firstName",
+			"value": ""
+		},
+		{
+			"key": "ff_random_lastName",
+			"value": ""
+		},
+		{
+			"key": "ff_admin_email",
+			"value": ""
+		},
+		{
+			"key": "ff_random_quantity",
+			"value": ""
+		},
+		{
+			"key": "ff_delivery_courier",
+			"value": ""
+		},
+		{
+			"key": "ff_delivery_method",
+			"value": ""
+		},
+		{
+			"key": "ff_order_id",
 			"value": ""
 		}
 	]

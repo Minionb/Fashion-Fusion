@@ -5,6 +5,10 @@ const paymentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  name: {
+    type: String,
+    required: true,
+  },  
   cardNumber: {
     type: String,
     required: true,

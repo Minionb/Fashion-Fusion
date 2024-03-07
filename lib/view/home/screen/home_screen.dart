@@ -1,7 +1,7 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
-import 'package:fashion_fusion/core/utils/app_images.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
+import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
 import 'package:fashion_fusion/view/home/widget/product_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-
+import 'package:fashion_fusion/data/product/model/product_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,63 +21,126 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int catIndex = 0;
   late List<String> _favoriteIds;
+  late List<ProductModel> products;
 
-  Future<void> _fetchFavorites(FavoriteCubit favoriteCubit) async {
+  Future<void> _fetchProducts(ProductCubit productCubit) async {
     setState(() {
-      favoriteCubit.getFavorite();
+      productCubit.getProduct();
     });
   }
 
   @override
+  void initState() {
+    super.initState();
+    _fetchProducts(context.read<ProductCubit>());
+  }
+
   Widget build(BuildContext context) {
+    // HelperMethod.loader is a custom widget that wraps the child with a loader if needed
     return HelperMethod.loader(
-        child: Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: NestedScrollView(
+      child: Scaffold(
+        body: SafeArea(
+          bottom: false,
+          child: NestedScrollView(
             headerSliverBuilder: (BuildContext context, bool innerBoxScrolled) {
-          return <Widget>[
-            _buildAppBar1(),
-            _buildAppBar2(),
-          ];
-        }, body: BlocBuilder<FavoriteCubit, FavoriteState>(
-                builder: (context, state) {
-          if (state is FavoriteIsLoadingState) {}
-          if (state is FavoriteLoadedState) {
-            _favoriteIds = state.models
-            .map((model) => model.productId)
-            .where((element) => element != null && element.isNotEmpty)
-            .toList().cast<String>();
-            return AnimationLimiter(
-              child: GridView.builder(
-                padding: const EdgeInsets.fromLTRB(15, 15, 15, 50).w,
-                itemCount: ProductModel.products.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 20,
-                    crossAxisSpacing: 20,
-                    childAspectRatio: 0.72),
-                itemBuilder: (context, index) {
-                  final model = ProductModel.products[index];
-                  // ignore: collection_methods_unrelated_type
-                  model.isFavorite = _favoriteIds.contains(model.id);
-                  return AnimationConfiguration.staggeredList(
-                      position: index,
-                      duration: const Duration(milliseconds: 900),
-                      child: SlideAnimation(
-                          child: FadeInAnimation(
-                              child: ProductCard(model: model))));
-                },
-              ),
-            );
-          } else {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        })),
+              // Building app bar widgets
+              return <Widget>[
+                _buildAppBar1(),
+                _buildAppBar2(),
+              ];
+            },
+            body: _buildBody(), // Building the main body of the screen
+          ),
+        ),
       ),
-    ));
+    );
+  }
+
+// Building the main body of the screen
+  Widget _buildBody() {
+    return Center(
+      child: BlocConsumer<ProductCubit, ProductState>(
+        listener: (context, productState) {
+          // When products are loaded, get favorite products
+          if (productState is ProductLoadedState) {
+            context.read<FavoriteCubit>().getFavorite();
+          }
+        },
+        builder: (context, productState) {
+          // Building UI based on product state
+          if (productState is ProductIsLoadingState) {
+            // Show loading state
+            return _buildLoadingState();
+          } else if (productState is ProductLoadedState) {
+            // Products are loaded, display products grid
+            products = productState.models;
+            return _buildProductsGrid();
+          } else {
+            // If no products loaded, return empty SizedBox
+            return const SizedBox();
+          }
+        },
+      ),
+    );
+  }
+
+// Building loading state widget
+  Widget _buildLoadingState() {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+// Building the products grid
+  Widget _buildProductsGrid() {
+    return BlocBuilder<FavoriteCubit, FavoriteState>(
+      builder: (context, favoriteState) {
+        if (favoriteState is FavoriteLoadedState) {
+          // When favorite products are loaded, extract favorite ids and build products list
+          _favoriteIds = favoriteState.models
+              .map((model) => model.productId)
+              .where((element) => element.isNotEmpty)
+              .toList()
+              .cast<String>();
+          return _buildProductsList();
+        } else {
+          // If favorite products not loaded, return empty SizedBox
+          return const SizedBox();
+        }
+      },
+    );
+  }
+
+// Building the products list
+  Widget _buildProductsList() {
+    return AnimationLimiter(
+      child: GridView.builder(
+        padding: const EdgeInsets.fromLTRB(15, 15, 15, 50),
+        itemCount: products.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 20,
+          crossAxisSpacing: 20,
+          childAspectRatio: 0.72,
+        ),
+        itemBuilder: (context, index) {
+          final model = products[index];
+          final bool isFavorite = _favoriteIds.contains(model.id);
+          return AnimationConfiguration.staggeredList(
+            position: index,
+            duration: const Duration(milliseconds: 900),
+            child: SlideAnimation(
+              child: FadeInAnimation(
+                child: ProductCard(
+                  model: model,
+                  isFavorite: isFavorite,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   SliverAppBar _buildAppBar1() {
@@ -175,84 +238,6 @@ class _HomeScreenState extends State<HomeScreen> {
     "Dresses",
     "Hoodies & Sweats",
     "Accessories",
-  ];
-}
-
-class ProductModel {
-  final String id;
-  final String label;
-  final String imagePath;
-  final double price;
-  late bool isFavorite;
-
-  ProductModel(
-      {required this.id,
-      required this.label,
-      required this.imagePath,
-      required this.price,
-      this.isFavorite = false });
-
-  static List<ProductModel> products = [
-    ProductModel(
-        id: "65db89167f16c4a8a2b217aa",
-        label: "Double-breasted Trench Coat",
-        imagePath: "${AppImages.imagePath}/1.jpeg",
-        price: 10.00),
-    ProductModel(
-        id: "65d6c9ea299c6a4d62df7ad7",
-        label: "Double-breasted Blazer",
-        imagePath: "${AppImages.imagePath}/2.jpeg",
-        price: 20.00),
-    ProductModel(
-        id: "65d6c884671891833dde290c",
-        label: "Wide-leg Pants",
-        imagePath: "${AppImages.imagePath}/3.jpeg",
-        price: 20.00),
-    ProductModel(
-        id: "65d6c5a6fc22ae245c2a7e48",
-        label: "Baggy Regular Jeans",
-        imagePath: "${AppImages.imagePath}/4.jpeg",
-        price: 30.00),
-    ProductModel(
-        id: "65d6c4971459904e24884fc8",
-        label: "Jacquard-knit Sweater",
-        imagePath: "${AppImages.imagePath}/5.jpeg",
-        price: 25.00),
-    ProductModel(
-        id: "65d6b38b8283b8e980a79ce9",
-        label: "Puffer Vest",
-        imagePath: "${AppImages.imagePath}/6.jpeg",
-        price: 21.00),
-    ProductModel(
-        id: "65d6b3678283b8e980a79ce6",
-        label: "Linen-blend Pull-on Pants",
-        imagePath: "${AppImages.imagePath}/7.jpeg",
-        price: 23.00),
-    ProductModel(
-        id: "65d6b2b68283b8e980a79ce3",
-        label: "Coated Bomber Jacket",
-        imagePath: "${AppImages.imagePath}/8.jpeg",
-        price: 5.00),
-    ProductModel(
-        id: "65d6af4152a6d6e5c7449e72",
-        label: "Linen-blend Pull-on Pants",
-        imagePath: "${AppImages.imagePath}/9.jpeg",
-        price: 10.00),
-    ProductModel(
-        id: "65d6aed5810996d49de8d570",
-        label: "MAMA Straight Ankle Jeans",
-        imagePath: "${AppImages.imagePath}/10.jpeg",
-        price: 13.00),
-    ProductModel(
-        id: "65d6aea2bfc47be4959d47ea",
-        label: "Long-sleeved Jersey Top",
-        imagePath: "${AppImages.imagePath}/11.jpeg",
-        price: 14.00),
-    ProductModel(
-        id: "65d6ae5500e99917bab444aa",
-        label: "Curvy Fit Baggy Low Jeans",
-        imagePath: "${AppImages.imagePath}/12.jpeg",
-        price: 45.00),
   ];
 }
 
