@@ -1,95 +1,152 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
+import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/core/utils/cart_decorator_utils.dart';
 import 'package:fashion_fusion/data/cart/model/cart_item_model.dart';
+import 'package:fashion_fusion/data/profile/model/profile_model.dart';
+import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
 import 'package:fashion_fusion/view/home/widget/list_tile_product_image.dart';
 import 'package:fashion_fusion/view/home/widget/total_amount_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class OrderCheckoutScreen extends StatelessWidget {
+class OrderCheckoutScreen extends StatefulWidget {
   final List<CartItemModel> cartItems;
   final CartDecorator cartDecorator;
-  const OrderCheckoutScreen({super.key, required this.cartItems, required this.cartDecorator});
+
+  const OrderCheckoutScreen(
+      {super.key, required this.cartItems, required this.cartDecorator});
 
   @override
+  _OrderCheckoutScreenState createState() => _OrderCheckoutScreenState();
+}
+
+class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Checkout",
-          textAlign: TextAlign.left,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ProfileCubit>(
+          create: (context) => sl<ProfileCubit>()
+            ..getProfile(sl<SharedPreferences>().getString("userID")!),
+        ),
+        // Add more BlocProviders as needed
+      ],
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            "Checkout",
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+            ),
           ),
         ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSection(
-              title: 'Order Summary',
-              content: _buildShoppingCartItems(),
-              initiallyExpanded: true
-            ),
-            _buildSection(
-              title: 'Payment Options',
-              content: _buildPaymentOptions(),
-            ),
-            _buildSection(
-              title: 'Shipping Details',
-              content: _buildShippingDetails(),
-            ),
-            const SizedBox(height: 30),
-            const PlaceOrderButton(),
-          ],
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildOrderSummarySection(),
+              _buildPaymentOptionsSection(),
+              _buildShippingDetailsSection(),
+              const SizedBox(height: 30),
+              const PlaceOrderButton(),
+            ],
+          ),
         ),
       ),
     );
   }
 
-Widget _buildSection({required String title, required Widget content, bool initiallyExpanded = false}) {
-  return ExpansionTile(
-    title: Text(
-      title,
-      style: const TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    initiallyExpanded: initiallyExpanded,
-    children: [content],
-  );
-}
+  Widget _buildOrderSummarySection() {
+    return _buildSection(
+      title: 'Order Summary',
+      content: _buildShoppingCartItems(),
+      initiallyExpanded: true,
+    );
+  }
 
+  Widget _buildPaymentOptionsSection() {
+    return _buildSection(
+      title: 'Payment Options',
+      content: _buildPaymentOptions(),
+    );
+  }
+
+  Widget _buildShippingDetailsSection() {
+    return _buildSection(
+      title: 'Shipping Details',
+      content: _buildShippingDetails(),
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required Widget content,
+    bool initiallyExpanded = false,
+  }) {
+    return ExpansionTile(
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      initiallyExpanded: initiallyExpanded,
+      children: [content],
+    );
+  }
 
   Widget _buildShoppingCartItems() {
-    var cartItemWidgets = cartItems
-        .map((item) => CartItemWidget(
-              model: item,
-            ))
-        .toList();
     return ListView(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        ...cartItemWidgets,
+        ...widget.cartItems.map((item) => CartItemWidget(model: item)),
         const SizedBox(height: 16),
-        CartCheckoutAmountWidget(label: 'Subtotal Amount', value: cartDecorator.getFormattedSubtotalAmount()),
+        CartCheckoutAmountWidget(
+          label: 'Subtotal Amount',
+          value: widget.cartDecorator.getFormattedSubtotalAmount(),
+        ),
         const SizedBox(height: 16),
-        CartCheckoutAmountWidget(label: 'GST/HST', value: cartDecorator.getFormattedGstAmount()),
+        CartCheckoutAmountWidget(
+          label: 'GST/HST',
+          value: widget.cartDecorator.getFormattedGstAmount(),
+        ),
         const SizedBox(height: 16),
-        CartCheckoutAmountWidget(label: 'Total Amount', value: cartDecorator.getFormattedTotalAmount(), isHighlight: true,),
+        CartCheckoutAmountWidget(
+          label: 'Total Amount',
+          value: widget.cartDecorator.getFormattedTotalAmount(),
+          isHighlight: true,
+        ),
         const SizedBox(height: 16),
       ],
     );
   }
 
   Widget _buildPaymentOptions() {
-    // TODO: Implement the UI for payment options
-    return const Text('Payment Options');
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        if (state is ProfileLoadedState) {
+          // Render UI with stored payments
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var payment in state.model!.payments)
+                PaymentWidget(model: payment)
+              // Add UI elements for adding new payment options
+            ],
+          );
+        } else {
+          // Render loading indicator or error message
+          return const CircularProgressIndicator();
+        }
+      },
+    );
   }
 
   Widget _buildShippingDetails() {
@@ -97,7 +154,6 @@ Widget _buildSection({required String title, required Widget content, bool initi
     return const Text('Shipping Details');
   }
 }
-
 
 class CartItemWidget extends StatelessWidget {
   final CartItemModel model;
@@ -122,50 +178,49 @@ class CartItemWidget extends StatelessWidget {
   Text _price() {
     var subtotal = model.price * model.quantity;
     return Text(
-          "\$${fomattedPrice(subtotal)}",
-          style: TextStyle(color: AppColors.textGray),
-        );
+      "\$${fomattedPrice(subtotal)}",
+      style: TextStyle(color: AppColors.textGray),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.lightGray), // Add border
-        borderRadius: BorderRadius.circular(8.0), // Add border radius
-      ),
-      margin: const EdgeInsets.only(bottom: 16.0), // Add margin
-      child: ListTile(
-        leading: ListTileImageWidget(
-          imageId: model.imageId,
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.lightGray), // Add border
+          borderRadius: BorderRadius.circular(8.0), // Add border radius
         ),
-        title: _productName(),
-        subtitle: 
-          Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Text(model.quantity.toString()), // Quantity
-                const SizedBox(width: 16),
-                const Text('x'), // Quantity
-                const SizedBox(width: 16),
-                Text("\$${fomattedPrice(model.price)}")
-              ],
-            ),
-            const Text("="),
-            _price(),
-          ],
+        margin: const EdgeInsets.only(bottom: 16.0), // Add margin
+        child: ListTile(
+          leading: ListTileImageWidget(
+            imageId: model.imageId,
           ),
-      ));
-    
+          title: _productName(),
+          subtitle: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Text(model.quantity.toString()), // Quantity
+                  const SizedBox(width: 16),
+                  const Text('x'), // Quantity
+                  const SizedBox(width: 16),
+                  Text("\$${fomattedPrice(model.price)}")
+                ],
+              ),
+              const Text("="),
+              _price(),
+            ],
+          ),
+        ));
   }
 
-  String fomattedPrice(double price){
+  String fomattedPrice(double price) {
     return NumberFormat("#,##0.00", "en_US").format(price);
   }
 }
+
 class PlaceOrderButton extends StatelessWidget {
   const PlaceOrderButton({Key? key});
 
@@ -190,5 +245,55 @@ class PlaceOrderButton extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class PaymentWidget extends StatelessWidget {
+  final PaymentModel model;
+
+  const PaymentWidget({super.key, required this.model});
+
+  Widget _name() {
+    return Expanded(
+      child: Text(
+        model.name,
+        maxLines: 2,
+        textAlign: TextAlign.left,
+        overflow: TextOverflow.fade,
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+
+  Text _exp() {
+    return Text(
+      model.expirationDate,
+      style: TextStyle(color: AppColors.textGray),
+    );
+  }
+
+  Text _card() {
+    return Text(
+      model.cardNumber,
+      style: TextStyle(color: AppColors.textGray),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.lightGray), // Add border
+          borderRadius: BorderRadius.circular(8.0), // Add border radius
+        ),
+        margin: const EdgeInsets.only(bottom: 16.0), // Add margin
+        child: ListTile(
+          title: _name(),
+          subtitle: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [_card(),
+            _exp()]),
+        ));
   }
 }

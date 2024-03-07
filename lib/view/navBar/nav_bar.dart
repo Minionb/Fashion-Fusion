@@ -83,9 +83,16 @@ class _NavBarState extends State<NavBar> {
         ],
         child: const HomeScreen(),
       ),
-      BlocProvider(
-        create: (context) => sl<CartCubit>()
-          ..getCartItems(),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<ProfileCubit>(
+            create: (context) => sl<ProfileCubit>()
+              ..getProfile(sl<SharedPreferences>().getString("userID")!),
+          ),
+          BlocProvider<CartCubit>(
+            create: (context) => sl<CartCubit>()..getCartItems(),
+          ),
+        ],
         child: const CartScreen(),
       ),
       MultiBlocProvider(

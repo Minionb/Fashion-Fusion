@@ -149,6 +149,7 @@ Future<void> init() async {
       () => CustomerRemoteDataSourceImpl(apiConsumer: sl()));
 
 // Customer::END
+
   //! External
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
