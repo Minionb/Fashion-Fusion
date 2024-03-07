@@ -1,4 +1,6 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
+import 'package:fashion_fusion/core/utils/navigator_extension.dart';
+import 'package:fashion_fusion/view/admin/view/admin_add_cateegory_screen.dart';
 import 'package:fashion_fusion/view/admin/widget/admin_category_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -14,21 +16,7 @@ class _AdminCategoryScreenState extends State<AdminCategoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: Container(
-        color: Colors.transparent,
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 90).w,
-          decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(25).r),
-          child: TextButton(
-              onPressed: () {},
-              child: const Text(
-                "Add Category",
-                style: TextStyle(color: Colors.white),
-              )),
-        ),
-      ),
+      bottomNavigationBar: _addCategoryBtn(context),
       appBar: AppBar(
         title: const Text(
           "Category",
@@ -42,6 +30,26 @@ class _AdminCategoryScreenState extends State<AdminCategoryScreen> {
           },
           separatorBuilder: (context, index) => const Divider(),
           itemCount: _cat.length),
+    );
+  }
+
+  Container _addCategoryBtn(BuildContext context) {
+    return Container(
+      color: Colors.transparent,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 90).w,
+        decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(25).r),
+        child: TextButton(
+            onPressed: () {
+              context.pushNamedNAV(const AdminAddCategoryScreen());
+            },
+            child: const Text(
+              "Add Category",
+              style: TextStyle(color: Colors.white),
+            )),
+      ),
     );
   }
 
