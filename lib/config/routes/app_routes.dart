@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class Routes {
   static const String init = "/";
   static const String signup = "/signup";
@@ -27,7 +26,7 @@ class AppRoutes {
       case Routes.init:
         return MaterialPageRoute(builder: (context) {
           // TODO
-          // return WelcomePage();
+          // return const WelcomePage();
           return sl<SharedPreferences>().getBool("isLogin") == true
               ? ((sl<SharedPreferences>().getString("userType") == "customer")
                   ? const NavBar()
@@ -59,7 +58,11 @@ class AppRoutes {
                   child: const LoginScreen(),
                 ));
       case Routes.adminMainScreen:
-        return MaterialPageRoute(builder: (context) => const AdminNavBar());
+        return MaterialPageRoute(
+            builder: (context) => BlocProvider(
+                  create: (context) => sl<CustomerCubit>()..getCustomer(),
+                  child: const AdminNavBar(),
+                ));
       default:
     }
     return null;
