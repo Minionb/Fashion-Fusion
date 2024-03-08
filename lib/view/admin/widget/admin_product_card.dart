@@ -1,4 +1,6 @@
+import 'package:fashion_fusion/core/utils/navigator_extension.dart';
 import 'package:fashion_fusion/data/product/model/product_model.dart';
+import 'package:fashion_fusion/view/admin/view/admin_product_deatils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -43,11 +45,16 @@ class _AdminProductCardState extends State<AdminProductCard> {
       key: Key(widget.model.id ?? ""),
       direction: Axis.horizontal,
       child: ListTile(
+        onTap: () {
+          context.pushNamedNAV(AdminProductDetailsScreen(
+            model: widget.model,
+          ));
+        },
         leading: CircleAvatar(
           backgroundImage: NetworkImage(_getImageUrl),
         ),
         style: ListTileStyle.drawer,
-        subtitle: Text("\$${widget.model.price??0}"),
+        subtitle: Text("\$${widget.model.price ?? 0}"),
         visualDensity: VisualDensity.comfortable,
         title: Text(widget.model.productName ?? ""),
         trailing: Icon(
