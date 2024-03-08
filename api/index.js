@@ -18,6 +18,9 @@ const server = express();
 server.use(express.json());
 
 // Launch apis:
+console.log('---------------------------');
+console.log('|      API Endpoints      |');
+console.log('---------------------------');
 new UserManagementController().initApis(server);
 new ProductManagementController().initApis(server);
 new OrderManagementController().initApis(server);

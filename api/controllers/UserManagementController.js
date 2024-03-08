@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const { CustomersModel, AdminsModel } = require("../schema/index");
 const { verifyToken, verifyAdminToken } = require("../util/verifyToken");
+const { attachRoute } = require("../util/routingUtils");
 const { generateTokens } = require("../util/generateTokens");
 const { maskCreditNumber } = require("../util/cardUtils");
 
@@ -73,28 +74,21 @@ async function getUserById(req, res, userModel) {
   }
 }
 
-function getAdmins(server) {
-  // Get all admins in the system
-  server.get("/admins", async function (req, res, next) {
-    await verifyAdminToken(req, res);
-    // Query the database to retrieve all customers, excluding the password field
-    AdminsModel.find({}, { password: 0 })
-      .sort({ lastName: "asc" })
-      .then((admins) => {
-        // Return all of the users in the system
-        res.send(admins);
-        return next();
-      })
-      .catch((error) => {
-        return next(new Error(JSON.stringify(error.errors)));
-      });
-  });
+async function getAdmins(req, res) {
+  // Query the database to retrieve all customers, excluding the password field
+  AdminsModel.find({}, { password: 0 })
+    .sort({ lastName: "asc" })
+    .then((admins) => {
+      // Return all of the users in the system
+      res.status(200).send(admins);
+    })
+    .catch((error) => {
+      res.status(500).send({ message: error.message });
+    });
 }
 
-function registerAdmin(server) {
+async function registerAdmin(req, res) {
   // Create or add a new admins
-  //defines the callback function that handles the incoming request, takes in three parameters: req (request), res (response), and next (next middleware).
-  server.post("/admins/register", async (req, res) => {
     try {
       const {
         email,
@@ -132,11 +126,9 @@ function registerAdmin(server) {
       console.error("Admin registration error:", error);
       res.send(500, { message: "Internal server error" });
     }
-  });
 }
 
-function loginAdmin(server) {
-  server.post("/admins/login", async (req, res) => {
+async function loginAdmin(req, res) {
     try {
       // Call the login function to handle login logic
       const admin = await login(req, res, AdminsModel);
@@ -144,29 +136,17 @@ function loginAdmin(server) {
       console.error("Login error:", error);
       res.send(500, { message: "Internal server error" });
     }
-  });
 }
 
-function logoutAdmin(server) {
-  // Logout API for admins
-  server.post("/admins/logout", async (req, res) => {
-    await verifyAdminToken(req, res);
-    res.send("Admin logged out successfully");
-  });
+function logoutAdmin(req, res) {
+    res.status(200).send("Admin logged out successfully");
 }
 
-function getAdminsById(server) {
-  // API endpoint to get admin by ID
-  server.get("/admins/:id", async (req, res) => {
-    await verifyAdminToken(req, res);
+async function getAdminsById(req, res) {
     await getUserById(req, res, AdminsModel);
-  });
 }
 
-function registerCustomer(server) {
-  // Create or add a new customers
-  // defines the callback function that handles the incoming request, takes in three parameters: req (request), res (response), and next (next middleware).
-  server.post("/customers/register", async (req, res) => {
+async function registerCustomer(req, res) {
     try {
       const {
         email,
@@ -208,24 +188,19 @@ function registerCustomer(server) {
       console.error("Registration error:", error);
       res.send(500, { message: "Internal server error" });
     }
-  });
 }
 
-function getCustomers(server) {
-  // Get all customers in the system
-  server.get("/customers", async function (req, res, next) {
-    await verifyAdminToken(req, res);
+function getCustomers(req, res) {
     // Query the database to retrieve all customers, excluding the password field
     CustomersModel.find({}, { password: 0 })
       .then((customers) => {
         // Return all of the users in the system
-        res.send(customers);
-        return next();
+        return res.status(200).send(customers);
       })
       .catch((error) => {
-        return next(new Error(JSON.stringify(error.errors)));
+        console.error(error.message);
+        return res.status(500).json({message: 'Something went wrong'})
       });
-  });
 }
 
 // Function to convert MM/YYYY string to Date object for cardExpiryDate
@@ -262,6 +237,12 @@ async function updateCustomerData(customerId, updateData) {
   }
 
   existingCustomer.set(updateData);
+
+  if(updateData.password){
+    const hashedPassword = await bcrypt.hash(updateData.password, 10);
+    existingCustomer.password = hashedPassword;
+  }
+
   existingCustomer.payments[0].set(updateData.payments[0]);
   return existingCustomer.save();
 }
@@ -270,25 +251,22 @@ async function updateCustomerData(customerId, updateData) {
  * PUT /customer/:id route for updating customer information
  * @param {*} server
  */
-function putCustomer(server) {
-  server.put("/customers/:id", async (req, res) => {
-    await verifyToken(req, res);
+async function putCustomer(req, res) {
     const customerId = req.params.id;
     const updateData = req.body;
     delete updateData.email; // Exclude email field from update data
 
     try {
       const updatedCustomer = await updateCustomerData(customerId, updateData);
+      updateCustomerData.password = null;
       res.json(updatedCustomer);
     } catch (error) {
       console.error(error);
       res.status(404).json({ message: error.message || "Customer not found" });
     }
-  });
 }
 
-function loginCustomer(server) {
-  server.post("/customers/login", async (req, res) => {
+async function loginCustomer(req, res) {
     try {
       // Call the login function to handle login logic
       const admin = await login(req, res, CustomersModel);
@@ -296,23 +274,15 @@ function loginCustomer(server) {
       console.error("Login error:", error);
       res.send(500, { message: "Internal server error" });
     }
-  });
 }
 
-function logoutCustomer(server) {
-  // Logout API for customers
-  server.post("/customers/logout", async (req, res) => {
-    await verifyToken(req, res);
+function logoutCustomer(req, res){
     // req.session.customerId = null; // Clear customer session ID
     res.send("Customer logged out successfully");
-  });
 }
 
-function getCustomersById(server) {
-  // API endpoint to get customer by ID
-  server.get("/customers/:id", async (req, res) => {
+async function getCustomersById(req, res) {
     await getUserById(req, res, CustomersModel);
-  });
 }
 
 class UserManagementController {
@@ -321,18 +291,20 @@ class UserManagementController {
    * @param {server} server
    */
   initApis(server) {
-    getAdmins(server);
-    registerAdmin(server);
-    loginAdmin(server);
-    logoutAdmin(server);
-    getAdminsById(server);
+    console.log(`** Admin endpoints **`);
+    attachRoute(server, "get", "/admins", getAdmins, 'admin');
+    attachRoute(server, "post", "/admins/register", registerAdmin);
+    attachRoute(server, "post", "/admins/login", loginAdmin);
+    attachRoute(server, "post", "/admins/logout", logoutAdmin, 'admin');
+    attachRoute(server, "get", "/admins/:id", getAdminsById, 'admin');
 
-    getCustomers(server);
-    putCustomer(server);
-    registerCustomer(server);
-    loginCustomer(server);
-    logoutCustomer(server);
-    getCustomersById(server);
+    console.log(`** Customers endpoints **`);
+    attachRoute(server, "get", "/customers", getCustomers, 'any');
+    attachRoute(server, "post", "/customers/register", registerCustomer);
+    attachRoute(server, "post", "/customers/login", loginCustomer);
+    attachRoute(server, "post", "/customers/logout", logoutCustomer, 'any');
+    attachRoute(server, "get", "/customers/:id", getCustomersById, 'any');
+    attachRoute(server, "put", "/customers/:id", putCustomer, 'any');
   }
 }
 

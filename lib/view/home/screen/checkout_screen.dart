@@ -150,8 +150,24 @@ class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
   }
 
   Widget _buildShippingDetails() {
-    // TODO: Implement the UI for shipping details
-    return const Text('Shipping Details');
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        if (state is ProfileLoadedState) {
+          // Render UI with stored payments
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var payment in state.model!.payments)
+                PaymentWidget(model: payment)
+              // Add UI elements for adding new payment options
+            ],
+          );
+        } else {
+          // Render loading indicator or error message
+          return const CircularProgressIndicator();
+        }
+      },
+    );
   }
 }
 
@@ -275,6 +291,56 @@ class PaymentWidget extends StatelessWidget {
   Text _card() {
     return Text(
       model.cardNumber,
+      style: TextStyle(color: AppColors.textGray),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.lightGray), // Add border
+          borderRadius: BorderRadius.circular(8.0), // Add border radius
+        ),
+        margin: const EdgeInsets.only(bottom: 16.0), // Add margin
+        child: ListTile(
+          title: _name(),
+          subtitle: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [_card(),
+            _exp()]),
+        ));
+  }
+}
+
+class AddressWidget extends StatelessWidget {
+  final String address;
+
+  const AddressWidget({super.key, required this.address});
+
+  Widget _name() {
+    return Expanded(
+      child: Text(
+        address,
+        maxLines: 2,
+        textAlign: TextAlign.left,
+        overflow: TextOverflow.fade,
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+
+  Text _exp() {
+    return Text(
+      address,
+      style: TextStyle(color: AppColors.textGray),
+    );
+  }
+
+  Text _card() {
+    return Text(
+      address,
       style: TextStyle(color: AppColors.textGray),
     );
   }
