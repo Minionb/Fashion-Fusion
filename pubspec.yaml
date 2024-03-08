@@ -38,6 +38,7 @@ dependencies:
 
   intl: ^0.18.0
   flutter_slidable: ^3.0.1
+  flutter_carousel_widget: ^2.2.0
 
 
 
