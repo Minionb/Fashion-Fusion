@@ -18,7 +18,7 @@ abstract class ProductRemoteDataSource {
   Future<List<ProductModel>> get();
   Future<ResponseUploadProductModel> add(UploadProductModel model);
   Future<Unit> update(UploadProductModel model);
-  Future<Unit> delete(int id);
+  Future<Unit> delete(String id);
 }
 
 class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
@@ -102,8 +102,10 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<Unit> delete(int id) async {
-    final response = await apiConsumer.delete(EndPoints.product);
+  Future<Unit> delete(String id) async {
+    final Response response =
+        await apiConsumer.delete("${EndPoints.createProduct}/$id");
+
     if (response.statusCode == 201 || response.statusCode == 200) {
       return Future.value(unit);
     } else {
@@ -113,7 +115,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
 
   @override
   Future<Unit> update(UploadProductModel model) async {
-    final response = await apiConsumer.put(EndPoints.product);
+    final response = await apiConsumer.put(EndPoints.createProduct);
     if (response.statusCode == 201 || response.statusCode == 200) {
       return Future.value(unit);
     } else {

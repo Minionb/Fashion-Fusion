@@ -8,18 +8,18 @@ import '../model/upload_product_model.dart';
 
 abstract class ProductRepository {
   Future<Either<Failure, List<ProductModel>>> get();
-  Future<Either<Failure, ResponseUploadProductModel>> add(UploadProductModel model);
+  Future<Either<Failure, ResponseUploadProductModel>> add(
+      UploadProductModel model);
   Future<Either<Failure, Unit>> update(UploadProductModel model);
-  Future<Either<Failure, Unit>> delete(int id);
+  Future<Either<Failure, Unit>> delete(String id);
 }
 
 class ProductRepositoryImpl implements ProductRepository {
   final NetworkInfo networkInfo;
   final ProductRemoteDataSource remoteDatasource;
   ProductRepositoryImpl(
-      {required this.networkInfo, required this.remoteDatasource}); 
-  
-  
+      {required this.networkInfo, required this.remoteDatasource});
+
   @override
   Future<Either<Failure, List<ProductModel>>> get() async {
     if (await networkInfo.isConnected) {
@@ -33,9 +33,9 @@ class ProductRepositoryImpl implements ProductRepository {
     throw const ServerException();
   }
 
-
   @override
-  Future<Either<Failure, ResponseUploadProductModel>> add(UploadProductModel model) async {
+  Future<Either<Failure, ResponseUploadProductModel>> add(
+      UploadProductModel model) async {
     if (await networkInfo.isConnected) {
       try {
         final reposnse = await remoteDatasource.add(model);
@@ -48,17 +48,16 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> delete(int id) async {
-      return await _getMessage(() {
+  Future<Either<Failure, Unit>> delete(String id) async {
+
+    return await _getMessage(() {
       return remoteDatasource.delete(id);
     });
   }
 
-
-
   @override
   Future<Either<Failure, Unit>> update(UploadProductModel model) async {
-      if (await networkInfo.isConnected) {
+    if (await networkInfo.isConnected) {
       try {
         final reposnse = await remoteDatasource.update(model);
         return Right(reposnse);

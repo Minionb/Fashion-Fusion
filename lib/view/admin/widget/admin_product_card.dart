@@ -1,7 +1,9 @@
 import 'package:fashion_fusion/core/utils/navigator_extension.dart';
 import 'package:fashion_fusion/data/product/model/product_model.dart';
+import 'package:fashion_fusion/provider/product_cubit/product_edit/product_edit_cubit.dart';
 import 'package:fashion_fusion/view/admin/view/admin_product_deatils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class AdminProductCard extends StatefulWidget {
@@ -19,10 +21,16 @@ class _AdminProductCardState extends State<AdminProductCard> {
     return Slidable(
       startActionPane: ActionPane(
         motion: const ScrollMotion(),
-        dismissible: DismissiblePane(onDismissed: () {}),
+        dismissible: DismissiblePane(onDismissed: () {
+          context.read<ProductEditCubit>().deleteProduct(widget.model.id ?? "");
+        }),
         children: [
           SlidableAction(
-            onPressed: (context) {},
+            onPressed: (context) {
+              context
+                  .read<ProductEditCubit>()
+                  .deleteProduct(widget.model.id ?? "");
+            },
             backgroundColor: const Color(0xFFFE4A49),
             foregroundColor: Colors.white,
             icon: Icons.delete,

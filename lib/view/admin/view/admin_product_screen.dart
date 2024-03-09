@@ -29,7 +29,10 @@ class AdminProductScreen extends StatelessWidget {
           if (state is ProductLoadedState) {
             return ListView.separated(
                 itemBuilder: (context, index) {
-                  return AdminProductCard(model: state.models[index]);
+                  return BlocProvider(
+                    create: (context) => sl<ProductEditCubit>(),
+                    child: AdminProductCard(model: state.models[index]),
+                  );
                 },
                 separatorBuilder: (context, index) => 10.verticalSpace,
                 itemCount: state.models.length);
@@ -53,7 +56,7 @@ class AdminProductScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(25).r),
         child: TextButton(
             onPressed: () {
-              context.pushNamedNAV( BlocProvider(
+              context.pushNamedNAV(BlocProvider(
                 create: (context) => sl<ProductEditCubit>(),
                 child: AdminAddProductScreen(),
               ));
