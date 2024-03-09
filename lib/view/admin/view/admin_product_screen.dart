@@ -1,7 +1,10 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
+import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
+import 'package:fashion_fusion/core/utils/navigator_extension.dart';
 import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
-
+import 'package:fashion_fusion/provider/product_cubit/product_edit/product_edit_cubit.dart';
+import 'package:fashion_fusion/view/admin/view/admin_add_product_screen.dart';
 import 'package:fashion_fusion/view/admin/widget/admin_product_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -49,7 +52,12 @@ class AdminProductScreen extends StatelessWidget {
             color: AppColors.primary,
             borderRadius: BorderRadius.circular(25).r),
         child: TextButton(
-            onPressed: () {},
+            onPressed: () {
+              context.pushNamedNAV( BlocProvider(
+                create: (context) => sl<ProductEditCubit>(),
+                child: AdminAddProductScreen(),
+              ));
+            },
             child: const Text(
               "Add Product",
               style: TextStyle(color: Colors.white),

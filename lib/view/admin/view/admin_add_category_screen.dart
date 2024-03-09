@@ -24,13 +24,12 @@ class _AdminAddCategoryScreenState extends State<AdminAddCategoryScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              CustomTextFiled(label: "Name", hint: "ex: Tops", ctrl: _nameCtrl),
+              CustomTextField(label: "Name", hint: "ex: Tops", ctrl: _nameCtrl),
               50.verticalSpace,
-              CustomBottom(
+              CustomButton(
                 label: "Save",
                 bg: AppColors.primary,
                 onPressed: () {},
-                
               )
             ],
           ),

@@ -9,6 +9,7 @@ class EndPoints {
   static const String signup = '$customerUrl/register';
   static const String profile = '$customerUrl/';
   static const String product = '$customerUrl/product';
+  static const String createProduct = '$baseUrl/products';
 
   // Products
   static const String productResourcePath = '$baseUrl/products';

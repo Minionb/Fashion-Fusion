@@ -29,8 +29,6 @@ class DioConsumer implements ApiConsumer {
       ..headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
-        // 'Cookie':
-        //     'csrftoken=et2kSno4lJrF63GQfzhn2psYRqoG0CUb; sessionid=n8v8ebwmm4pacnym59r577xhbg5qhg8z'
       }
       ..validateStatus = (status) {
         return status! < StatusCode.internalServerError;

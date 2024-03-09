@@ -74,8 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         // Push to navBar Screen for Customer
                         context.pushNamedAndRemoveUntil(Routes.mainScren);
                       } else {
-                        sl<SharedPreferences>()
-                            .setString("userType", "admin");
+                        sl<SharedPreferences>().setString("userType", "admin");
                         // Push to navBar Screen for Admin
                         context.pushNamedAndRemoveUntil(Routes.adminMainScreen);
                       }
@@ -99,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       50.verticalSpace,
                       // Email TextFiled
-                      CustomTextFiled(
+                      CustomTextField(
                         validator: (p0) => ValidationHelper.emailValidation(p0),
                         label: "Email",
                         hint: "abc@example.com",
@@ -109,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       15.verticalSpace,
                       // Pasword TextFiled
-                      CustomTextFiled(
+                      CustomTextField(
                           validator: (p0) =>
                               ValidationHelper.passwordValidation(p0),
                           label: "Password",
@@ -130,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           )),
                       25.verticalSpace,
                       // Login Button
-                      CustomBottom(
+                      CustomButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             context.read<AuthCubit>().login(LoginModel(
