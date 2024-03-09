@@ -9,39 +9,47 @@ import 'package:fashion_fusion/view/admin/widget/admin_product_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminProductScreen extends StatelessWidget {
   const AdminProductScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      bottomNavigationBar: _addCategoryBtn(context),
-      appBar: AppBar(
-        title: const Text("Product"),
-      ),
-      body: BlocBuilder<ProductCubit, ProductState>(
-        builder: (context, state) {
-          if (state is ProductIsLoadingState) {
-            return HelperMethod.loadinWidget();
-          }
-          if (state is ProductLoadedState) {
-            return ListView.separated(
-                itemBuilder: (context, index) {
-                  return BlocProvider(
-                    create: (context) => sl<ProductEditCubit>(),
-                    child: AdminProductCard(model: state.models[index]),
-                  );
+    return HelperMethod.loader(
+      child: Scaffold(
+        extendBody: true,
+        bottomNavigationBar: _addCategoryBtn(context),
+        appBar: AppBar(
+          title: const Text("Product"),
+        ),
+        body: BlocBuilder<ProductCubit, ProductState>(
+          builder: (context, state) {
+            if (state is ProductIsLoadingState) {
+              return HelperMethod.loadinWidget();
+            }
+            if (state is ProductLoadedState) {
+              return RefreshIndicator(
+                onRefresh: () async {
+                  context.read<ProductCubit>().getProduct();
                 },
-                separatorBuilder: (context, index) => 10.verticalSpace,
-                itemCount: state.models.length);
-          }
-          if (state is ProductErrorState) {
-            return HelperMethod.emptyWidget();
-          }
-          return const SizedBox();
-        },
+                child: ListView.separated(
+                    itemBuilder: (context, index) {
+                      return BlocProvider(
+                        create: (context) => sl<ProductEditCubit>(),
+                        child: AdminProductCard(model: state.models[index]),
+                      );
+                    },
+                    separatorBuilder: (context, index) => 10.verticalSpace,
+                    itemCount: state.models.length),
+              );
+            }
+            if (state is ProductErrorState) {
+              return HelperMethod.emptyWidget();
+            }
+            return const SizedBox();
+          },
+        ),
       ),
     );
   }
@@ -58,7 +66,7 @@ class AdminProductScreen extends StatelessWidget {
             onPressed: () {
               context.pushNamedNAV(BlocProvider(
                 create: (context) => sl<ProductEditCubit>(),
-                child: AdminAddProductScreen(),
+                child: const AdminAddProductScreen(),
               ));
             },
             child: const Text(
