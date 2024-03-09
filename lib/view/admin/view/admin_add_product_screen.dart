@@ -167,7 +167,7 @@ class _AdminAddProductScreenState extends State<AdminAddProductScreen> {
                             .replaceAll("(", ""),
                         soldQuantity: int.parse(quantityController.text),
                         image: image,
-                        inventory: listOfInvontry);
+                        inventory: []);
                     context.read<ProductEditCubit>().addProduct(model);
                   },
                   bg: AppColors.primary),

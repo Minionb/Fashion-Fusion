@@ -3,11 +3,15 @@ import 'package:dartz/dartz.dart';
 import 'package:fashion_fusion/api/api_consumer.dart';
 import 'package:fashion_fusion/api/end_points.dart';
 import 'package:fashion_fusion/api/status_code.dart';
+import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/error/exceptions.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../model/product_model.dart';
 import 'package:dio/dio.dart';
 import '../model/upload_product_model.dart';
-import 'package:http_parser/http_parser.dart';
+
+import "package:http/http.dart" as http;
 
 abstract class ProductRemoteDataSource {
   Future<ProductModel> getProductById(id);
@@ -63,7 +67,11 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       try {
         final ResponseUploadProductModel decodedJson =
             ResponseUploadProductModel.fromJson(json.decode(response.data));
-        // await addImage(model.image, decodedJson.productId ?? "");
+        model.image != null
+            ? await uploadImage(
+                model.image?.path ?? "", decodedJson.productId ?? "")
+            : null;
+
         return decodedJson;
       } catch (e) {
         throw const FetchDataException();
@@ -73,40 +81,23 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     }
   }
 
-  Future addImage(dynamic imagePath, String productID) async {
-    String fileName = imagePath?.path.split('/').last ?? "";
-    //! Image PC
-    final imagePC = fileName.isEmpty
-        ? null
-        : await MultipartFile.fromFile(imagePath?.path,
-            filename: fileName,
-            contentType: MediaType.parse('application/x-www-form-urlencoded'));
-    //! Data
-    try {
-      await apiConsumer.post("${EndPoints.createProduct}/$productID/images",
-          formDataIsEnabled: true, body: {"image": imagePC});
-    } catch (e) {
-      print(e);
-      throw ServerException(e.toString());
-    }
+  uploadImage(String imagePath, String productID) async {
+    var headers = {
+      'accept': '*/*',
+      'Content-Type': 'application/json',
+      'Authorization': sl<SharedPreferences>().getString("token") ?? ""
+    };
+    var request = http.MultipartRequest(
+        'POST', Uri.parse('${EndPoints.createProduct}/$productID/images'));
+    request.files.add(await http.MultipartFile.fromPath('image', imagePath));
+    request.headers.addAll(headers);
 
-    var data = FormData.fromMap({
-      'files': [
-        await MultipartFile.fromFile(
-            '/Users/muayad/Downloads/airbnb_ui_clone-main/assets/images/home.webp',
-            filename: 'home.webp')
-      ],
-    });
-
-    var response = await apiConsumer.post(
-      'http://127.0.0.1:3000/products/65ebe7e0b95c6ee3e440a32e/images',
-      body: data,
-    );
+    http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      print(json.encode(response.data));
+      debugPrint(await response.stream.bytesToString());
     } else {
-      print(response.statusMessage);
+      debugPrint(response.reasonPhrase);
     }
   }
 

@@ -42,6 +42,7 @@ dependencies:
   wechat_assets_picker: ^8.9.0-dev.1
   permission_handler: ^11.3.0
   chips_choice: ^3.0.1
+  http: ^1.2.0
 
 dependency_overrides: 
   photo_manager: ^3.0.0-dev.2

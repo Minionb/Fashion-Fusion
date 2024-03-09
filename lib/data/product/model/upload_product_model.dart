@@ -23,14 +23,14 @@ class UploadProductModel {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['product_name'] = productName;
-    data['category'] = "category";
+    data['category'] = category;
     data['product_description'] = productDescription;
     data['price'] = price;
     data['tags'] = tags;
     data['sold_quantity'] = soldQuantity;
-    if (inventory != null) {
-      data['inventory'] = inventory!.map((v) => v.toJson()).toList();
-    }
+    // if (inventory != null) {
+    //   data['inventory'] = inventory!.map((v) => v.toJson()).toList();
+    // }
     return data;
   }
 }
