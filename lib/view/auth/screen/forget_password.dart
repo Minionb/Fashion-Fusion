@@ -39,7 +39,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                       "Please, enter your email address. You will receive a link to create a new password via email."),
                   20.verticalSpace,
                   // Email TextFiled
-                  CustomTextFiled(
+                  CustomTextField(
                     label: "Email",
                     hint: "abc@example.com",
                     ctrl: _emailCtrl,
@@ -49,7 +49,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
 
                   25.verticalSpace,
                   // Login Button
-                  CustomBottom(
+                  CustomButton(
                     onPressed: () {
                       //TODO: Forget Password
                     },
