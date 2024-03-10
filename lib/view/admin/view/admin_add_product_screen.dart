@@ -27,6 +27,7 @@ class _AdminAddProductScreenState extends State<AdminAddProductScreen> {
   TextEditingController productDescriptionController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController quantityController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   File? image;
   List<String> tags = [];
   List<InventoryCard> inv = [];
@@ -51,137 +52,143 @@ class _AdminAddProductScreenState extends State<AdminAddProductScreen> {
         appBar: AppBar(
           title: const Text("Add Product"),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: BlocListener<ProductEditCubit, ProductEditState>(
-              listener: (context, state) {
-                if (state is ProductEditIsLoadingState) {
-                  context.loaderOverlay.show();
-                }
-                if (state is ProductEditSuccessState) {
-                  context.loaderOverlay.hide();
-                  HelperMethod.showToast(context,
-                      title: const Text("Product added successfully"),
-                      type: ToastificationType.success);
-                }
-                if (state is ProductEditErrorState) {
-                  context.loaderOverlay.hide();
-                  HelperMethod.showToast(context,
-                      title: Text(state.message),
-                      type: ToastificationType.error);
-                }
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  image == null
-                      ? GestureDetector(
-                          onTap: () async {
-                            await _selectImage(context);
-                          },
-                          child: CircleAvatar(
-                            minRadius: 50.sp,
-                            backgroundColor: AppColors.primary,
-                            child: const Icon(
-                              Icons.camera_alt_outlined,
-                              color: Colors.white,
+        body: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: BlocListener<ProductEditCubit, ProductEditState>(
+                listener: (context, state) {
+                  if (state is ProductEditIsLoadingState) {
+                    context.loaderOverlay.show();
+                  }
+                  if (state is ProductEditSuccessState) {
+                    context.loaderOverlay.hide();
+                    HelperMethod.showToast(context,
+                        title: const Text("Product added successfully"),
+                        type: ToastificationType.success);
+                  }
+                  if (state is ProductEditErrorState) {
+                    context.loaderOverlay.hide();
+                    HelperMethod.showToast(context,
+                        title: Text(state.message),
+                        type: ToastificationType.error);
+                  }
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    image == null
+                        ? GestureDetector(
+                            onTap: () async {
+                              await _selectImage(context);
+                            },
+                            child: CircleAvatar(
+                              minRadius: 50.sp,
+                              backgroundColor: AppColors.primary,
+                              child: const Icon(
+                                Icons.camera_alt_outlined,
+                                color: Colors.white,
+                              ),
                             ),
+                          )
+                        : ProfileWidget(
+                            imagePath: image?.path ?? "",
+                            isEdit: true,
+                            fromFile: true,
+                            onClicked: () async {
+                              await _selectImage(context);
+                            },
                           ),
-                        )
-                      : ProfileWidget(
-                          imagePath: image?.path ?? "",
-                          isEdit: true,
-                          fromFile: true,
-                          onClicked: () async {
-                            await _selectImage(context);
-                          },
-                        ),
-                  TextFormField(
-                    controller: productNameController,
-                    decoration:
-                        const InputDecoration(labelText: 'Product Name'),
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Please enter a product name';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: productDescriptionController,
-                    decoration:
-                        const InputDecoration(labelText: 'Product Description'),
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Please enter a product description';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: priceController,
-                    decoration: const InputDecoration(labelText: 'Price'),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Please enter a price';
-                      }
-                      // You can add additional validation here if needed
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: quantityController,
-                    decoration: const InputDecoration(labelText: 'Quantity'),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Please enter a quantity';
-                      }
-                      // You can add additional validation here if needed
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  _selectTagsChip(),
-                  16.verticalSpace,
-                  _selectCategoriesChip(),
-                  16.verticalSpace,
-                  CustomButton(
-                      label: "Save",
-                      onPressed: () {
-                        // for (var i = 0; i < sizes.length; i++) {
-                        //   if (i < quantities.length) {
-                        //     listOfInvontry.add(Inventory(
-                        //         size: sizes[i],
-                        //         quantity: int.parse(quantities[i])));
-                        //   }
-                        // }
-
-                        final model = UploadProductModel(
-                            productName: productNameController.text,
-                            category: categories
-                                .map((e) => e)
-                                .toString()
-                                .replaceAll(")", "")
-                                .replaceAll("(", ""),
-                            productDescription:
-                                productDescriptionController.text,
-                            price: double.parse(priceController.text),
-                            tags: tags
-                                .map((e) => "#$e")
-                                .toString()
-                                .replaceAll(")", "")
-                                .replaceAll("(", ""),
-                            soldQuantity: int.parse(quantityController.text),
-                            image: image,
-                            inventory: []);
-                        context.read<ProductEditCubit>().addProduct(model);
+                    TextFormField(
+                      controller: productNameController,
+                      decoration:
+                          const InputDecoration(labelText: 'Product Name'),
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Please enter a product name';
+                        }
+                        return null;
                       },
-                      bg: AppColors.primary),
-                  50.verticalSpace,
-                ],
+                    ),
+                    TextFormField(
+                      controller: productDescriptionController,
+                      decoration: const InputDecoration(
+                          labelText: 'Product Description'),
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Please enter a product description';
+                        }
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: priceController,
+                      decoration: const InputDecoration(labelText: 'Price'),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Please enter a price';
+                        }
+                        // You can add additional validation here if needed
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: quantityController,
+                      decoration: const InputDecoration(labelText: 'Quantity'),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Please enter a quantity';
+                        }
+                        // You can add additional validation here if needed
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _selectTagsChip(),
+                    16.verticalSpace,
+                    _selectCategoriesChip(),
+                    16.verticalSpace,
+                    CustomButton(
+                        label: "Save",
+                        onPressed: () {
+                          // for (var i = 0; i < sizes.length; i++) {
+                          //   if (i < quantities.length) {
+                          //     listOfInvontry.add(Inventory(
+                          //         size: sizes[i],
+                          //         quantity: int.parse(quantities[i])));
+                          //   }
+                          // }
+
+                          if (_formKey.currentState!.validate()) {
+                            final model = UploadProductModel(
+                                productName: productNameController.text,
+                                category: categories
+                                    .map((e) => e)
+                                    .toString()
+                                    .replaceAll(")", "")
+                                    .replaceAll("(", ""),
+                                productDescription:
+                                    productDescriptionController.text,
+                                price: double.parse(priceController.text),
+                                tags: tags
+                                    .map((e) => "#$e")
+                                    .toString()
+                                    .replaceAll(")", "")
+                                    .replaceAll("(", ""),
+                                soldQuantity:
+                                    int.parse(quantityController.text),
+                                image: image,
+                                inventory: []);
+                            context.read<ProductEditCubit>().addProduct(model);
+                          }
+                        },
+                        bg: AppColors.primary),
+                    50.verticalSpace,
+                  ],
+                ),
               ),
             ),
           ),
