@@ -89,118 +89,120 @@ async function getAdmins(req, res) {
 
 async function registerAdmin(req, res) {
   // Create or add a new admins
-    try {
-      const {
-        email,
-        password,
-        first_name,
-        last_name,
-        telephone_number,
-        job_title,
-      } = req.body;
+  try {
+    const {
+      email,
+      password,
+      first_name,
+      last_name,
+      telephone_number,
+      job_title,
+    } = req.body;
 
-      // Check if the email is already registered
-      const existingAdmin = await AdminsModel.findOne({ email });
-      if (existingAdmin) {
-        return res.send(400, { message: "Email already registered" });
-      }
-
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      // Create a new admin object
-      const newAdmin = new AdminsModel({
-        email,
-        password: hashedPassword,
-        first_name,
-        last_name,
-        telephone_number,
-        job_title,
-      });
-
-      // Save the new admin to the database
-      await newAdmin.save();
-
-      res.send(201, { message: "Admin registered successfully" });
-    } catch (error) {
-      console.error("Admin registration error:", error);
-      res.send(500, { message: "Internal server error" });
+    // Check if the email is already registered
+    const existingAdmin = await AdminsModel.findOne({ email });
+    if (existingAdmin) {
+      return res.send(400, { message: "Email already registered" });
     }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new admin object
+    const newAdmin = new AdminsModel({
+      email,
+      password: hashedPassword,
+      first_name,
+      last_name,
+      telephone_number,
+      job_title,
+    });
+
+    // Save the new admin to the database
+    await newAdmin.save();
+
+    res.send(201, { message: "Admin registered successfully" });
+  } catch (error) {
+    console.error("Admin registration error:", error);
+    res.send(500, { message: "Internal server error" });
+  }
 }
 
 async function loginAdmin(req, res) {
-    try {
-      // Call the login function to handle login logic
-      const admin = await login(req, res, AdminsModel);
-    } catch (error) {
-      console.error("Login error:", error);
-      res.send(500, { message: "Internal server error" });
-    }
+  try {
+    // Call the login function to handle login logic
+    const admin = await login(req, res, AdminsModel);
+  } catch (error) {
+    console.error("Login error:", error);
+    res.send(500, { message: "Internal server error" });
+  }
 }
 
 function logoutAdmin(req, res) {
-    res.status(200).send("Admin logged out successfully");
+  res.status(200).send("Admin logged out successfully");
 }
 
 async function getAdminsById(req, res) {
-    await getUserById(req, res, AdminsModel);
+  await getUserById(req, res, AdminsModel);
 }
 
 async function registerCustomer(req, res) {
-    try {
-      const {
-        email,
-        password,
-        first_name,
-        last_name,
-        address,
-        date_of_birth,
-        gender,
-        telephone_number,
-      } = req.body;
+  try {
+    const {
+      email,
+      password,
+      first_name,
+      last_name,
+      date_of_birth,
+      gender,
+      telephone_number,
+      addresses,
+      payments,
+    } = req.body;
 
-      // Check if the email is already registered
-      const existingCustomer = await CustomersModel.findOne({ email });
-      if (existingCustomer) {
-        return res.send(400, { message: "Email already registered" });
-      }
-
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      // Create a new customer object
-      const newCustomer = new CustomersModel({
-        email,
-        password: hashedPassword,
-        first_name,
-        last_name,
-        address,
-        date_of_birth,
-        gender,
-        telephone_number,
-      });
-
-      // Save the new customer to the database
-      await newCustomer.save();
-
-      res.send(201, { message: "Customer registered successfully" });
-    } catch (error) {
-      console.error("Registration error:", error);
-      res.send(500, { message: "Internal server error" });
+    // Check if the email is already registered
+    const existingCustomer = await CustomersModel.findOne({ email });
+    if (existingCustomer) {
+      return res.send(400, { message: "Email already registered" });
     }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new customer object
+    const newCustomer = new CustomersModel({
+      email,
+      password: hashedPassword,
+      first_name,
+      last_name,
+      date_of_birth,
+      gender,
+      telephone_number,
+      addresses: addresses,
+      payments: payments,
+    });
+
+    // Save the new customer to the database
+    await newCustomer.save();
+
+    res.send(201, { message: "Customer registered successfully" });
+  } catch (error) {
+    console.error("Registration error:", error);
+    res.send(500, { message: "Internal server error" });
+  }
 }
 
 function getCustomers(req, res) {
-    // Query the database to retrieve all customers, excluding the password field
-    CustomersModel.find({}, { password: 0 })
-      .then((customers) => {
-        // Return all of the users in the system
-        return res.status(200).send(customers);
-      })
-      .catch((error) => {
-        console.error(error.message);
-        return res.status(500).json({message: 'Something went wrong'})
-      });
+  // Query the database to retrieve all customers, excluding the password field
+  CustomersModel.find({}, { password: 0 })
+    .then((customers) => {
+      // Return all of the users in the system
+      return res.status(200).send(customers);
+    })
+    .catch((error) => {
+      console.error(error.message);
+      return res.status(500).json({ message: "Something went wrong" });
+    });
 }
 
 // Function to convert MM/YYYY string to Date object for cardExpiryDate
@@ -236,14 +238,17 @@ async function updateCustomerData(customerId, updateData) {
     delete updateData.date_of_birth;
   }
 
+  updateData.addresses.forEach((add) => {
+    if (!add.country) add.country = "Canada";
+  });
+
   existingCustomer.set(updateData);
 
-  if(updateData.password){
+  if (updateData.password) {
     const hashedPassword = await bcrypt.hash(updateData.password, 10);
     existingCustomer.password = hashedPassword;
   }
 
-  existingCustomer.payments[0].set(updateData.payments[0]);
   return existingCustomer.save();
 }
 
@@ -252,37 +257,40 @@ async function updateCustomerData(customerId, updateData) {
  * @param {*} server
  */
 async function putCustomer(req, res) {
-    const customerId = req.params.id;
-    const updateData = req.body;
-    delete updateData.email; // Exclude email field from update data
+  const customerId = req.params.id;
+  const updateData = req.body;
+  delete updateData.email; // Exclude email field from update data
 
-    try {
-      const updatedCustomer = await updateCustomerData(customerId, updateData);
-      updateCustomerData.password = null;
-      res.json(updatedCustomer);
-    } catch (error) {
-      console.error(error);
-      res.status(404).json({ message: error.message || "Customer not found" });
-    }
+  try {
+    const updatedCustomer = await updateCustomerData(customerId, updateData);
+    updatedCustomer.password = null;
+    
+    const existingCustomer = await CustomersModel.findById(customerId);
+    existingCustomer.password = null;
+    res.status(200).json(existingCustomer);
+  } catch (error) {
+    console.error(error);
+    res.status(404).json({ message: error.message || "Customer not found" });
+  }
 }
 
 async function loginCustomer(req, res) {
-    try {
-      // Call the login function to handle login logic
-      const admin = await login(req, res, CustomersModel);
-    } catch (error) {
-      console.error("Login error:", error);
-      res.send(500, { message: "Internal server error" });
-    }
+  try {
+    // Call the login function to handle login logic
+    const admin = await login(req, res, CustomersModel);
+  } catch (error) {
+    console.error("Login error:", error);
+    res.send(500, { message: "Internal server error" });
+  }
 }
 
-function logoutCustomer(req, res){
-    // req.session.customerId = null; // Clear customer session ID
-    res.send("Customer logged out successfully");
+function logoutCustomer(req, res) {
+  // req.session.customerId = null; // Clear customer session ID
+  res.send("Customer logged out successfully");
 }
 
 async function getCustomersById(req, res) {
-    await getUserById(req, res, CustomersModel);
+  await getUserById(req, res, CustomersModel);
 }
 
 class UserManagementController {
@@ -292,19 +300,19 @@ class UserManagementController {
    */
   initApis(server) {
     console.log(`** Admin endpoints **`);
-    attachRoute(server, "get", "/admins", getAdmins, 'admin');
+    attachRoute(server, "get", "/admins", getAdmins, "admin");
     attachRoute(server, "post", "/admins/register", registerAdmin);
     attachRoute(server, "post", "/admins/login", loginAdmin);
-    attachRoute(server, "post", "/admins/logout", logoutAdmin, 'admin');
-    attachRoute(server, "get", "/admins/:id", getAdminsById, 'admin');
+    attachRoute(server, "post", "/admins/logout", logoutAdmin, "admin");
+    attachRoute(server, "get", "/admins/:id", getAdminsById, "admin");
 
     console.log(`** Customers endpoints **`);
-    attachRoute(server, "get", "/customers", getCustomers, 'any');
+    attachRoute(server, "get", "/customers", getCustomers, "any");
     attachRoute(server, "post", "/customers/register", registerCustomer);
     attachRoute(server, "post", "/customers/login", loginCustomer);
-    attachRoute(server, "post", "/customers/logout", logoutCustomer, 'any');
-    attachRoute(server, "get", "/customers/:id", getCustomersById, 'any');
-    attachRoute(server, "put", "/customers/:id", putCustomer, 'any');
+    attachRoute(server, "post", "/customers/logout", logoutCustomer, "any");
+    attachRoute(server, "get", "/customers/:id", getCustomersById, "any");
+    attachRoute(server, "put", "/customers/:id", putCustomer, "any");
   }
 }
 
