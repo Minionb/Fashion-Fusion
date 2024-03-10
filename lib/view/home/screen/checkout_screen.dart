@@ -2,10 +2,12 @@ import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/core/utils/cart_decorator_utils.dart';
 import 'package:fashion_fusion/data/cart/model/cart_item_model.dart';
-import 'package:fashion_fusion/data/profile/model/profile_model.dart';
-import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
+import 'package:fashion_fusion/data/customer/model/customer_model.dart';
+import 'package:fashion_fusion/provider/customerCubit/customer/customer_cubit.dart';
 import 'package:fashion_fusion/view/home/widget/list_tile_product_image.dart';
 import 'package:fashion_fusion/view/home/widget/total_amount_widget.dart';
+import 'package:fashion_fusion/view/widget/address_card_widget.dart';
+import 'package:fashion_fusion/view/widget/payment_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -23,13 +25,15 @@ class OrderCheckoutScreen extends StatefulWidget {
 }
 
 class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
+  int selectedAddressIndex = 0;
+  int selectedPaymentIndex = 0;
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<ProfileCubit>(
-          create: (context) => sl<ProfileCubit>()
-            ..getProfile(sl<SharedPreferences>().getString("userID")!),
+        BlocProvider<CustomerCubit>(
+          create: (context) => sl<CustomerCubit>()
+            ..getCustomerById(sl<SharedPreferences>().getString("userID")!),
         ),
         // Add more BlocProviders as needed
       ],
@@ -129,16 +133,24 @@ class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
   }
 
   Widget _buildPaymentOptions() {
-    return BlocBuilder<ProfileCubit, ProfileState>(
+    return BlocBuilder<CustomerCubit, CustomerState>(
       builder: (context, state) {
-        if (state is ProfileLoadedState) {
+        if (state is GetCustomerByIdLoadedState) {
           // Render UI with stored payments
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (var payment in state.model!.payments)
-                PaymentWidget(model: payment)
-              // Add UI elements for adding new payment options
+              for (int i = 0; i < (state.model.payments?.length ?? 0); i++)
+                PaymentWidget(
+                  model: state.model.payments![i],
+                  isSelected: i ==
+                      selectedPaymentIndex, // Check if this address is selected
+                  onTap: () {
+                    setState(() {
+                      selectedPaymentIndex = i; // Update selected index on tap
+                    });
+                  },
+                )
             ],
           );
         } else {
@@ -150,20 +162,26 @@ class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
   }
 
   Widget _buildShippingDetails() {
-    return BlocBuilder<ProfileCubit, ProfileState>(
+    return BlocBuilder<CustomerCubit, CustomerState>(
       builder: (context, state) {
-        if (state is ProfileLoadedState) {
-          // Render UI with stored payments
+        if (state is GetCustomerByIdLoadedState) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (var payment in state.model!.payments)
-                PaymentWidget(model: payment)
-              // Add UI elements for adding new payment options
+              for (int i = 0; i < (state.model.addresses?.length ?? 0); i++)
+                AddressWidget(
+                  model: state.model.addresses![i],
+                  isSelected: i ==
+                      selectedAddressIndex, // Check if this address is selected
+                  onTap: () {
+                    setState(() {
+                      selectedAddressIndex = i; // Update selected index on tap
+                    });
+                  },
+                ),
             ],
           );
         } else {
-          // Render loading indicator or error message
           return const CircularProgressIndicator();
         }
       },
@@ -261,105 +279,5 @@ class PlaceOrderButton extends StatelessWidget {
         ),
       ],
     );
-  }
-}
-
-class PaymentWidget extends StatelessWidget {
-  final PaymentModel model;
-
-  const PaymentWidget({super.key, required this.model});
-
-  Widget _name() {
-    return Expanded(
-      child: Text(
-        model.name,
-        maxLines: 2,
-        textAlign: TextAlign.left,
-        overflow: TextOverflow.fade,
-        style: const TextStyle(fontWeight: FontWeight.w600),
-      ),
-    );
-  }
-
-  Text _exp() {
-    return Text(
-      model.expirationDate,
-      style: TextStyle(color: AppColors.textGray),
-    );
-  }
-
-  Text _card() {
-    return Text(
-      model.cardNumber,
-      style: TextStyle(color: AppColors.textGray),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.lightGray), // Add border
-          borderRadius: BorderRadius.circular(8.0), // Add border radius
-        ),
-        margin: const EdgeInsets.only(bottom: 16.0), // Add margin
-        child: ListTile(
-          title: _name(),
-          subtitle: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [_card(),
-            _exp()]),
-        ));
-  }
-}
-
-class AddressWidget extends StatelessWidget {
-  final String address;
-
-  const AddressWidget({super.key, required this.address});
-
-  Widget _name() {
-    return Expanded(
-      child: Text(
-        address,
-        maxLines: 2,
-        textAlign: TextAlign.left,
-        overflow: TextOverflow.fade,
-        style: const TextStyle(fontWeight: FontWeight.w600),
-      ),
-    );
-  }
-
-  Text _exp() {
-    return Text(
-      address,
-      style: TextStyle(color: AppColors.textGray),
-    );
-  }
-
-  Text _card() {
-    return Text(
-      address,
-      style: TextStyle(color: AppColors.textGray),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.lightGray), // Add border
-          borderRadius: BorderRadius.circular(8.0), // Add border radius
-        ),
-        margin: const EdgeInsets.only(bottom: 16.0), // Add margin
-        child: ListTile(
-          title: _name(),
-          subtitle: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [_card(),
-            _exp()]),
-        ));
   }
 }

@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class CustomerDataModel {
   String? sId;
   String? email;
@@ -7,6 +9,7 @@ class CustomerDataModel {
   String? gender;
   String? telephoneNumber;
   List<Payments>? payments;
+  List<Address>? addresses;
   String? address;
   int? iV;
 
@@ -35,6 +38,12 @@ class CustomerDataModel {
       payments = <Payments>[];
       json['payments'].forEach((v) {
         payments!.add(Payments.fromJson(v));
+      });
+    }
+    if (json['addresses'] != null) {
+      addresses = <Address>[];
+      json['addresses'].forEach((v) {
+        addresses!.add(Address.fromJson(v));
       });
     }
     iV = json['__v'];
@@ -73,7 +82,7 @@ class Payments {
     name = json['name'];
     method = json['method'];
     cardNumber = json['cardNumber'];
-    expirationDate = json['expirationDate'];
+    expirationDate = formatDate(json['expirationDate']);
     cvv = json['cvv'];
     sId = json['_id'];
   }
@@ -87,6 +96,16 @@ class Payments {
     data['cvv'] = cvv;
     data['_id'] = sId;
     return data;
+  }
+
+  static String formatDate(String dateString) {
+    // Parse the input date string
+    DateTime dateTime = DateTime.parse(dateString);
+
+    // Format the date to MM/YY format
+    String formattedDate = DateFormat('MM/yyyy').format(dateTime);
+
+    return formattedDate;
   }
 }
 
@@ -109,7 +128,7 @@ class Address {
       required this.sId});
 
   Address.fromJson(Map<String, dynamic> json) {
-    addressNickName = json['addressNickName'];
+    addressNickName = json['addresNickName'];
     addressLine1 = json['addressLine1'];
     addressLine2 = json['addressLine2'];
     zipCode = json['zipCode'];

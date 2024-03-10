@@ -45,4 +45,5 @@ class EndPoints {
 
   // Customers
   static const String customer = '$baseUrl/customers';
+  static const String getCustomerById = '$customer/:customerId';
 }
