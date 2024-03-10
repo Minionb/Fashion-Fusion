@@ -148,43 +148,17 @@ async function getAdminsById(req, res) {
 
 async function registerCustomer(req, res) {
   try {
-    const {
-      email,
-      password,
-      first_name,
-      last_name,
-      date_of_birth,
-      gender,
-      telephone_number,
-      addresses,
-      payments,
-    } = req.body;
+    var newCustomerRequest = req.body;
 
     // Check if the email is already registered
-    const existingCustomer = await CustomersModel.findOne({ email });
+    const existingCustomer = await CustomersModel.findOne({
+      email: newCustomerRequest.email,
+    });
     if (existingCustomer) {
       return res.send(400, { message: "Email already registered" });
     }
-    // Save the new customer to the database
-    addresses.forEach((add) => {
-      if (!add.country) add.country = "Canada";
-    });
-  
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create a new customer object
-    const newCustomer = new CustomersModel({
-      email,
-      password: hashedPassword,
-      first_name,
-      last_name,
-      date_of_birth,
-      gender,
-      telephone_number,
-      addresses: addresses,
-      payments: payments,
-    });
+    newCustomerRequest = await normalizeCustomerData(newCustomerRequest);
+    const newCustomer = new CustomersModel(newCustomerRequest);
 
     await newCustomer.save();
 
@@ -227,7 +201,15 @@ async function updateCustomerData(customerId, updateData) {
   }
 
   // Convert card expiry from MM/YYYY to Date object before applying updates
-  if (updateData.payments && updateData.payments.length > 0) {
+  updateData = await normalizeCustomerData(updateData);
+
+  existingCustomer.set(updateData);
+
+  return existingCustomer.save();
+}
+
+async function normalizeCustomerData(updateData) {
+  if (updateData.payments) {
     updateData.payments.forEach((payment) => {
       if (payment.expirationDate) {
         payment.expirationDate = convertExpiryToDate(payment.expirationDate);
@@ -237,22 +219,19 @@ async function updateCustomerData(customerId, updateData) {
 
   // Convert date of birth from DD/MM/YYYY to Date object before applying updates
   if (updateData.date_of_birth) {
-    existingCustomer.date_of_birth = convertDOBToDate(updateData.date_of_birth);
-    delete updateData.date_of_birth;
+    // updateData.date_of_birth = convertDOBToDate(updateData.date_of_birth);
   }
 
-  updateData.addresses.forEach((add) => {
-    if (!add.country) add.country = "Canada";
-  });
-
-  existingCustomer.set(updateData);
-
-  if (updateData.password) {
-    const hashedPassword = await bcrypt.hash(updateData.password, 10);
-    existingCustomer.password = hashedPassword;
+  if (updateData.addresses) {
+    updateData.addresses.forEach((add) => {
+      if (!add.country) add.country = "Canada";
+    });
   }
 
-  return existingCustomer.save();
+  if (updateData.password){
+    updateData.password = await bcrypt.hash(updateData.password, 10);
+  }
+  return updateData;
 }
 
 /**
@@ -267,7 +246,7 @@ async function putCustomer(req, res) {
   try {
     const updatedCustomer = await updateCustomerData(customerId, updateData);
     updatedCustomer.password = null;
-    
+
     const existingCustomer = await CustomersModel.findById(customerId);
     existingCustomer.password = null;
     res.status(200).json(existingCustomer);
