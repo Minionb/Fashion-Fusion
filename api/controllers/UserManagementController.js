@@ -165,7 +165,11 @@ async function registerCustomer(req, res) {
     if (existingCustomer) {
       return res.send(400, { message: "Email already registered" });
     }
-
+    // Save the new customer to the database
+    addresses.forEach((add) => {
+      if (!add.country) add.country = "Canada";
+    });
+  
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -182,7 +186,6 @@ async function registerCustomer(req, res) {
       payments: payments,
     });
 
-    // Save the new customer to the database
     await newCustomer.save();
 
     res.send(201, { message: "Customer registered successfully" });
