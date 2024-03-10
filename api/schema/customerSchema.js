@@ -8,7 +8,7 @@ const paymentSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-  },  
+  },
   cardNumber: {
     type: String,
     required: true,
@@ -18,6 +18,32 @@ const paymentSchema = new mongoose.Schema({
     required: true,
   },
   cvv: {
+    type: String,
+    required: true,
+  },
+});
+const addressSchema = new mongoose.Schema({
+  addresNickName: {
+    type: String,
+    required: true,
+  },
+  addressLine1: {
+    type: String,
+    required: true,
+  },
+  addressLine2: {
+    type: String,
+  },
+  zipCode: {
+    type: String,
+    required: true,
+  },
+  city: {
+    type: String,
+    required: true,
+  },
+  country: {
+    // default CANADA
     type: String,
     required: true,
   },
@@ -41,10 +67,6 @@ const customerSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  address: {
-    type: String,
-    required: true,
-  },
   date_of_birth: {
     type: Date,
     required: true,
@@ -58,6 +80,7 @@ const customerSchema = new mongoose.Schema({
     required: true,
   },
   payments: [paymentSchema],
+  addresses: [addressSchema],
 });
 // Add timestamps
 customerSchema.set("timestamps", true);

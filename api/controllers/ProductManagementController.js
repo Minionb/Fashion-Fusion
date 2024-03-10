@@ -1,47 +1,42 @@
 const { verifyToken, verifyAdminToken } = require("../util/verifyToken");
 const { ProductsModel, ProductImagesModel } = require("../schema/index");
+const { attachRoute, attachUploadRoute } = require("../util/routingUtils");
 const multer = require("multer");
 
 /**
  * Create product
  * @param {server} server
  */
-function postProducts(server) {
-  server.post("/products", async (req, res) => {
-    await verifyAdminToken(req, res);
-    try {
-      const newProduct = new ProductsModel(req.body);
-      newProduct.createdBy = req.userId;
-      // Save the new admin to the database
-      await newProduct.save();
-      res.status(201).json({
-        productId: newProduct._id,
-        message: "Product added successfully",
-      });
-    } catch (error) {
-      console.error("Product insertion error:", error);
-      // res.send(500, { message: "Internal server error" });
-    }
-  });
+async function postProducts(req, res) {
+  try {
+    const newProduct = new ProductsModel(req.body);
+    newProduct.createdBy = req.userId;
+    // Save the new admin to the database
+    await newProduct.save();
+    res.status(201).json({
+      productId: newProduct._id,
+      message: "Product added successfully",
+    });
+  } catch (error) {
+    console.error("Product insertion error:", error);
+    // res.send(500, { message: "Internal server error" });
+  }
 }
 
 /**
  * Get all products
  * @param {server} server
  */
-function getProducts(server) {
-  server.get("/products", async (req, res, next) => {
-    await verifyToken(req, res);
-    try {
-      const filter = buildFilter(req.query);
-      const sortOption = buildSortOption(req.query.sort);
-      const products = await ProductsModel.find(filter).sort(sortOption);
-      res.send(products);
-    } catch (error) {
-      console.error(error);
-      return next(new Error(JSON.stringify(error.errors)));
-    }
-  });
+async function getProducts(req, res) {
+  try {
+    const filter = buildFilter(req.query);
+    const sortOption = buildSortOption(req.query.sort);
+    const products = await ProductsModel.find(filter).sort(sortOption);
+    res.send(products);
+  } catch (error) {
+    console.error(error);
+    return next(new Error(JSON.stringify(error.errors)));
+  }
 }
 
 function buildFilter(query) {
@@ -88,77 +83,71 @@ function buildSortOption(sort) {
 /**
  * Get product by id
  */
-function getProductsById(server) {
-  server.get("/products/:id", async (req, res) => {
-    await verifyToken(req, res);
-    try {
-      const productId = req.params.id;
+async function getProductsById(req, res) {
+  try {
+    const productId = req.params.id;
 
-      // Fetch the product from the database by ID
-      const product = await ProductsModel.findById(productId);
+    // Fetch the product from the database by ID
+    const product = await ProductsModel.findById(productId);
 
-      if (!product) {
-        return res.status(404).json({ error: "Product not found" });
-      }
-
-      res.json(product);
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
     }
-  });
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 }
 
 /**
  * Update product by id
  * @param {server} server
  */
-function putProduct(server) {
-  server.put("/products/:id", verifyToken, async (req, res) => {
-    await verifyToken(req, res);
-    try {
-      const productId = req.params.id;
-      const updateData = req.body;
+async function putProduct(req, res) {
+  try {
+    const productId = req.params.id;
+    const updateData = req.body;
 
-      // Find the product by ID, update it with the provided data, and return the modified document
-      const updatedProduct = await ProductsModel.findByIdAndUpdate(
-        productId,
-        updateData,
-        { new: true }
-      );
+    // Find the product by ID, update it with the provided data, and return the modified document
+    const updatedProduct = await ProductsModel.findByIdAndUpdate(
+      productId,
+      updateData,
+      { new: true }
+    );
 
-      if (!updatedProduct) {
-        return res.status(404).json({ error: "Product not found" });
-      }
-
-      res.json(updatedProduct);
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+    if (!updatedProduct) {
+      return res.status(404).json({ error: "Product not found" });
     }
-  });
+
+    res.json(updatedProduct);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 }
 
 /**
  * Delete product by id
  * @param {server} server
  */
-function deleteProduct(server) {
-  server.delete("/products/:id", async (req, res) => {
-    await verifyAdminToken(req, res);
-    try {
-      const productId = req.params.id;
+async function deleteProduct(req, res) {
+  try {
+    const productId = req.params.id;
 
-      // Find the product by ID and delete it
-      const deletedProduct = await ProductsModel.findByIdAndDelete(productId);
+    // Find the product by ID and delete it
+    const deletedProduct = await ProductsModel.findByIdAndDelete(productId);
 
-      if (!deletedProduct) {
-        return res.status(404).json({ error: "Product not found" });
-      }
-
-      res.json({ message: "Product deleted successfully" });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+    if (!deletedProduct) {
+      return res.status(404).json({ error: "Product not found" });
     }
-  });
+    
+    deletedProduct.images.forEach(
+      async (imgId) => await ProductImagesModel.findByIdAndDelete(imgId)
+    );
+
+    res.json({ message: "Product deleted successfully" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 }
 
 // Multer storage configuration
@@ -166,59 +155,50 @@ const storage = multer.memoryStorage(); // Store files in memory as Buffer
 // Multer upload instance
 const upload = multer({ storage: storage });
 
-function postProductImages(server) {
-  // Route to handle image upload
-  server.post(
-    "/products/:id/images",
-    upload.single("image"),
-    async (req, res) => {
-      await verifyAdminToken(req, res);
-      try {
-        const productId = req.params.id;
-        const product = await ProductsModel.findById(productId);
+async function postProductImages(req, res) {
+  try {
+    const productId = req.params.id;
+    const product = await ProductsModel.findById(productId);
 
-        if (!product) {
-          return res.status(404).json({ error: "Product not found" });
-        }
-
-        // Read the uploaded image file
-        const imageData = req.file.buffer;
-        const contentType = req.file.mimetype;
-        const filename = req.file.originalname;
-
-        // Create a new image document
-        const newImage = new ProductImagesModel({
-          product_id: productId,
-          data: imageData,
-          contentType: contentType,
-          filename: filename,
-        });
-
-        // Save the image to the database
-        await newImage.save();
-
-        // Update the product to include the new image
-        product.images.push(newImage._id);
-        await product.save();
-
-        res
-          .status(201)
-          .json({ message: "Image uploaded successfully", image: newImage });
-      } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Internal server error" });
-      }
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
     }
-  );
+
+    // Read the uploaded image file
+    const imageData = req.file.buffer;
+    const contentType = req.file.mimetype;
+    const filename = req.file.originalname;
+
+    // Create a new image document
+    const newImage = new ProductImagesModel({
+      product_id: productId,
+      data: imageData,
+      contentType: contentType,
+      filename: filename,
+    });
+
+    // Save the image to the database
+    await newImage.save();
+
+    // Update the product to include the new image
+    product.images.push(newImage._id);
+    await product.save();
+
+    res
+      .status(201)
+      .json({ message: "Image uploaded successfully", image: newImage });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 }
 
 /**
  * Get product images using productImageId
  * @param {server} server
  */
-function getProductImages(server) {
-  // GET /products/images/:id
-  server.get("/products/images/:id", async (req, res) => {
+
+async function getProductImages(req, res) {
     try {
       const productImageId = req.params.id;
 
@@ -237,16 +217,13 @@ function getProductImages(server) {
       console.error(err);
       res.status(500).json({ error: "Internal server error" });
     }
-  });
 }
 
 /**
  * Delete product image by id
  * @param {server} server
  */
-function deleteProductImage(server) {
-  server.delete("/products/images/:id", async (req, res) => {
-    await verifyAdminToken(req, res);
+async function deleteProductImage(req, res) {
     try {
       const productImageId = req.params.id;
 
@@ -267,7 +244,6 @@ function deleteProductImage(server) {
       console.error(err);
       res.status(500).json({ error: "Internal server error" });
     }
-  });
 }
 
 /**
@@ -329,15 +305,24 @@ class ProductManagementController {
    * @param {server} server
    */
   initApis(server) {
-    postProducts(server);
-    getProducts(server);
-    getProductsById(server);
-    putProduct(server);
-    deleteProduct(server);
+    console.log(`** Products endpoints **`);
+    attachRoute(server, "post", "/products", postProducts, "admin");
+    attachRoute(server, "get", "/products", getProducts);
+    attachRoute(server, "get", "/products/:id", getProductsById, "any");
+    attachRoute(server, "put", "/products/:id", putProduct, "admin");
+    attachRoute(server, "delete", "/products/:id", deleteProduct, "admin");
 
-    postProductImages(server);
-    getProductImages(server);
-    deleteProductImage(server);
+    console.log(`** Products Images endpoints **`);
+    attachUploadRoute(
+      server,
+      "post",
+      "/products/:id/images",
+      upload.single("image"),
+      postProductImages,
+      "admin"
+    );
+    attachRoute(server, "get", "/products/images/:id", getProductImages);
+    attachRoute(server, "delete", "/products/images/:id", deleteProductImage, "admin");
 
     postProductCategory(server);
     getProductCategory(server);
