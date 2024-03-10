@@ -116,7 +116,7 @@ class FavoriteListItem extends StatelessWidget {
   });
 
   // Default function for onLikeStatusChanged
-  static void _defaultOnLikeStatusChanged(bool isLiked) {
+  static void  _defaultOnLikeStatusChanged(bool isLiked) {
     // No operation
   }
   // Default function for onLikeStatusChanged

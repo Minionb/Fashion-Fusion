@@ -3,10 +3,10 @@ import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/data/customer/model/customer_model.dart';
 import 'package:flutter/material.dart';
 
-class AddressWidget extends StatefulWidget {
+class AddressWidget extends StatelessWidget {
   final Address model;
-  final bool isSelected;
   final VoidCallback? onTap;
+  final bool isSelected;
 
   const AddressWidget({
     super.key,
@@ -16,32 +16,25 @@ class AddressWidget extends StatefulWidget {
   });
 
   @override
-  _AddressWidgetState createState() => _AddressWidgetState();
-}
-
-class _AddressWidgetState extends State<AddressWidget> {
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: Container(
+    return InkWell(
+      onTap: onTap,
+      child:  Container(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         decoration: BoxDecoration(
-          border: Border.all(
-              color:
-                  widget.isSelected ? AppColors.primary : AppColors.lightGray),
+          border: Border.all(color: isSelected ? AppColors.primary : AppColors.lightGray),
           borderRadius: BorderRadius.circular(8.0),
         ),
-        margin: const EdgeInsets.only(bottom: 16.0), // Add margin
+        margin: const EdgeInsets.only(bottom: 16.0),
         child: ListTile(
-          title: _title(widget.model.addressNickName ?? "Home"),
+          title: _title(model.addressNickName ?? "Home"),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _text(widget.model.addressLine1 ?? ""),
-              _text(widget.model.addressLine2 ?? ""),
-              _text(widget.model.city ?? ""),
-              _text((widget.model.zipCode ?? "").toUpperCase())
+              _text(model.addressLine1 ?? ""),
+              _text(model.addressLine2 ?? ""),
+              _text(model.city ?? ""),
+              _text((model.zipCode ?? "").toUpperCase())
             ],
           ),
         ),

@@ -9,14 +9,14 @@ class PaymentWidget extends StatefulWidget {
   final VoidCallback? onTap;
 
   const PaymentWidget({
-    Key? key,
+    super.key,
     required this.model,
     this.isSelected = false,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
-  _PaymentWidgetState createState() => _PaymentWidgetState();
+  State<PaymentWidget> createState() => _PaymentWidgetState();
 }
 
 class _PaymentWidgetState extends State<PaymentWidget> {
@@ -24,19 +24,17 @@ class _PaymentWidgetState extends State<PaymentWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: widget.onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         decoration: BoxDecoration(
-          border: Border.all(
-              color:
-                  widget.isSelected ? AppColors.primary : AppColors.lightGray),
+          border: Border.all(color: widget.isSelected ? AppColors.primary : AppColors.lightGray),
           borderRadius: BorderRadius.circular(8.0),
         ),
         margin: const EdgeInsets.only(bottom: 16.0),
         child: ListTile(
-          title: _name(),
+          title: Row(children: [_name()]),
           subtitle: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [_card(), _exp()],
