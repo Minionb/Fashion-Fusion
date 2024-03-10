@@ -246,10 +246,7 @@ async function putCustomer(req, res) {
   try {
     const updatedCustomer = await updateCustomerData(customerId, updateData);
     updatedCustomer.password = null;
-
-    const existingCustomer = await CustomersModel.findById(customerId);
-    existingCustomer.password = null;
-    res.status(200).json(existingCustomer);
+    res.status(200).json(updatedCustomer);
   } catch (error) {
     console.error(error);
     res.status(404).json({ message: error.message || "Customer not found" });
