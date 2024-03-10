@@ -9,6 +9,7 @@ import 'package:fashion_fusion/view/home/widget/total_amount_widget.dart';
 import 'package:fashion_fusion/view/widget/address_card_widget.dart';
 import 'package:fashion_fusion/view/widget/payment_card_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,16 +18,22 @@ class OrderCheckoutScreen extends StatefulWidget {
   final List<CartItemModel> cartItems;
   final CartDecorator cartDecorator;
 
-  const OrderCheckoutScreen(
-      {super.key, required this.cartItems, required this.cartDecorator});
+  const OrderCheckoutScreen({
+    Key? key,
+    required this.cartItems,
+    required this.cartDecorator,
+  }) : super(key: key);
 
   @override
-  _OrderCheckoutScreenState createState() => _OrderCheckoutScreenState();
+  State<StatefulWidget> createState() {
+    return _OrderCheckoutScreenState();
+  }
 }
 
 class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
   int selectedAddressIndex = 0;
   int selectedPaymentIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -35,7 +42,6 @@ class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
           create: (context) => sl<CustomerCubit>()
             ..getCustomerById(sl<SharedPreferences>().getString("userID")!),
         ),
-        // Add more BlocProviders as needed
       ],
       child: Scaffold(
         appBar: AppBar(
@@ -64,7 +70,6 @@ class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
       ),
     );
   }
-
   Widget _buildOrderSummarySection() {
     return _buildSection(
       title: 'Order Summary',
@@ -161,31 +166,39 @@ class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
     );
   }
 
+  void onAddressTap(int index) {
+    setState(() {      
+      selectedAddressIndex = index; // Update selected index on tap
+    });
+  }
+
   Widget _buildShippingDetails() {
     return BlocBuilder<CustomerCubit, CustomerState>(
       builder: (context, state) {
         if (state is GetCustomerByIdLoadedState) {
+          var addressWidgets = buildAddressWidgets(state.model.addresses ?? []);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (int i = 0; i < (state.model.addresses?.length ?? 0); i++)
-                AddressWidget(
-                  model: state.model.addresses![i],
-                  isSelected: i ==
-                      selectedAddressIndex, // Check if this address is selected
-                  onTap: () {
-                    setState(() {
-                      selectedAddressIndex = i; // Update selected index on tap
-                    });
-                  },
-                ),
-            ],
+            children: addressWidgets,
           );
         } else {
           return const CircularProgressIndicator();
         }
       },
     );
+  }
+
+  List<AddressWidget> buildAddressWidgets(List<Address> addresses) {
+    return [
+      for (int i = 0; i < (addresses.length); i++)
+        AddressWidget(
+          model: addresses[i],
+          isSelected: i == selectedAddressIndex,
+          onTap: () {
+            onAddressTap(i);
+          },
+        ),
+    ];
   }
 }
 
@@ -230,7 +243,7 @@ class CartItemWidget extends StatelessWidget {
           leading: ListTileImageWidget(
             imageId: model.imageId,
           ),
-          title: _productName(),
+          title: Row(children: [_productName()]),
           subtitle: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
