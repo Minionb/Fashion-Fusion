@@ -13,8 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminProductScreen extends StatelessWidget {
   AdminProductScreen({super.key});
-  String cat = "";
-  String productName = "";
+   Map<String, String> productQueryParams = {};
   @override
   Widget build(BuildContext context) {
     return HelperMethod.loader(
@@ -32,7 +31,7 @@ class AdminProductScreen extends StatelessWidget {
             if (state is ProductLoadedState) {
               return RefreshIndicator(
                 onRefresh: () async {
-                  context.read<ProductCubit>().getProduct(cat, productName);
+                  context.read<ProductCubit>().getProduct(productQueryParams);
                 },
                 child: ListView.separated(
                     itemBuilder: (context, index) {

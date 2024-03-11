@@ -8,7 +8,7 @@ class GetProductUsecase {
   final ProductRepository repository;
   
   GetProductUsecase({required this.repository});
-  Future<Either<Failure, List<ProductModel>>> call(category, productName) async {
-    return await repository.get(category, productName);
+  Future<Either<Failure, List<ProductModel>>> call(productQueryParams) async {
+    return await repository.get(productQueryParams);
   }
 }
