@@ -9,9 +9,9 @@ class ProductCubit extends Cubit<ProductState> {
     final GetProductUsecase get;
   ProductCubit({required this.get}) : super(ProductInitial());
 
-    void getProduct() async {
+    void getProduct(category, productName) async {
     emit(ProductIsLoadingState());
-    final response = await get();
+    final response = await get(category, productName);
     emit(response.fold(
         (l) => ProductErrorState(message: HelperMethod.mapFailureToMsg(l)),
         (r) =>ProductLoadedState(models: r)));

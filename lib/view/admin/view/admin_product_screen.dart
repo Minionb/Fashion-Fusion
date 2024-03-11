@@ -12,8 +12,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminProductScreen extends StatelessWidget {
-  const AdminProductScreen({super.key});
-
+  AdminProductScreen({super.key});
+  String cat = "";
+  String productName = "";
   @override
   Widget build(BuildContext context) {
     return HelperMethod.loader(
@@ -31,7 +32,7 @@ class AdminProductScreen extends StatelessWidget {
             if (state is ProductLoadedState) {
               return RefreshIndicator(
                 onRefresh: () async {
-                  context.read<ProductCubit>().getProduct();
+                  context.read<ProductCubit>().getProduct(cat, productName);
                 },
                 child: ListView.separated(
                     itemBuilder: (context, index) {
