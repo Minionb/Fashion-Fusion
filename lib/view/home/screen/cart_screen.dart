@@ -5,6 +5,7 @@ import 'package:fashion_fusion/core/widgets/cart_button.dart';
 import 'package:fashion_fusion/data/cart/model/cart_item_model.dart';
 import 'package:fashion_fusion/view/home/screen/checkout_screen.dart';
 import 'package:fashion_fusion/view/home/widget/app_bar.dart';
+import 'package:fashion_fusion/view/widget/cart_item_widget.dart';
 import 'package:fashion_fusion/view/home/widget/empty_list_widget.dart';
 import 'package:fashion_fusion/view/home/widget/list_tile_product_image.dart';
 import 'package:fashion_fusion/view/home/widget/total_amount_widget.dart';
@@ -90,7 +91,7 @@ class _CartScreenState extends State<CartScreen> {
 
   ListView _buildShoppingCartItems() {
     List<CartItemWidget> cartItemWidgets =
-        cartItems.map((item) => CartItemWidget(model: item)).toList();
+        cartItems.map((item) => CartItemWidget(model: item, readOnly: false,)).toList();
     return ListView(
       children: [
         ...cartItemWidgets,
@@ -105,74 +106,6 @@ class _CartScreenState extends State<CartScreen> {
         const SizedBox(height: 16),
         CheckoutButton(cartItems: cartItems, cartDecorator: cartDecorator),
       ],
-    );
-  }
-}
-
-class CartItemWidget extends StatelessWidget {
-  final CartItemModel model;
-
-  const CartItemWidget({super.key, required this.model});
-
-  Widget _productName() {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(
-          model.productName,
-          maxLines: 2,
-          textAlign: TextAlign.left,
-          overflow: TextOverflow.fade,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-      ),
-    );
-  }
-
-  Text _price() {
-    return Text(
-      "\$${model.price.toStringAsFixed(2)}",
-      style: TextStyle(color: AppColors.textGray),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.lightGray), // Add border
-        borderRadius: BorderRadius.circular(8.0), // Add border radius
-      ),
-      margin: const EdgeInsets.only(bottom: 16.0), // Add margin
-      child: ListTile(
-        leading: ListTileImageWidget(
-          imageId: model.imageId,
-        ),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _productName(),
-          ],
-        ),
-        subtitle: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                const SizedBox(width: 16),
-                RemoveCartButton(
-                    productId: model.productId, animateCondition: () => false),
-                const SizedBox(width: 16),
-                Text(model.quantity.toString()), // Quantity
-                const SizedBox(width: 16),
-                AddCartButton(
-                    productId: model.productId, animateCondition: () => false),
-              ],
-            ),
-            _price(),
-          ],
-        ),
-      ),
     );
   }
 }
