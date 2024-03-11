@@ -1,10 +1,8 @@
 import 'dart:io';
-
 import 'package:chips_choice/chips_choice.dart';
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/widgets/custom_button.dart';
-
 import 'package:fashion_fusion/data/product/model/upload_product_model.dart';
 import 'package:fashion_fusion/provider/product_cubit/product_edit/product_edit_cubit.dart';
 import 'package:fashion_fusion/view/admin/widget/inventory_card.dart';
@@ -29,6 +27,7 @@ class _AdminAddProductScreenState extends State<AdminAddProductScreen> {
   TextEditingController productDescriptionController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController quantityController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   File? image;
   List<String> tags = [];
   List<InventoryCard> inv = [];
@@ -53,157 +52,143 @@ class _AdminAddProductScreenState extends State<AdminAddProductScreen> {
         appBar: AppBar(
           title: const Text("Add Product"),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: BlocListener<ProductEditCubit, ProductEditState>(
-              listener: (context, state) {
-                if (state is ProductEditIsLoadingState) {
-                  context.loaderOverlay.show();
-                }
-                if (state is ProductEditSuccessState) {
-                  context.loaderOverlay.hide();
-                  HelperMethod.showToast(context,
-                      title: const Text("Product added successfully"),
-                      type: ToastificationType.success);
-                }
-                if (state is ProductEditErrorState) {
-                  context.loaderOverlay.hide();
-                  HelperMethod.showToast(context,
-                      title: Text(state.message),
-                      type: ToastificationType.error);
-                }
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  image == null
-                      ? GestureDetector(
-                          onTap: () async {
-                            await _selectImage(context);
-                          },
-                          child: CircleAvatar(
-                            minRadius: 50.sp,
-                            backgroundColor: AppColors.primary,
-                            child: const Icon(
-                              Icons.camera_alt_outlined,
-                              color: Colors.white,
-                            ),
-                          ),
-                        )
-                      : ProfileWidget(
-                          imagePath: image?.path ?? "",
-                          isEdit: true,
-                          fromFile: true,
-                          onClicked: () async {
-                            await _selectImage(context);
-                          },
-                        ),
-                  TextFormField(
-                    controller: productNameController,
-                    decoration:
-                        const InputDecoration(labelText: 'Product Name'),
-                  ),
-                  TextFormField(
-                    controller: productDescriptionController,
-                    decoration:
-                        const InputDecoration(labelText: 'Product Description'),
-                  ),
-                  TextFormField(
-                    controller: priceController,
-                    decoration: const InputDecoration(labelText: 'Price'),
-                    keyboardType: TextInputType.number,
-                  ),
-                  TextFormField(
-                    controller: quantityController,
-                    decoration: const InputDecoration(labelText: 'Quantity'),
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 16),
-                  _selectTagsChip(),
-                  16.verticalSpace,
-                  _selectCategoriesChip(),
-                  16.verticalSpace,
-                  Row(
-                    children: [
-                      Text(
-                        "Add Inventory",
-                        style: TextStyle(fontSize: 14.sp),
-                      ),
-                      const Spacer(),
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            inv.add(
-                              InventoryCard(
-                                onSizeChanged: (size) {
-                                  sizes.add(size);
-                                },
-                                onQuantityChanged: (quantity) {
-                                  quantities.add(quantity);
-                                },
+        body: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: BlocListener<ProductEditCubit, ProductEditState>(
+                listener: (context, state) {
+                  if (state is ProductEditIsLoadingState) {
+                    context.loaderOverlay.show();
+                  }
+                  if (state is ProductEditSuccessState) {
+                    context.loaderOverlay.hide();
+                    HelperMethod.showToast(context,
+                        title: const Text("Product added successfully"),
+                        type: ToastificationType.success);
+                  }
+                  if (state is ProductEditErrorState) {
+                    context.loaderOverlay.hide();
+                    HelperMethod.showToast(context,
+                        title: Text(state.message),
+                        type: ToastificationType.error);
+                  }
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    image == null
+                        ? GestureDetector(
+                            onTap: () async {
+                              await _selectImage(context);
+                            },
+                            child: CircleAvatar(
+                              minRadius: 50.sp,
+                              backgroundColor: AppColors.primary,
+                              child: const Icon(
+                                Icons.camera_alt_outlined,
+                                color: Colors.white,
                               ),
-                            );
-                          });
-                        },
-                        child: const Text("Add"),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: List.generate(
-                      inv.length,
-                      (index) => Row(
-                        children: [
-                          Expanded(child: inv[index]),
-                          if (index == inv.length - 1)
-                            IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  inv.removeLast();
-                                });
-                              },
-                              icon: const Icon(Icons.delete),
                             ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  10.verticalSpace,
-                  CustomButton(
-                      label: "Save",
-                      onPressed: () {
-                        for (var i = 0; i < sizes.length; i++) {
-                          if (i < quantities.length) {
-                            listOfInvontry.add(Inventory(
-                                size: sizes[i],
-                                quantity: int.parse(quantities[i])));
-                          }
+                          )
+                        : ProfileWidget(
+                            imagePath: image?.path ?? "",
+                            isEdit: true,
+                            fromFile: true,
+                            onClicked: () async {
+                              await _selectImage(context);
+                            },
+                          ),
+                    TextFormField(
+                      controller: productNameController,
+                      decoration:
+                          const InputDecoration(labelText: 'Product Name'),
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Please enter a product name';
                         }
-
-                        final model = UploadProductModel(
-                            productName: productNameController.text,
-                            category: categories
-                                .map((e) => e)
-                                .toString()
-                                .replaceAll(")", "")
-                                .replaceAll("(", ""),
-                            productDescription:
-                                productDescriptionController.text,
-                            price: double.parse(priceController.text),
-                            tags: tags
-                                .map((e) => "#$e")
-                                .toString()
-                                .replaceAll(")", "")
-                                .replaceAll("(", ""),
-                            soldQuantity: int.parse(quantityController.text),
-                            image: image,
-                            inventory: []);
-                        context.read<ProductEditCubit>().addProduct(model);
+                        return null;
                       },
-                      bg: AppColors.primary),
-                  50.verticalSpace,
-                ],
+                    ),
+                    TextFormField(
+                      controller: productDescriptionController,
+                      decoration: const InputDecoration(
+                          labelText: 'Product Description'),
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Please enter a product description';
+                        }
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: priceController,
+                      decoration: const InputDecoration(labelText: 'Price'),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Please enter a price';
+                        }
+                        // You can add additional validation here if needed
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: quantityController,
+                      decoration: const InputDecoration(labelText: 'Quantity'),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Please enter a quantity';
+                        }
+                        // You can add additional validation here if needed
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _selectTagsChip(),
+                    16.verticalSpace,
+                    _selectCategoriesChip(),
+                    16.verticalSpace,
+                    CustomButton(
+                        label: "Save",
+                        onPressed: () {
+                          // for (var i = 0; i < sizes.length; i++) {
+                          //   if (i < quantities.length) {
+                          //     listOfInvontry.add(Inventory(
+                          //         size: sizes[i],
+                          //         quantity: int.parse(quantities[i])));
+                          //   }
+                          // }
+
+                          if (_formKey.currentState!.validate()) {
+                            final model = UploadProductModel(
+                                productName: productNameController.text,
+                                category: categories
+                                    .map((e) => e)
+                                    .toString()
+                                    .replaceAll(")", "")
+                                    .replaceAll("(", ""),
+                                productDescription:
+                                    productDescriptionController.text,
+                                price: double.parse(priceController.text),
+                                tags: tags
+                                    .map((e) => "#$e")
+                                    .toString()
+                                    .replaceAll(")", "")
+                                    .replaceAll("(", ""),
+                                soldQuantity:
+                                    int.parse(quantityController.text),
+                                image: image,
+                                inventory: []);
+                            context.read<ProductEditCubit>().addProduct(model);
+                          }
+                        },
+                        bg: AppColors.primary),
+                    50.verticalSpace,
+                  ],
+                ),
               ),
             ),
           ),
