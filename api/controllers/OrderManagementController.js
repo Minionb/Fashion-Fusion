@@ -1,4 +1,5 @@
 const { verifyToken } = require("../util/verifyToken");
+const { attachRoute } = require("../util/routingUtils");
 const { OrderService } = require("../services/OrderService");
 const {
   CartsModel,
@@ -84,34 +85,31 @@ function getCartItemIndex(cart, productId) {
  *        THEN productId is removed from cart
  * @param {*} server
  */
-function putCartItems(server) {
-  server.put("/cart/items", async (req, res) => {
-    await verifyToken(req, res);
-    try {
-      const customerId = req.userId;
-      const { productId, quantity } = validateRequestBody(req);
-      let cart = await findOrCreateCart(customerId, productId, quantity);
-      cart.customerId = customerId;
+async function putCartItems(req, res) {
+  try {
+    const customerId = req.userId;
+    const { productId, quantity } = validateRequestBody(req);
+    let cart = await findOrCreateCart(customerId, productId, quantity);
+    cart.customerId = customerId;
 
-      const product = await ProductsModel.findById(productId);
-      if (!product)
-        return res.status(404).json({ message: "Product not found" });
+    const product = await ProductsModel.findById(productId);
+    if (!product) return res.status(404).json({ message: "Product not found" });
 
-      addOrUpdateCartItem(cart, product, quantity);
-      await cart.save();
+    addOrUpdateCartItem(cart, product, quantity);
+    await cart.save();
 
-      const productIds = cart.cartItems.map((cartItem) => cartItem.productId);
-      const cartProducts = await ProductsModel.find({
-        _id: { $in: productIds },
-      });
-      return res
-        .status(201)
-        .send(mapToCartResponse(cart.cartItems, cartProducts));
-    } catch (error) {
-      console.error(error);
-      return res.status(400).json({ message: error.message });
-    }
-  });
+    const productIds = cart.cartItems.map((cartItem) => cartItem.productId);
+    const cartProducts = await ProductsModel.find({
+      _id: { $in: productIds },
+    });
+    const responseBody = mapToCartResponse(cart.cartItems, cartProducts).filter(
+      (p) => p !== null
+    );
+    return res.status(201).send(responseBody);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({ message: error.message });
+  }
 }
 
 const clearCart = async (customerId, cartItems = null) => {
@@ -135,22 +133,20 @@ const clearCart = async (customerId, cartItems = null) => {
 };
 
 // DELETE /cart/items
-function deleteCartItems(server) {
-  server.delete("/cart/items", async (req, res) => {
-    await verifyToken(req, res);
-    try {
-      const customerId = req.userId;
-      const cart = await CartsModel.findOne({ customerId });
+async function deleteCartItems(req, res) {
+  try {
+    const customerId = req.userId;
+    const cart = await CartsModel.findOne({ customerId });
 
-      clearCart(customerId);
+    clearCart(customerId);
 
-      res.status(204).send();
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Internal Server Error" });
-    }
-  });
+    res.status(204).send();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 }
+
 // Function to delete cart item by productId
 const deleteCartItemByProductId = async (customerId, productId) => {
   const cart = await CartsModel.findOne({ customerId });
@@ -171,20 +167,17 @@ const deleteCartItemByProductId = async (customerId, productId) => {
 };
 
 // DELETE /cart/items/:productId
-function deleteCartItemsProduct(server) {
-  server.delete("/cart/items/:productId", async (req, res) => {
-    await verifyToken(req, res);
-    try {
-      const customerId = req.userId;
-      const { productId } = req.params;
-      await deleteCartItemByProductId(customerId, productId);
+async function deleteCartItemsProduct(req, res) {
+  try {
+    const customerId = req.userId;
+    const { productId } = req.params;
+    await deleteCartItemByProductId(customerId, productId);
 
-      res.status(204).send();
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Internal Server Error" });
-    }
-  });
+    res.status(204).send();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 }
 
 // Function to retrieve cart items by customerId
@@ -194,35 +187,32 @@ const getCartItemsByCustomerId = async (customerId) => {
 };
 
 // GET /cart/items
-async function getCartItems(server) {
-  server.get("/cart/items", async (req, res) => {
-    await verifyToken(req, res);
-    try {
-      const customerId = req.userId;
-      const cartItems = await getCartItemsByCustomerId(customerId);
+async function getCartItems(req, res) {
+  try {
+    const customerId = req.userId;
+    const cartItems = await getCartItemsByCustomerId(customerId);
 
-      const productIds = cartItems.map((cartItem) => cartItem.productId);
-      const cartProducts = await ProductsModel.find({
-        _id: { $in: productIds },
-      });
+    const productIds = cartItems.map((cartItem) => cartItem.productId);
+    const cartProducts = await ProductsModel.find({
+      _id: { $in: productIds },
+    });
 
-      // Construct separate response objects for cart items with prices
-      const cartResponse = mapToCartResponse(cartItems, cartProducts).filter(
-        (p) => p !== null
-      );
+    // Construct separate response objects for cart items with prices
+    const cartResponse = mapToCartResponse(cartItems, cartProducts).filter(
+      (p) => p !== null
+    );
 
-      return res.status(200).json(cartResponse);
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: "Internal Server Error" });
-    }
-  });
+    return res.status(200).json(cartResponse);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
 }
 
 function mapToCartResponse(cartItems, cartProducts) {
   return cartItems.map((cartItem) => {
     const product = OrderService.getProduct(cartProducts, cartItem.productId);
-    if (product === null) return null;
+    if (product === null || product === undefined) return null;
     return mapToCartItemResponse(cartItem, product);
   });
 }
@@ -242,136 +232,115 @@ function mapToCartItemResponse(cartItem, product) {
 }
 
 // POST /cart/checkout
-function checkoutCart(server) {
-  server.post("/cart/checkout", async (req, res) => {
-    await verifyToken(req, res);
-    try {
-      const customerId = req.userId;
-      const cart = await CartsModel.findOne({ customerId });
+async function checkoutCart() {
+  await verifyToken(req, res);
+  try {
+    const customerId = req.userId;
+    const cart = await CartsModel.findOne({ customerId });
 
-      if (!cart) {
-        return res.status(404).json({ message: "Cart not found" });
-      }
-      // Check if cartItems is empty
-      if (cart.cartItems.length === 0) {
-        return res
-          .status(400)
-          .json({ message: "Cart is empty. Cannot proceed with checkout." });
-      }
-
-      // Assuming delivery method and courier are provided in the request body
-      const paymentMethod = req.body.paymentMethod;
-      const deliveryMethod = req.body.deliveryMethod;
-      const courier = req.body.courier;
-      const cardNumber = req.body.cardNumber;
-
-      const order = await OrderService.createOrder(
-        customerId,
-        cart.cartItems,
-        paymentMethod,
-        cardNumber,
-        deliveryMethod,
-        courier
-      );
-
-      await clearCart(customerId);
-
-      res.status(201).json({ message: "Order created successfully", order });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Internal Server Error" });
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
     }
-  });
+    // Check if cartItems is empty
+    if (cart.cartItems.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Cart is empty. Cannot proceed with checkout." });
+    }
+
+    // Assuming delivery method and courier are provided in the request body
+    const paymentMethod = req.body.paymentMethod;
+    const deliveryMethod = req.body.deliveryMethod;
+    const courier = req.body.courier;
+    const cardNumber = req.body.cardNumber;
+
+    const order = await OrderService.createOrder(
+      customerId,
+      cart.cartItems,
+      paymentMethod,
+      cardNumber,
+      deliveryMethod,
+      courier
+    );
+
+    await clearCart(customerId);
+
+    res.status(201).json({ message: "Order created successfully", order });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 }
 // POST /checkout
-function checkout(server) {
-  server.post("/checkout", async (req, res) => {
-    await verifyToken(req, res);
-    try {
-      const customerId = req.userId;
-
-      // Assuming delivery method and courier are provided in the request body
-      const paymentMethod = req.body.paymentMethod;
-      const deliveryMethod = req.body.deliveryMethod;
-      const courier = req.body.courier;
-      const cardNumber = req.body.cardNumber;
-      const cartItems = req.body.cartItems;
-      // Check if cartItems is empty
-      if (cartItems.length === 0) {
-        return res
-          .status(400)
-          .json({ message: "Cart is empty. Cannot proceed with checkout." });
-      }
-
-      const order = await OrderService.createOrder(
-        customerId,
-        cartItems,
-        paymentMethod,
-        cardNumber,
-        deliveryMethod,
-        courier
-      );
-
-      await clearCart(customerId, cartItems);
-
-      res.status(201).json({ message: "Order created successfully", order });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Internal Server Error" });
+async function checkout(req, res) {
+  try {
+    const customerId = req.userId;
+    const orderRequest = req.body;
+    // Check if cartItems is empty
+    if (orderRequest.cartItems.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Cart is empty. Cannot proceed with checkout." });
     }
-  });
+
+    const order = await OrderService.createOrder(
+      customerId,
+      orderRequest
+    );
+
+    await clearCart(customerId, orderRequest.cartItems);
+
+    res.status(201).json({ message: "Order created successfully", order });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 }
 
 // GET /orders
-async function getOrders(server) {
-  server.get("/orders", async (req, res) => {
-    await verifyToken(req, res);
-    try {
-      const customerId = req.userId;
-      const orders = await OrderService.getAllOrders(customerId);
+async function getOrders(req, res) {
+  try {
+    const customerId = req.userId;
+    const orders = await OrderService.getAllOrders(customerId);
 
-      // Construct separate response objects for orders
-      const responseOrders = orders.map((order) => {
-        return {
-          orderId: order._id,
-          status: order.status,
-          totalAmount: order.totalAmount,
-          paymentMethod: order.payment.method,
-          deliveryMethod: order.delivery.method,
-          createdAt: order.createdAt,
-          updatedAt: order.updatedAt,
-        };
-      });
+    // Construct separate response objects for orders
+    const responseOrders = orders.map((order) => {
+      return {
+        orderId: order._id,
+        status: order.status,
+        totalAmount: order.totalAmount,
+        paymentMethod: order.payment.method,
+        deliveryMethod: order.delivery.method,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+      };
+    });
 
-      return res.status(200).json(responseOrders);
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: "Internal Server Error" });
-    }
-  });
+    return res.status(200).json(responseOrders);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 // GET /order/:id
-async function getOrderById(server) {
-  server.get("/orders/:id", async (req, res) => {
-    try {
-      const orderId = req.params.id;
+async function getOrderById(req, res) {
+  try {
+    const orderId = req.params.id;
 
-      // Find the order by its ID
-      const order = await OrderService.getOrderById(orderId);
+    // Find the order by its ID
+    const order = await OrderService.getOrderById(orderId);
 
-      // If order is not found, return 404
-      if (!order) {
-        return res.status(404).json({ message: "Order not found" });
-      }
-
-      // Return the separate response object with the order details
-      return res.status(200).json(order);
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: "Internal Server Error" });
+    // If order is not found, return 404
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
     }
-  });
+
+    // Return the separate response object with the order details
+    return res.status(200).json(order);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
 }
 
 // Helper function to construct update fields
@@ -384,35 +353,37 @@ function constructUpdateFields(orderStatus, payment, delivery) {
   return updateFields;
 }
 // PATCH /orders/:orderId
-async function patchOrder(server) {
-  server.patch("/orders/:orderId", async (req, res) => {
-    await verifyToken(req, res);
-    try {
-      const orderId = req.params.orderId;
-      const { orderStatus, payment, delivery } = req.body;
+async function patchOrder(req, res) {
+  try {
+    const orderId = req.params.orderId;
+    const { orderStatus, payment, delivery } = req.body;
 
-      const updateFields = constructUpdateFields(
-        orderStatus,
-        payment,
-        delivery
-      );
+    const updateFields = constructUpdateFields(orderStatus, payment, delivery);
 
-      const updatedOrder = await OrderService.updateOrder(
-        orderId,
-        updateFields
-      );
+    const updatedOrder = await OrderService.updateOrder(orderId, updateFields);
 
-      if (!updatedOrder)
-        return res.status(404).json({ message: "Order not found" });
+    if (!updatedOrder)
+      return res.status(404).json({ message: "Order not found" });
 
-      res
-        .status(200)
-        .json({ message: "Order updated successfully", order: updatedOrder });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Internal Server Error" });
-    }
-  });
+    res
+      .status(200)
+      .json({ message: "Order updated successfully", order: updatedOrder });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+async function deleteOrders(req, res) {
+  try {
+    const deleted = await OrdersModel.deleteMany({});
+    res
+      .status(200)
+      .json({ message: "Order deleted successfully", data: deleted});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 }
 
 async function getOrDefaultFavorites(customerId) {
@@ -450,9 +421,11 @@ const addFavoriteItem = async (req, res) => {
     });
 
     // Construct separate response objects for cart items with prices
-    const responseItems = favoriteProductIds.map((productId) => {
-      return mapFavoriteItemResponse(faveProducts, productId);
-    });
+    const responseItems = favoriteProductIds
+      .map((productId) => {
+        return mapFavoriteItemResponse(faveProducts, productId);
+      })
+      .filter((p) => p !== null);
 
     res.status(201).json(responseItems);
   } catch (error) {
@@ -463,7 +436,6 @@ const addFavoriteItem = async (req, res) => {
 
 // DELETE /favorites/item endpoint handler
 const removeFavoriteItem = async (req, res) => {
-  await verifyToken(req, res);
   const customerId = req.userId;
   const { productId } = req.body;
 
@@ -481,9 +453,11 @@ const removeFavoriteItem = async (req, res) => {
     });
 
     // Construct separate response objects for cart items with prices
-    const responseItems = favoriteProductIds.map((productId) => {
-      return mapFavoriteItemResponse(faveProducts, productId);
-    });
+    const responseItems = favoriteProductIds
+      .map((productId) => {
+        return mapFavoriteItemResponse(faveProducts, productId);
+      })
+      .filter((p) => p !== null);
     res.status(201).json(responseItems);
   } catch (error) {
     console.error("Error removing item from favorites:", error);
@@ -493,7 +467,6 @@ const removeFavoriteItem = async (req, res) => {
 
 // GET /favorites/item endpoint handler
 const getFavoriteItems = async (req, res) => {
-  await verifyToken(req, res);
   const customerId = req.userId;
   try {
     const favorite = await getOrDefaultFavorites(customerId);
@@ -534,31 +507,35 @@ function mapFavoriteItemResponse(faveProducts, productId) {
     imageId: imageId,
   };
 }
-// Enclose each endpoint handler in a function that accepts a server
-const attachFavoritesRoutes = (server) => {
-  server.put("/favorite/items", addFavoriteItem);
-  server.delete("/favorite/items", removeFavoriteItem);
-  server.get("/favorite/items", getFavoriteItems);
-};
 
 class OrderManagementController {
-  /**
-   * Initializes the apis
-   * @param {server} server
-   */
   initApis(server) {
-    putCartItems(server);
-    deleteCartItems(server);
-    deleteCartItemsProduct(server);
-    getCartItems(server);
-    // checkoutCart(server);
-    checkout(server);
+    console.log("** Cart endpoints **");
+    attachRoute(server, "put", "/cart/items", putCartItems, "any");
+    attachRoute(server, "delete", "/cart/items", deleteCartItems, "any");
+    attachRoute(
+      server,
+      "delete",
+      "/cart/items/:productId",
+      deleteCartItemsProduct,
+      "any"
+    );
+    attachRoute(server, "get", "/cart/items", getCartItems, "any");
 
-    getOrders(server);
-    getOrderById(server);
-    patchOrder(server);
+    console.log("** Checkout endpoints **");
+    attachRoute(server, "post", "/checkout", checkout, "any");
 
-    attachFavoritesRoutes(server);
+    console.log("** Order endpoints **");
+    attachRoute(server, "get", "/orders", getOrders, "any");
+    attachRoute(server, "get", "/orders/:id", getOrderById, "any");
+    attachRoute(server, "patch", "/orders/:orderId", patchOrder, "any");
+    // for testing only
+    attachRoute(server, "delete", "/orders", deleteOrders, "any");
+
+    console.log("** Favorite endpoints **");
+    attachRoute(server, "put", "/favorite/items", addFavoriteItem, "any");
+    attachRoute(server, "delete", "/favorite/items", removeFavoriteItem, "any");
+    attachRoute(server, "get", "/favorite/items", getFavoriteItems, "any");
   }
 }
 

@@ -1,5 +1,5 @@
 const secret_jwt_key = "todo-change-fashion-fusion-key";
-const tokenExpiry = "1h";
+const tokenExpiry = "12h";
 const app_properties = {
   host: "127.0.0.1",
   port: process.env.PORT || 3000,

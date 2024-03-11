@@ -1,13 +1,16 @@
+import 'package:intl/intl.dart';
+
 class CustomerDataModel {
   String? sId;
   String? email;
   String? firstName;
   String? lastName;
-  String? address;
   String? dateOfBirth;
   String? gender;
   String? telephoneNumber;
   List<Payments>? payments;
+  List<Address>? addresses;
+  String? address;
   int? iV;
 
   CustomerDataModel(
@@ -37,6 +40,12 @@ class CustomerDataModel {
         payments!.add(Payments.fromJson(v));
       });
     }
+    if (json['addresses'] != null) {
+      addresses = <Address>[];
+      json['addresses'].forEach((v) {
+        addresses!.add(Address.fromJson(v));
+      });
+    }
     iV = json['__v'];
   }
 
@@ -59,6 +68,7 @@ class CustomerDataModel {
 }
 
 class Payments {
+  String? name;
   String? method;
   String? cardNumber;
   String? expirationDate;
@@ -69,20 +79,73 @@ class Payments {
       {this.method, this.cardNumber, this.expirationDate, this.cvv, this.sId});
 
   Payments.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
     method = json['method'];
     cardNumber = json['cardNumber'];
-    expirationDate = json['expirationDate'];
+    expirationDate = formatDate(json['expirationDate']);
     cvv = json['cvv'];
     sId = json['_id'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    data['name'] = name;
     data['method'] = method;
     data['cardNumber'] = cardNumber;
     data['expirationDate'] = expirationDate;
     data['cvv'] = cvv;
     data['_id'] = sId;
+    return data;
+  }
+
+  static String formatDate(String dateString) {
+    // Parse the input date string
+    DateTime dateTime = DateTime.parse(dateString);
+
+    // Format the date to MM/YY format
+    String formattedDate = DateFormat('MM/yyyy').format(dateTime);
+
+    return formattedDate;
+  }
+}
+
+class Address {
+  String? addressNickName;
+  String? addressLine1;
+  String? addressLine2;
+  String? zipCode;
+  String? city;
+  String? country;
+  String? sId;
+
+  Address(
+      {required this.addressNickName,
+      required this.addressLine1,
+      required this.addressLine2,
+      required this.zipCode,
+      required this.city,
+      required this.country,
+      required this.sId});
+
+  Address.fromJson(Map<String, dynamic> json) {
+    addressNickName = json['addresNickName'];
+    addressLine1 = json['addressLine1'];
+    addressLine2 = json['addressLine2'];
+    zipCode = json['zipCode'];
+    city = json['city'];
+    country = json['country'];
+    sId = json['_id'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    data['addressNickName'] = addressNickName;
+    data['addressLine1'] = addressLine1;
+    data['addressLine2'] = addressLine2;
+    data['zipCode'] = zipCode;
+    data['city'] = city;
+    data['country'] = country;
     return data;
   }
 }

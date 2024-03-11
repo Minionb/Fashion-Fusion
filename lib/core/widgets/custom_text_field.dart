@@ -2,7 +2,7 @@ import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class CustomTextFiled extends StatefulWidget {
+class CustomTextField extends StatefulWidget {
   final String label;
   final String hint;
   final TextEditingController ctrl;
@@ -13,7 +13,7 @@ class CustomTextFiled extends StatefulWidget {
   final TextInputAction? textInputAction;
   final FocusNode? focusNode;
   final void Function(String)? onChanged;
-  const CustomTextFiled({
+  const CustomTextField({
     super.key,
     required this.label,
     required this.hint,
@@ -28,10 +28,10 @@ class CustomTextFiled extends StatefulWidget {
   });
 
   @override
-  State<CustomTextFiled> createState() => _CustomTextFiledState();
+  State<CustomTextField> createState() => _CustomTextFieldState();
 }
 
-class _CustomTextFiledState extends State<CustomTextFiled> {
+class _CustomTextFieldState extends State<CustomTextField> {
   bool showPassword = false;
   @override
   Widget build(BuildContext context) {

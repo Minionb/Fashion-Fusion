@@ -11,7 +11,8 @@ import 'package:dio/dio.dart';
 import '../model/upload_customer_model.dart';
 
 abstract class CustomerRemoteDataSource {
-  Future<CustomerModel> get();
+  Future<CustomerModel> getCustomers();
+  Future<CustomerDataModel> getCustomerById(String customerId);
   Future<ResponseUploadCustomerModel> add(UploadCustomerModel model);
   Future<Unit> update(UploadCustomerModel model);
   Future<Unit> delete(int id);
@@ -21,8 +22,25 @@ class CustomerRemoteDataSourceImpl implements CustomerRemoteDataSource {
   final ApiConsumer apiConsumer;
 
   CustomerRemoteDataSourceImpl({required this.apiConsumer});
+
   @override
-  Future<CustomerModel> get() async {
+  Future<CustomerDataModel> getCustomerById(String customerId) async {
+    final Response response = await apiConsumer.get(EndPoints.getCustomerById.replaceAll(":customerId", customerId));
+    if (response.statusCode == StatusCode.ok) {
+      try {
+        final CustomerDataModel decodedJson =
+            CustomerDataModel.fromJson(json.decode(response.data));
+        return decodedJson;
+      } catch (e) {
+        throw const FetchDataException();
+      }
+    } else {
+      throw const ServerException();
+    }
+  }
+
+  @override
+  Future<CustomerModel> getCustomers() async {
 
     final Response response = await apiConsumer.get(EndPoints.customer);
     if (response.statusCode == StatusCode.ok) {

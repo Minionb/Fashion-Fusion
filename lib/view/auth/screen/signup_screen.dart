@@ -56,7 +56,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     50.verticalSpace,
                     // Email TextFiled
-                    CustomTextFiled(
+                    CustomTextField(
                       validator: (p0) => ValidationHelper.emailValidation(p0),
                       label: "Email",
                       hint: "abc@example.com",
@@ -69,7 +69,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     Row(
                       children: [
                         Expanded(
-                          child: CustomTextFiled(
+                          child: CustomTextField(
                             validator: (p0) =>
                                 ValidationHelper.firstNameValidation(p0),
                             label: "First Name",
@@ -81,7 +81,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         10.horizontalSpace,
                         Expanded(
-                          child: CustomTextFiled(
+                          child: CustomTextField(
                             validator: (p0) =>
                                 ValidationHelper.secondNameValidation(p0),
                             label: "Last Name",
@@ -96,7 +96,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     15.verticalSpace,
                     _phoneNumber(),
                     15.verticalSpace,
-                    CustomTextFiled(
+                    CustomTextField(
                       validator: (p0) => ValidationHelper.addressValidation(p0),
                       label: "Address",
                       hint: "Tea Garden Circle",
@@ -107,7 +107,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     15.verticalSpace,
 
                     // Password TextFiled
-                    CustomTextFiled(
+                    CustomTextField(
                         validator: (p0) =>
                             ValidationHelper.passwordValidation(p0),
                         label: "Password",
@@ -140,7 +140,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               type: ToastificationType.error);
                         }
                       },
-                      child: CustomBottom(
+                      child: CustomButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             context.read<AuthCubit>().register(

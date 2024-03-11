@@ -2,13 +2,13 @@ import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class CustomBottom extends StatelessWidget {
+class CustomButton extends StatelessWidget {
   final String label;
   final Color textColor;
   final void Function()? onPressed;
   final Color? bg;
   final FontWeight? fontWeight;
-  const CustomBottom({
+  const CustomButton({
     super.key,
     required this.label,
     this.textColor = Colors.white,
