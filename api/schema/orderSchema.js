@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { paymentSchema, addressSchema } = require("./customerSchema");
 
 const deliverySchema = new mongoose.Schema({
   method: {
@@ -45,8 +46,11 @@ const orderSchema = new mongoose.Schema({
   },
   cartItems: [orderItemSchema],
   status: { type: String },
-  payment: { type: orderPaymentSchema },
+  payment: { type: paymentSchema },
+  address: { type: addressSchema },
   delivery: { type: deliverySchema },
+  subtotal: { type: Number, require: true },
+  tax: { type: Number, require: true },
   totalAmount: { type: Number, require: true },
 });
 

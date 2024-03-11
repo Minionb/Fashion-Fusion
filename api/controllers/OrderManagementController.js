@@ -275,15 +275,9 @@ async function checkoutCart() {
 async function checkout(req, res) {
   try {
     const customerId = req.userId;
-
-    // Assuming delivery method and courier are provided in the request body
-    const paymentMethod = req.body.paymentMethod;
-    const deliveryMethod = req.body.deliveryMethod;
-    const courier = req.body.courier;
-    const cardNumber = req.body.cardNumber;
-    const cartItems = req.body.cartItems;
+    const orderRequest = req.body;
     // Check if cartItems is empty
-    if (cartItems.length === 0) {
+    if (orderRequest.cartItems.length === 0) {
       return res
         .status(400)
         .json({ message: "Cart is empty. Cannot proceed with checkout." });
@@ -291,14 +285,10 @@ async function checkout(req, res) {
 
     const order = await OrderService.createOrder(
       customerId,
-      cartItems,
-      paymentMethod,
-      cardNumber,
-      deliveryMethod,
-      courier
+      orderRequest
     );
 
-    await clearCart(customerId, cartItems);
+    await clearCart(customerId, orderRequest.cartItems);
 
     res.status(201).json({ message: "Order created successfully", order });
   } catch (error) {
@@ -378,6 +368,18 @@ async function patchOrder(req, res) {
     res
       .status(200)
       .json({ message: "Order updated successfully", order: updatedOrder });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+async function deleteOrders(req, res) {
+  try {
+    const deleted = await OrdersModel.deleteMany({});
+    res
+      .status(200)
+      .json({ message: "Order deleted successfully", data: deleted});
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -527,6 +529,8 @@ class OrderManagementController {
     attachRoute(server, "get", "/orders", getOrders, "any");
     attachRoute(server, "get", "/orders/:id", getOrderById, "any");
     attachRoute(server, "patch", "/orders/:orderId", patchOrder, "any");
+    // for testing only
+    attachRoute(server, "delete", "/orders", deleteOrders, "any");
 
     console.log("** Favorite endpoints **");
     attachRoute(server, "put", "/favorite/items", addFavoriteItem, "any");

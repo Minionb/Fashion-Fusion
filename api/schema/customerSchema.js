@@ -25,7 +25,6 @@ const paymentSchema = new mongoose.Schema({
 const addressSchema = new mongoose.Schema({
   addresNickName: {
     type: String,
-    required: true,
   },
   addressLine1: {
     type: String,
@@ -41,6 +40,9 @@ const addressSchema = new mongoose.Schema({
   city: {
     type: String,
     required: true,
+  },
+  province: {
+    type: String,
   },
   country: {
     // default CANADA
@@ -84,4 +86,5 @@ const customerSchema = new mongoose.Schema({
 });
 // Add timestamps
 customerSchema.set("timestamps", true);
-module.exports = mongoose.model("customers", customerSchema);
+const CustomersModel = mongoose.model("customers", customerSchema);
+module.exports = { CustomersModel, paymentSchema, addressSchema };

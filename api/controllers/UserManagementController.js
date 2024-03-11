@@ -4,6 +4,7 @@ const { verifyToken, verifyAdminToken } = require("../util/verifyToken");
 const { attachRoute } = require("../util/routingUtils");
 const { generateTokens } = require("../util/generateTokens");
 const { maskCreditNumber } = require("../util/cardUtils");
+const { convertExpiryToDate } = require("../util/formattingUtils");
 
 // Function to handle customer and admin login
 async function login(req, res, userModel) {
@@ -131,7 +132,6 @@ async function registerAdmin(req, res) {
 async function loginAdmin(req, res) {
   try {
     // Call the login function to handle login logic
-    const admin = await login(req, res, AdminsModel);
   } catch (error) {
     console.error("Login error:", error);
     res.send(500, { message: "Internal server error" });
@@ -182,17 +182,7 @@ function getCustomers(req, res) {
     });
 }
 
-// Function to convert MM/YYYY string to Date object for cardExpiryDate
-function convertExpiryToDate(expirationDate) {
-  const [month, year] = expirationDate.split("/");
-  return new Date(parseInt(year), parseInt(month) - 1, 1);
-}
-
 // Function to convert DD-MM-YYYY string to Date object for date_of_birth
-function convertDOBToDate(dateOfBirth) {
-  const [day, month, year] = dateOfBirth.split("-");
-  return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-}
 // Function to update customer data
 async function updateCustomerData(customerId, updateData) {
   const existingCustomer = await CustomersModel.findById(customerId);
@@ -256,7 +246,6 @@ async function putCustomer(req, res) {
 async function loginCustomer(req, res) {
   try {
     // Call the login function to handle login logic
-    const admin = await login(req, res, CustomersModel);
   } catch (error) {
     console.error("Login error:", error);
     res.send(500, { message: "Internal server error" });
