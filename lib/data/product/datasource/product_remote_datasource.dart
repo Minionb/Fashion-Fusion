@@ -15,7 +15,7 @@ import "package:http/http.dart" as http;
 
 abstract class ProductRemoteDataSource {
   Future<ProductModel> getProductById(id);
-  Future<List<ProductModel>> get();
+  Future<List<ProductModel>> get(category,productName);
   Future<ResponseUploadProductModel> add(UploadProductModel model);
   Future<Unit> update(UploadProductModel model);
   Future<Unit> delete(String id);
@@ -43,21 +43,43 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<List<ProductModel>> get() async {
-    final Response response = await apiConsumer.get(EndPoints.getProducts);
-    if (response.statusCode == StatusCode.ok) {
-      try {
-        final List<dynamic> jsonList = json.decode(response.data);
-        final List<ProductModel> decodedJson =
-            jsonList.map((json) => ProductModel.fromJson(json)).toList();
-        return decodedJson;
-      } catch (e) {
-        throw const FetchDataException();
-      }
-    } else {
-      throw const ServerException();
+Future<List<ProductModel>> get(category,  productName) async {
+    final Map<String, String> queryParams = {};
+    if (category != null) {
+        queryParams['category'] = category;
     }
+    if (productName != null) {
+        queryParams['productName'] = productName;
+    }
+    final Response response = await apiConsumer.get(EndPoints.getProducts, queryParameters: queryParams);
+      if (response.statusCode == StatusCode.ok) {
+          try {
+              final List<dynamic> jsonList = json.decode(response.data);
+              final List<ProductModel> decodedJson =
+                  jsonList.map((json) => ProductModel.fromJson(json)).toList();
+              return decodedJson;
+          } catch (e) {
+              throw const FetchDataException();
+          }
+      } else {
+          throw const ServerException();
+      }
   }
+  // Future<List<ProductModel>> get() async {
+  //   final Response response = await apiConsumer.get(EndPoints.getProducts);
+  //   if (response.statusCode == StatusCode.ok) {
+  //     try {
+  //       final List<dynamic> jsonList = json.decode(response.data);
+  //       final List<ProductModel> decodedJson =
+  //           jsonList.map((json) => ProductModel.fromJson(json)).toList();
+  //       return decodedJson;
+  //     } catch (e) {
+  //       throw const FetchDataException();
+  //     }
+  //   } else {
+  //     throw const ServerException();
+  //   }
+  // }
 
   @override
   Future<ResponseUploadProductModel> add(UploadProductModel model) async {

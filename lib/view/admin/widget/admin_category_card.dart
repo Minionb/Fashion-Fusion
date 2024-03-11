@@ -16,6 +16,9 @@ class AdminCategoryCard extends StatefulWidget {
 }
 
 class _AdminCategoryCardState extends State<AdminCategoryCard> {
+
+  String cat = "";
+  String productName = "";
   @override
   Widget build(BuildContext context) {
     return Slidable(
@@ -49,8 +52,8 @@ class _AdminCategoryCardState extends State<AdminCategoryCard> {
       child: ListTile(
         onTap: () {
           context.pushNamedNAV(BlocProvider(
-            create: (context) => sl<ProductCubit>()..getProduct(),
-            child: const AdminProductScreen(),
+            create: (context) => sl<ProductCubit>()..getProduct(cat, productName),
+            child:  AdminProductScreen(),
           ));
         },
         style: ListTileStyle.drawer,

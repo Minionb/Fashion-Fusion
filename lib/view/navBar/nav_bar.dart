@@ -26,6 +26,10 @@ class NavBar extends StatefulWidget {
 class _NavBarState extends State<NavBar> {
   final PersistentTabController _controller =
       PersistentTabController(initialIndex: 0);
+      
+        get category => null;
+        
+        get productName => null;
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +83,7 @@ class _NavBarState extends State<NavBar> {
             create: (context) => sl<CartCubit>()..getCartItems(),
           ),
           BlocProvider<ProductCubit>(
-            create: (context) => sl<ProductCubit>()..getProduct(),
+            create: (context) => sl<ProductCubit>()..getProduct(category, productName),
           ),
         ],
         child: const HomeScreen(),
