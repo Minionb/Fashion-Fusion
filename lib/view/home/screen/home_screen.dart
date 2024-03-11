@@ -22,13 +22,17 @@ class _HomeScreenState extends State<HomeScreen> {
   int catIndex = 0;
   String cat = "";
   String productName = "";
+  Map<String, String> productQueryParams = {
+    'category': '',
+    'productName': '',
+  };
   late List<String> _favoriteIds;
   late List<ProductModel> products;
 
   Future<void> _fetchProducts(ProductCubit productCubit) async {
     // if (cat == "All"){
       setState(() {
-        productCubit.getProduct(cat,productName);
+        productCubit.getProduct(productQueryParams);
       });
     // }
   }
@@ -213,6 +217,9 @@ class _HomeScreenState extends State<HomeScreen> {
             setState(() {
               catIndex = index;
               cat = (_cat[index] == "All") ? "" : _cat[index];
+              productQueryParams = {
+                 'category': cat,
+              };
               _fetchProducts(context.read<ProductCubit>());
             });
           },
