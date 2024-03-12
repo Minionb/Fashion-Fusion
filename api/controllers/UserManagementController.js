@@ -131,7 +131,7 @@ async function registerAdmin(req, res) {
 
 async function loginAdmin(req, res) {
   try {
-    // Call the login function to handle login logic
+    const admin = await login(req, res, AdminsModel);
   } catch (error) {
     console.error("Login error:", error);
     res.send(500, { message: "Internal server error" });
@@ -218,7 +218,7 @@ async function normalizeCustomerData(updateData) {
     });
   }
 
-  if (updateData.password){
+  if (updateData.password) {
     updateData.password = await bcrypt.hash(updateData.password, 10);
   }
   return updateData;
@@ -245,7 +245,7 @@ async function putCustomer(req, res) {
 
 async function loginCustomer(req, res) {
   try {
-    // Call the login function to handle login logic
+    const admin = await this.login(req, res, CustomersModel);
   } catch (error) {
     console.error("Login error:", error);
     res.send(500, { message: "Internal server error" });
