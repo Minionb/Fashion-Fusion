@@ -245,7 +245,7 @@ async function putCustomer(req, res) {
 
 async function loginCustomer(req, res) {
   try {
-    const admin = await this.login(req, res, CustomersModel);
+    const admin = await login(req, res, CustomersModel);
   } catch (error) {
     console.error("Login error:", error);
     res.send(500, { message: "Internal server error" });
