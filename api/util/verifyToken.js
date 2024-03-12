@@ -18,7 +18,6 @@ async function verifyJWT(token) {
   });
 }
 
-// Middleware to verify JWT token
 async function verifyToken(req, res, next) {
   const token = req.headers.authorization;
 
@@ -36,16 +35,24 @@ async function verifyToken(req, res, next) {
     const decoded = await verifyJWT(token);
     req.userId = decoded.userId;
     req.userType = decoded.userType;
+    if (next)
+      next(); // Call next middleware
   } catch (error) {
-    return res.status(401).send({ message: "Unauthorized: Invalid token" });
+    return res.status(401).send({
+      message: error.message,
+    });
   }
 }
+
 // Middleware to verify JWT token for admin
 async function verifyAdminToken(req, res, next) {
-  await verifyToken(req, res, next);
-  if (req.userType !== "admin") {
-    res.status(401).send({ message: "Unauthorized" });
-  }
+  await verifyToken(req, res, () => {
+    if (req.userType !== "admin") {
+      return res.status(401).send({ message: "Unauthorized" });
+    } else if (next) {
+      next();
+    };
+  });
 }
 
 module.exports = { verifyAdminToken, verifyToken };

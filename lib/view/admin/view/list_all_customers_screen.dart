@@ -1,13 +1,27 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
+import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/provider/customerCubit/customer/customer_cubit.dart';
 import 'package:fashion_fusion/view/admin/widget/customer_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ListAllCustomersScreen extends StatelessWidget {
+class ListAllCustomersScreen extends StatefulWidget {
   const ListAllCustomersScreen({super.key});
+
+  @override
+  State<ListAllCustomersScreen> createState() => _ListAllCustomersScreenState();
+}
+
+class _ListAllCustomersScreenState extends State<ListAllCustomersScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print(sl<SharedPreferences>().getString("token"));
+  }
 
   @override
   Widget build(BuildContext context) {

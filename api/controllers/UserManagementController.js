@@ -1,8 +1,10 @@
 const bcrypt = require("bcrypt");
 const { CustomersModel, AdminsModel } = require("../schema/index");
 const { verifyToken, verifyAdminToken } = require("../util/verifyToken");
+const { attachRoute } = require("../util/routingUtils");
 const { generateTokens } = require("../util/generateTokens");
 const { maskCreditNumber } = require("../util/cardUtils");
+const { convertExpiryToDate } = require("../util/formattingUtils");
 
 // Function to handle customer and admin login
 async function login(req, res, userModel) {
@@ -73,172 +75,114 @@ async function getUserById(req, res, userModel) {
   }
 }
 
-function getAdmins(server) {
-  // Get all admins in the system
-  server.get("/admins", async function (req, res, next) {
-    await verifyAdminToken(req, res);
-    // Query the database to retrieve all customers, excluding the password field
-    AdminsModel.find({}, { password: 0 })
-      .sort({ lastName: "asc" })
-      .then((admins) => {
-        // Return all of the users in the system
-        res.send(admins);
-        return next();
-      })
-      .catch((error) => {
-        return next(new Error(JSON.stringify(error.errors)));
-      });
-  });
+async function getAdmins(req, res) {
+  // Query the database to retrieve all customers, excluding the password field
+  AdminsModel.find({}, { password: 0 })
+    .sort({ lastName: "asc" })
+    .then((admins) => {
+      // Return all of the users in the system
+      res.status(200).send(admins);
+    })
+    .catch((error) => {
+      res.status(500).send({ message: error.message });
+    });
 }
 
-function registerAdmin(server) {
+async function registerAdmin(req, res) {
   // Create or add a new admins
-  //defines the callback function that handles the incoming request, takes in three parameters: req (request), res (response), and next (next middleware).
-  server.post("/admins/register", async (req, res) => {
-    try {
-      const {
-        email,
-        password,
-        first_name,
-        last_name,
-        telephone_number,
-        job_title,
-      } = req.body;
+  try {
+    const {
+      email,
+      password,
+      first_name,
+      last_name,
+      telephone_number,
+      job_title,
+    } = req.body;
 
-      // Check if the email is already registered
-      const existingAdmin = await AdminsModel.findOne({ email });
-      if (existingAdmin) {
-        return res.send(400, { message: "Email already registered" });
-      }
-
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      // Create a new admin object
-      const newAdmin = new AdminsModel({
-        email,
-        password: hashedPassword,
-        first_name,
-        last_name,
-        telephone_number,
-        job_title,
-      });
-
-      // Save the new admin to the database
-      await newAdmin.save();
-
-      res.send(201, { message: "Admin registered successfully" });
-    } catch (error) {
-      console.error("Admin registration error:", error);
-      res.send(500, { message: "Internal server error" });
+    // Check if the email is already registered
+    const existingAdmin = await AdminsModel.findOne({ email });
+    if (existingAdmin) {
+      return res.send(400, { message: "Email already registered" });
     }
-  });
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new admin object
+    const newAdmin = new AdminsModel({
+      email,
+      password: hashedPassword,
+      first_name,
+      last_name,
+      telephone_number,
+      job_title,
+    });
+
+    // Save the new admin to the database
+    await newAdmin.save();
+
+    res.send(201, { message: "Admin registered successfully" });
+  } catch (error) {
+    console.error("Admin registration error:", error);
+    res.send(500, { message: "Internal server error" });
+  }
 }
 
-function loginAdmin(server) {
-  server.post("/admins/login", async (req, res) => {
-    try {
-      // Call the login function to handle login logic
-      const admin = await login(req, res, AdminsModel);
-    } catch (error) {
-      console.error("Login error:", error);
-      res.send(500, { message: "Internal server error" });
+async function loginAdmin(req, res) {
+  try {
+    const admin = await login(req, res, AdminsModel);
+  } catch (error) {
+    console.error("Login error:", error);
+    res.send(500, { message: "Internal server error" });
+  }
+}
+
+function logoutAdmin(req, res) {
+  res.status(200).send("Admin logged out successfully");
+}
+
+async function getAdminsById(req, res) {
+  await getUserById(req, res, AdminsModel);
+}
+
+async function registerCustomer(req, res) {
+  try {
+    var newCustomerRequest = req.body;
+
+    // Check if the email is already registered
+    const existingCustomer = await CustomersModel.findOne({
+      email: newCustomerRequest.email,
+    });
+    if (existingCustomer) {
+      return res.send(400, { message: "Email already registered" });
     }
-  });
+    newCustomerRequest = await normalizeCustomerData(newCustomerRequest);
+    const newCustomer = new CustomersModel(newCustomerRequest);
+
+    await newCustomer.save();
+
+    res.send(201, { message: "Customer registered successfully" });
+  } catch (error) {
+    console.error("Registration error:", error);
+    res.send(500, { message: "Internal server error" });
+  }
 }
 
-function logoutAdmin(server) {
-  // Logout API for admins
-  server.post("/admins/logout", async (req, res) => {
-    await verifyAdminToken(req, res);
-    res.send("Admin logged out successfully");
-  });
-}
-
-function getAdminsById(server) {
-  // API endpoint to get admin by ID
-  server.get("/admins/:id", async (req, res) => {
-    await verifyAdminToken(req, res);
-    await getUserById(req, res, AdminsModel);
-  });
-}
-
-function registerCustomer(server) {
-  // Create or add a new customers
-  // defines the callback function that handles the incoming request, takes in three parameters: req (request), res (response), and next (next middleware).
-  server.post("/customers/register", async (req, res) => {
-    try {
-      const {
-        email,
-        password,
-        first_name,
-        last_name,
-        address,
-        date_of_birth,
-        gender,
-        telephone_number,
-      } = req.body;
-
-      // Check if the email is already registered
-      const existingCustomer = await CustomersModel.findOne({ email });
-      if (existingCustomer) {
-        return res.send(400, { message: "Email already registered" });
-      }
-
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      // Create a new customer object
-      const newCustomer = new CustomersModel({
-        email,
-        password: hashedPassword,
-        first_name,
-        last_name,
-        address,
-        date_of_birth,
-        gender,
-        telephone_number,
-      });
-
-      // Save the new customer to the database
-      await newCustomer.save();
-
-      res.send(201, { message: "Customer registered successfully" });
-    } catch (error) {
-      console.error("Registration error:", error);
-      res.send(500, { message: "Internal server error" });
-    }
-  });
-}
-
-function getCustomers(server) {
-  // Get all customers in the system
-  server.get("/customers", async function (req, res, next) {
-    await verifyAdminToken(req, res);
-    // Query the database to retrieve all customers, excluding the password field
-    CustomersModel.find({}, { password: 0 })
-      .then((customers) => {
-        // Return all of the users in the system
-        res.send(customers);
-        return next();
-      })
-      .catch((error) => {
-        return next(new Error(JSON.stringify(error.errors)));
-      });
-  });
-}
-
-// Function to convert MM/YYYY string to Date object for cardExpiryDate
-function convertExpiryToDate(expirationDate) {
-  const [month, year] = expirationDate.split("/");
-  return new Date(parseInt(year), parseInt(month) - 1, 1);
+function getCustomers(req, res) {
+  // Query the database to retrieve all customers, excluding the password field
+  CustomersModel.find({}, { password: 0 })
+    .then((customers) => {
+      // Return all of the users in the system
+      return res.status(200).send(customers);
+    })
+    .catch((error) => {
+      console.error(error.message);
+      return res.status(500).json({ message: "Something went wrong" });
+    });
 }
 
 // Function to convert DD-MM-YYYY string to Date object for date_of_birth
-function convertDOBToDate(dateOfBirth) {
-  const [day, month, year] = dateOfBirth.split("-");
-  return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-}
 // Function to update customer data
 async function updateCustomerData(customerId, updateData) {
   const existingCustomer = await CustomersModel.findById(customerId);
@@ -247,7 +191,15 @@ async function updateCustomerData(customerId, updateData) {
   }
 
   // Convert card expiry from MM/YYYY to Date object before applying updates
-  if (updateData.payments && updateData.payments.length > 0) {
+  updateData = await normalizeCustomerData(updateData);
+
+  existingCustomer.set(updateData);
+
+  return existingCustomer.save();
+}
+
+async function normalizeCustomerData(updateData) {
+  if (updateData.payments) {
     updateData.payments.forEach((payment) => {
       if (payment.expirationDate) {
         payment.expirationDate = convertExpiryToDate(payment.expirationDate);
@@ -257,61 +209,56 @@ async function updateCustomerData(customerId, updateData) {
 
   // Convert date of birth from DD/MM/YYYY to Date object before applying updates
   if (updateData.date_of_birth) {
-    existingCustomer.date_of_birth = convertDOBToDate(updateData.date_of_birth);
-    delete updateData.date_of_birth;
+    // updateData.date_of_birth = convertDOBToDate(updateData.date_of_birth);
   }
 
-  existingCustomer.set(updateData);
-  return existingCustomer.save();
+  if (updateData.addresses) {
+    updateData.addresses.forEach((add) => {
+      if (!add.country) add.country = "Canada";
+    });
+  }
+
+  if (updateData.password) {
+    updateData.password = await bcrypt.hash(updateData.password, 10);
+  }
+  return updateData;
 }
 
 /**
  * PUT /customer/:id route for updating customer information
  * @param {*} server
  */
-function putCustomer(server) {
-  server.put("/customers/:id", async (req, res) => {
-    await verifyToken(req, res);
-    const customerId = req.params.id;
-    const updateData = req.body;
-    delete updateData.email; // Exclude email field from update data
+async function putCustomer(req, res) {
+  const customerId = req.params.id;
+  const updateData = req.body;
+  delete updateData.email; // Exclude email field from update data
 
-    try {
-      const updatedCustomer = await updateCustomerData(customerId, updateData);
-      res.json(updatedCustomer);
-    } catch (error) {
-      console.error(error);
-      res.status(404).json({ message: error.message || "Customer not found" });
-    }
-  });
+  try {
+    const updatedCustomer = await updateCustomerData(customerId, updateData);
+    updatedCustomer.password = null;
+    res.status(200).json(updatedCustomer);
+  } catch (error) {
+    console.error(error);
+    res.status(404).json({ message: error.message || "Customer not found" });
+  }
 }
 
-function loginCustomer(server) {
-  server.post("/customers/login", async (req, res) => {
-    try {
-      // Call the login function to handle login logic
-      const admin = await login(req, res, CustomersModel);
-    } catch (error) {
-      console.error("Login error:", error);
-      res.send(500, { message: "Internal server error" });
-    }
-  });
+async function loginCustomer(req, res) {
+  try {
+    const admin = await login(req, res, CustomersModel);
+  } catch (error) {
+    console.error("Login error:", error);
+    res.send(500, { message: "Internal server error" });
+  }
 }
 
-function logoutCustomer(server) {
-  // Logout API for customers
-  server.post("/customers/logout", async (req, res) => {
-    await verifyToken(req, res);
-    // req.session.customerId = null; // Clear customer session ID
-    res.send("Customer logged out successfully");
-  });
+function logoutCustomer(req, res) {
+  // req.session.customerId = null; // Clear customer session ID
+  res.send("Customer logged out successfully");
 }
 
-function getCustomersById(server) {
-  // API endpoint to get customer by ID
-  server.get("/customers/:id", async (req, res) => {
-    await getUserById(req, res, CustomersModel);
-  });
+async function getCustomersById(req, res) {
+  await getUserById(req, res, CustomersModel);
 }
 
 class UserManagementController {
@@ -320,18 +267,20 @@ class UserManagementController {
    * @param {server} server
    */
   initApis(server) {
-    getAdmins(server);
-    registerAdmin(server);
-    loginAdmin(server);
-    logoutAdmin(server);
-    getAdminsById(server);
+    console.log(`** Admin endpoints **`);
+    attachRoute(server, "get", "/admins", getAdmins, "admin");
+    attachRoute(server, "post", "/admins/register", registerAdmin);
+    attachRoute(server, "post", "/admins/login", loginAdmin);
+    attachRoute(server, "post", "/admins/logout", logoutAdmin, "admin");
+    attachRoute(server, "get", "/admins/:id", getAdminsById, "admin");
 
-    getCustomers(server);
-    putCustomer(server);
-    registerCustomer(server);
-    loginCustomer(server);
-    logoutCustomer(server);
-    getCustomersById(server);
+    console.log(`** Customers endpoints **`);
+    attachRoute(server, "get", "/customers", getCustomers, "any");
+    attachRoute(server, "post", "/customers/register", registerCustomer);
+    attachRoute(server, "post", "/customers/login", loginCustomer);
+    attachRoute(server, "post", "/customers/logout", logoutCustomer, "any");
+    attachRoute(server, "get", "/customers/:id", getCustomersById, "any");
+    attachRoute(server, "put", "/customers/:id", putCustomer, "any");
   }
 }
 

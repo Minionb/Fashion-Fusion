@@ -13,6 +13,7 @@ import 'package:fashion_fusion/data/customer/datasource/customer_remote_datasour
 import 'package:fashion_fusion/data/customer/repository/customer_repository.dart';
 import 'package:fashion_fusion/data/customer/usecase/add_customer_usecase.dart';
 import 'package:fashion_fusion/data/customer/usecase/delete_customer_usecase.dart';
+import 'package:fashion_fusion/data/customer/usecase/get_customer_by_id_usecase.dart';
 import 'package:fashion_fusion/data/customer/usecase/get_customer_usecase.dart';
 import 'package:fashion_fusion/data/customer/usecase/update_customer_usecase.dart';
 import 'package:fashion_fusion/data/favorite/datasource/favorite_remote_datasource.dart';
@@ -133,7 +134,7 @@ Future<void> init() async {
       () => ProfileRemoteDataSourceImpl(apiConsumer: sl()));
       
 // Customer::START
-  sl.registerFactory(() => CustomerCubit(get: sl()));
+  sl.registerFactory(() => CustomerCubit(get: sl(), getCustomerByIdUsecase: sl()));
   sl.registerFactory(
       () => CustomerEditCubit(add: sl(), update: sl(), delete: sl()));
 
@@ -141,6 +142,7 @@ Future<void> init() async {
       () => CustomerRepositoryImpl(networkInfo: sl(), remoteDatasource: sl()));
 
   sl.registerLazySingleton(() => GetCustomerUsecase(repository: sl()));
+  sl.registerLazySingleton(() => GetCustomerByIdUsecase(repository: sl()));
   sl.registerLazySingleton(() => AddCustomerUsecase(repository: sl()));
   sl.registerLazySingleton(() => DeleteCustomerUsecase(repository: sl()));
   sl.registerLazySingleton(() => UpdateCustomerUsecase(repository: sl()));
@@ -149,6 +151,7 @@ Future<void> init() async {
       () => CustomerRemoteDataSourceImpl(apiConsumer: sl()));
 
 // Customer::END
+
   //! External
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);

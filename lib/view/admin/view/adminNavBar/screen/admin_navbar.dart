@@ -1,4 +1,5 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
+import 'package:fashion_fusion/view/admin/view/admin_category_screen.dart';
 import 'package:fashion_fusion/view/admin/view/list_all_customers_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -56,6 +57,7 @@ class _AdminNavBarState extends State<AdminNavBar> {
   List<Widget> _buildScreens() {
     return [
       const ListAllCustomersScreen(),
+      const AdminCategoryScreen(),
       Container(),
       Container(),
     ];
@@ -71,6 +73,12 @@ class _AdminNavBarState extends State<AdminNavBar> {
       ),
       PersistentBottomNavBarItem(
         icon: const Icon(Icons.dashboard_customize_outlined),
+        title: "products",
+        activeColorPrimary: AppColors.primary,
+        inactiveColorPrimary: CupertinoColors.systemGrey,
+      ),
+      PersistentBottomNavBarItem(
+        icon: const Icon(Icons.manage_history),
         title: "Orders",
         activeColorPrimary: AppColors.primary,
         inactiveColorPrimary: CupertinoColors.systemGrey,

@@ -14,7 +14,7 @@ class CartItemModel {
   });
 
   CartItemModel.fromJson(Map<String, dynamic> json)
-      : productId = json['productId'],
+      : productId = json['productId'] ,
         quantity = json['quantity'],
         price = json['price'].toDouble(), // Parse to double
         productName = json['productName'],

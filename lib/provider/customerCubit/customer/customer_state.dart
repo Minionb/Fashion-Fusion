@@ -17,6 +17,12 @@ class CustomerLoadedState extends CustomerState {
   const CustomerLoadedState({required this.model});
 }
 
+class GetCustomerByIdLoadedState extends CustomerState {
+  final CustomerDataModel model;
+  
+  const GetCustomerByIdLoadedState({required this.model});
+}
+
 class CustomerErrorState extends CustomerState {
   final String message;
 

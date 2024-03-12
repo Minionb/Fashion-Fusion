@@ -20,7 +20,7 @@ class ProductEditCubit extends Cubit<ProductEditState> {
     final response = await add(model);
     emit(response.fold(
         (l) => ProductEditErrorState(message: HelperMethod.mapFailureToMsg(l)),
-        (r) =>ProductEditSuccessState()));
+        (r) => ProductEditSuccessState()));
   }
 
   void updateProduct(UploadProductModel model) async {
@@ -28,14 +28,15 @@ class ProductEditCubit extends Cubit<ProductEditState> {
     final response = await update(model);
     emit(response.fold(
         (l) => ProductEditErrorState(message: HelperMethod.mapFailureToMsg(l)),
-        (r) =>ProductEditSuccessState()));
+        (r) => ProductEditSuccessState()));
   }
 
-  void deleteProduct(int id) async {
+  void deleteProduct(String id) async {
+    print("object");
     emit(ProductEditIsLoadingState());
     final response = await delete(id);
     emit(response.fold(
         (l) => ProductEditErrorState(message: HelperMethod.mapFailureToMsg(l)),
-        (r) =>ProductEditSuccessState()));
+        (r) => ProductEditSuccessState()));
   }
 }

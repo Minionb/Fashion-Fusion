@@ -20,13 +20,21 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int catIndex = 0;
+  String cat = "";
+  String productName = "";
+  Map<String, String> productQueryParams = {
+    'category': '',
+    'productName': '',
+  };
   late List<String> _favoriteIds;
   late List<ProductModel> products;
 
   Future<void> _fetchProducts(ProductCubit productCubit) async {
-    setState(() {
-      productCubit.getProduct();
-    });
+    // if (cat == "All"){
+      setState(() {
+        productCubit.getProduct(productQueryParams);
+      });
+    // }
   }
 
   @override
@@ -208,6 +216,11 @@ class _HomeScreenState extends State<HomeScreen> {
           onTap: () {
             setState(() {
               catIndex = index;
+              cat = (_cat[index] == "All") ? "" : _cat[index];
+              productQueryParams = {
+                 'category': cat,
+              };
+              _fetchProducts(context.read<ProductCubit>());
             });
           },
           child: Container(
@@ -233,6 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   final List<String> _cat = [
+    "All",
     "Tops",
     "Bottoms",
     "Dresses",

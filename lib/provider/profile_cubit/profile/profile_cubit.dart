@@ -18,6 +18,5 @@ class ProfileCubit extends Cubit<ProfileState> {
         (l) => ProfileErrorState(errorMessage: HelperMethod.mapFailureToMsg(l)),
         (r) => ProfileLoadedState(model: r)));
   }
-
 }
 

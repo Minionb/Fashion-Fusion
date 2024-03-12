@@ -1,7 +1,6 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/widgets/cart_button.dart';
 import 'package:fashion_fusion/core/widgets/like_button.dart';
-import 'package:fashion_fusion/view/home/screen/home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

@@ -1,6 +1,7 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/provider/cart_cubit/cart/cart_cubit.dart';
+import 'package:fashion_fusion/provider/customerCubit/customer/customer_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite_edit/favorite_edit_cubit.dart';
 import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
@@ -25,6 +26,8 @@ class NavBar extends StatefulWidget {
 class _NavBarState extends State<NavBar> {
   final PersistentTabController _controller =
       PersistentTabController(initialIndex: 0);
+      
+        get productQueryParams => null;
 
   @override
   Widget build(BuildContext context) {
@@ -78,14 +81,21 @@ class _NavBarState extends State<NavBar> {
             create: (context) => sl<CartCubit>()..getCartItems(),
           ),
           BlocProvider<ProductCubit>(
-            create: (context) => sl<ProductCubit>()..getProduct(),
+            create: (context) => sl<ProductCubit>()..getProduct(productQueryParams),
           ),
         ],
         child: const HomeScreen(),
       ),
-      BlocProvider(
-        create: (context) => sl<CartCubit>()
-          ..getCartItems(),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<CustomerCubit>(
+            create: (context) => sl<CustomerCubit>()
+              ..getCustomerById(sl<SharedPreferences>().getString("userID")!),
+          ),
+          BlocProvider<CartCubit>(
+            create: (context) => sl<CartCubit>()..getCartItems(),
+          ),
+        ],
         child: const CartScreen(),
       ),
       MultiBlocProvider(
