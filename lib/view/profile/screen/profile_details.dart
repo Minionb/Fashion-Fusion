@@ -1,4 +1,6 @@
 import 'package:fashion_fusion/core/utils/helper_method.dart';
+import 'package:fashion_fusion/data/customer/model/customer_model.dart';
+import 'package:fashion_fusion/data/profile/model/profile_model.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
 import 'package:fashion_fusion/view/auth/screen/welcome_screen.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_payment_methods.dart';
@@ -26,7 +28,6 @@ class _ProfileDetails extends State<ProfileDetails> {
     print(sl<SharedPreferences>().getString("userID"));
 
     /// Details
-    /// Payment Methods
     return HelperMethod.loader(
         child: Scaffold(
             appBar: AppBar(),
@@ -50,11 +51,11 @@ class _ProfileDetails extends State<ProfileDetails> {
                     if (state is ProfileLoadedState) {
                       context.loaderOverlay.hide();
                       profile = state.model;
-                      //print(profile!.payments);
                       print("Profile LOADED");
                       return ProfileTitle(
-                        name: "${profile!.firstName} ${profile.lastName}",
+                        name: "${profile.firstName} ${profile.lastName}",
                         email: profile.email!,
+                        payments: state.model!.payments,
                       );
                     }
                     if (state is ProfileErrorState) {
@@ -74,13 +75,13 @@ class _ProfileDetails extends State<ProfileDetails> {
 class ProfileTitle extends StatelessWidget {
   final String name;
   final String email;
-  //final List payments;
+  final List<PaymentModel> payments;
 
   const ProfileTitle({
     super.key,
     required this.name,
     required this.email,
-    //required this.payments
+    required this.payments
   });
 
   @override
@@ -119,22 +120,22 @@ class ProfileTitle extends StatelessWidget {
           ],
         ),
         const Padding(padding: EdgeInsets.all(15)),
-        const ProfileOptionsCard(
+        ProfileOptionsCard(
             title: "My orders",
             subtitle: "Already have [] orders",
-            routeWidget: ProfilePaymentMethods()),
-        const ProfileOptionsCard(
+            routeWidget: ProfilePaymentMethods(paymentMethodsList: payments)),
+        ProfileOptionsCard(
             title: "Shipping addresses",
             subtitle: "[] addresses",
-            routeWidget: ProfilePaymentMethods()),
-        const ProfileOptionsCard(
+            routeWidget: ProfilePaymentMethods(paymentMethodsList: payments)),
+        ProfileOptionsCard(
             title: "Payment methods",
             subtitle: "Visa **[]",
-            routeWidget: ProfilePaymentMethods()),
-        const ProfileOptionsCard(
+            routeWidget: ProfilePaymentMethods(paymentMethodsList: payments)),
+        ProfileOptionsCard(
             title: "Settings",
             subtitle: "Notifications, password",
-            routeWidget: ProfilePaymentMethods()),
+            routeWidget: ProfilePaymentMethods(paymentMethodsList: payments)),
         const SignOutCard(
             title: "Sign Out",
             subtitle: "Sign out from your account",

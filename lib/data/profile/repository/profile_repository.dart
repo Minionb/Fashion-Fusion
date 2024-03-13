@@ -11,7 +11,7 @@ import '../model/upload_profile_model.dart';
 abstract class ProfileRepository {
   Future<Either<Failure, ProfileModel>> get(String userID);
   Future<Either<Failure, ResponseUploadProfileModel>> add(UploadProfileModel model);
-  Future<Either<Failure, Unit>> update(UploadProfileModel model);
+  Future<Either<Failure, Unit>> update(UploadProfileModel model, String userID);
   Future<Either<Failure, Unit>> delete(int id);
 }
 
@@ -59,10 +59,10 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
 
   @override
-  Future<Either<Failure, Unit>> update(UploadProfileModel model) async {
+  Future<Either<Failure, Unit>> update(UploadProfileModel model, String userID) async {
       if (await networkInfo.isConnected) {
       try {
-        final reposnse = await remoteDatasource.update(model);
+        final reposnse = await remoteDatasource.update(model, userID);
         return Right(reposnse);
       } on ServerException {
         return Left(ServerFailure());

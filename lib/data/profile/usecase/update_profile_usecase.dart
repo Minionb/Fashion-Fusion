@@ -7,7 +7,7 @@ import '../repository/profile_repository.dart';
 class UpdateProfileUsecase {
   final ProfileRepository repository;
   UpdateProfileUsecase({required this.repository});
-  Future<Either<Failure, Unit>> call(UploadProfileModel model) async {
-    return await repository.update(model);
+  Future<Either<Failure, Unit>> call(UploadProfileModel model, String userID) async {
+    return await repository.update(model, userID);
   }
 }
