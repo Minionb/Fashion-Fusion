@@ -63,7 +63,7 @@ class ProductCard extends StatelessWidget {
   Text _label() {
     return Text(
       model.productName!,
-      maxLines: 1,
+      //maxLines: 1,
       textAlign: TextAlign.left,
       // overflow: TextOverflow.ellipsis,
       style: const TextStyle(fontWeight: FontWeight.w600),
