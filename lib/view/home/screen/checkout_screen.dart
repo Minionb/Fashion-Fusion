@@ -3,13 +3,14 @@ import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/core/utils/cart_decorator_utils.dart';
 import 'package:fashion_fusion/data/cart/model/cart_item_model.dart';
 import 'package:fashion_fusion/data/customer/model/customer_model.dart';
+import 'package:fashion_fusion/provider/cart_cubit/cart/cart_cubit.dart';
 import 'package:fashion_fusion/provider/customerCubit/customer/customer_cubit.dart';
+import 'package:fashion_fusion/view/widget/cart_item_widget.dart';
 import 'package:fashion_fusion/view/home/widget/list_tile_product_image.dart';
 import 'package:fashion_fusion/view/home/widget/total_amount_widget.dart';
 import 'package:fashion_fusion/view/widget/address_card_widget.dart';
 import 'package:fashion_fusion/view/widget/payment_card_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -115,7 +116,7 @@ class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        ...widget.cartItems.map((item) => CartItemWidget(model: item)),
+        ...widget.cartItems.map((item) => CartItemWidget(model: item, readOnly: true,)),
         const SizedBox(height: 16),
         CartCheckoutAmountWidget(
           label: 'Subtotal Amount',
@@ -202,74 +203,8 @@ class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
   }
 }
 
-class CartItemWidget extends StatelessWidget {
-  final CartItemModel model;
-
-  const CartItemWidget({super.key, required this.model});
-
-  Widget _productName() {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(
-          model.productName,
-          maxLines: 2,
-          textAlign: TextAlign.left,
-          overflow: TextOverflow.fade,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-      ),
-    );
-  }
-
-  Text _price() {
-    var subtotal = model.price * model.quantity;
-    return Text(
-      "\$${fomattedPrice(subtotal)}",
-      style: TextStyle(color: AppColors.textGray),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.lightGray), // Add border
-          borderRadius: BorderRadius.circular(8.0), // Add border radius
-        ),
-        margin: const EdgeInsets.only(bottom: 16.0), // Add margin
-        child: ListTile(
-          leading: ListTileImageWidget(
-            imageId: model.imageId,
-          ),
-          title: Row(children: [_productName()]),
-          subtitle: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Text(model.quantity.toString()), // Quantity
-                  const SizedBox(width: 16),
-                  const Text('x'), // Quantity
-                  const SizedBox(width: 16),
-                  Text("\$${fomattedPrice(model.price)}")
-                ],
-              ),
-              const Text("="),
-              _price(),
-            ],
-          ),
-        ));
-  }
-
-  String fomattedPrice(double price) {
-    return NumberFormat("#,##0.00", "en_US").format(price);
-  }
-}
-
 class PlaceOrderButton extends StatelessWidget {
-  const PlaceOrderButton({Key? key});
+  const PlaceOrderButton({super.key});
 
   @override
   Widget build(BuildContext context) {

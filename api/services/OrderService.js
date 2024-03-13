@@ -1,6 +1,7 @@
 const { ProductsModel } = require("../schema");
 const OrderModel = require("../schema/orderSchema");
 const { maskCreditNumber } = require("../util/cardUtils");
+const { convertExpiryToDate } = require("../util/formattingUtils");
 
 const OrderStatus = {
   pending: "pending",
@@ -52,39 +53,26 @@ function getProduct(cartProducts, productId) {
   return product;
 }
 
-const createOrder = async (
-  customerId,
-  cartItems,
-  paymentMethod,
-  cardNumber,
-  deliveryMethod,
-  courier
-) => {
-  const productIds = cartItems.map((cartItem) => cartItem.productId);
+const createOrder = async (customerId, orderRequest) => {
+  const productIds = orderRequest.cartItems.map(
+    (cartItem) => cartItem.productId
+  );
   const cartProducts = await ProductsModel.find({
     _id: { $in: productIds },
   });
-
-  updateProduct(cartItems);
+  const normalizedOrder = normalizeOrderData(orderRequest);
+  updateProduct(normalizedOrder.cartItems);
 
   const order = new OrderModel({
     customerId,
-    cartItems: cartItems.map((item) => ({
-      productId: item.productId,
-      quantity: item.quantity,
-      price: getProductPrice(cartProducts, item.productId),
-    })),
+    cartItems: normalizedOrder.cartItems,
     status: OrderStatus.pending, // Set order status to pending
-    payment: {
-      method: paymentMethod,
-      cardNumber: cardNumber,
-      status: PaymentStatus.pending, // Set payment status to pending
-    },
-    delivery: {
-      method: deliveryMethod,
-      courier: courier,
-      status: DeliveryStatus.pending, // Assuming initial delivery status is pending
-    },
+    payment: normalizedOrder.payment,
+    address: normalizedOrder.address,
+    delivery: normalizedOrder.delivery,
+    subtotal: normalizedOrder.subtotal,
+    tax: normalizedOrder.tax,
+    totalAmount: normalizedOrder.totalAmount,
   });
 
   await order.save();
@@ -92,17 +80,33 @@ const createOrder = async (
   return order;
 };
 
+function normalizeOrderData(orderData) {
+  if (orderData.payment) {
+    orderData.payment.expirationDate = convertExpiryToDate(
+      orderData.payment.expirationDate
+    );
+  }
+
+  if (orderData.address && !orderData.address.country)
+    orderData.address.country = "Canada";
+
+  return orderData;
+}
+
 async function updateProduct(cartItems) {
   cartItems.forEach(async (cartItem) => {
     const product = await ProductsModel.findById(cartItem.productId);
-    if (product.inventory.length > 0) {
+    if (!product) {
+      console.log(`Product id=${cartItem.productId} not found!`);
+    } else if (product.inventory && product.inventory.length > 0) {
       var defaultInventory = product.inventory[0];
       if (defaultInventory.quantity >= cartItem.quantity) {
         defaultInventory.quantity -= cartItem.quantity;
         product.sold_quantity += cartItem.quantity;
       }
+
+      product.save();
     }
-    product.save();
   });
 }
 
@@ -125,6 +129,7 @@ async function getAllOrders(customerId) {
   const maskedOrders = maskCreditNumbersInOrders(orders);
   return maskedOrders;
 }
+
 // Helper function to update order
 async function updateOrder(orderId, updateFields) {
   return await OrderModel.findByIdAndUpdate(
@@ -148,9 +153,12 @@ async function getOrderById(orderId) {
     orderId: order._id,
     customerId: order.customerId,
     cartItems: order.cartItems,
-    status: order.status,
+    subtotal: order.subtotal,
+    tax: order.tax,
     totalAmount: order.totalAmount,
+    status: order.status,
     payment: order.payment,
+    address: order.address,
     delivery: order.delivery,
     createdAt: order.createdAt,
     updatedAt: order.updatedAt,

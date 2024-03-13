@@ -6,13 +6,12 @@ class ListTileImageWidget extends StatelessWidget {
 
   const ListTileImageWidget({super.key, required this.imageId});
 
-  
   String _imageUrl() {
     var imageUrl =
         'https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png';
     if (imageId.isNotEmpty) {
-      imageUrl = EndPoints.getProductImagesByImageId
-          .replaceAll(":imageId", imageId);
+      imageUrl =
+          EndPoints.getProductImagesByImageId.replaceAll(":imageId", imageId);
     }
     return imageUrl;
   }

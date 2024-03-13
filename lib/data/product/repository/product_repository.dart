@@ -7,7 +7,7 @@ import '../model/product_model.dart';
 import '../model/upload_product_model.dart';
 
 abstract class ProductRepository {
-  Future<Either<Failure, List<ProductModel>>> get();
+  Future<Either<Failure, List<ProductModel>>> get(productQueryParams);
   Future<Either<Failure, ResponseUploadProductModel>> add(
       UploadProductModel model);
   Future<Either<Failure, Unit>> update(UploadProductModel model, String id);
@@ -21,10 +21,10 @@ class ProductRepositoryImpl implements ProductRepository {
       {required this.networkInfo, required this.remoteDatasource});
 
   @override
-  Future<Either<Failure, List<ProductModel>>> get() async {
+  Future<Either<Failure, List<ProductModel>>> get(productQueryParams) async {
     if (await networkInfo.isConnected) {
       try {
-        final reposnse = await remoteDatasource.get();
+        final reposnse = await remoteDatasource.get(productQueryParams);
         return Right(reposnse);
       } on ServerException {
         return Left(ServerFailure());
