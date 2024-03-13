@@ -17,7 +17,7 @@ abstract class ProductRemoteDataSource {
   Future<ProductModel> getProductById(id);
   Future<List<ProductModel>> get(queryParams);
   Future<ResponseUploadProductModel> add(UploadProductModel model);
-  Future<Unit> update(UploadProductModel model);
+  Future<Unit> update(UploadProductModel model, String id);
   Future<Unit> delete(String id);
 }
 
@@ -130,10 +130,22 @@ Future<List<ProductModel>> get(productQueryParams) async {
   }
 
   @override
-  Future<Unit> update(UploadProductModel model) async {
-    final response = await apiConsumer.put(EndPoints.createProduct);
+  Future<Unit> update(UploadProductModel model, String id) async {
+    final response = await apiConsumer.put("${EndPoints.createProduct}/$id",
+        body: model.toJson());
     if (response.statusCode == 201 || response.statusCode == 200) {
-      return Future.value(unit);
+      try {
+        final ResponseUploadProductModel decodedJson =
+            ResponseUploadProductModel.fromJson(json.decode(response.data));
+        model.image != null
+            ? await uploadImage(
+                model.image?.path ?? "", decodedJson.productId ?? "")
+            : null;
+
+        return Future.value(unit);
+      } catch (e) {
+        throw const FetchDataException();
+      }
     } else {
       throw const ServerException();
     }
