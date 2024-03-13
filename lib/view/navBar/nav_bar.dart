@@ -117,7 +117,7 @@ class _NavBarState extends State<NavBar> {
         create: (context) => sl<ProfileCubit>()
           ..getProfile(sl<SharedPreferences>().getString("userID")!),
         child: const ProfileDetails(),
-      )
+      ),
     ];
   }
 
