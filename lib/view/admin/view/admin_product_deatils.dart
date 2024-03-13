@@ -81,7 +81,7 @@ class AdminProductDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "Sold Quantity: ${model.soldQuantity}",
+                    "Quantity: ${model.soldQuantity}",
                     style: const TextStyle(fontSize: 16),
                   ),
                   const SizedBox(height: 10),
