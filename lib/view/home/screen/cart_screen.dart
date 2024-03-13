@@ -1,19 +1,17 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
-import 'package:fashion_fusion/core/utils/cart_decorator_utils.dart';
+import 'package:fashion_fusion/core/utils/decorator_utils.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
-import 'package:fashion_fusion/core/widgets/cart_button.dart';
 import 'package:fashion_fusion/data/cart/model/cart_item_model.dart';
 import 'package:fashion_fusion/view/home/screen/checkout_screen.dart';
 import 'package:fashion_fusion/view/home/widget/app_bar.dart';
 import 'package:fashion_fusion/view/widget/cart_item_widget.dart';
 import 'package:fashion_fusion/view/home/widget/empty_list_widget.dart';
-import 'package:fashion_fusion/view/home/widget/list_tile_product_image.dart';
 import 'package:fashion_fusion/view/home/widget/total_amount_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
-import '../../../provider/cart_cubit/cart/cart_cubit.dart';
+import '../../../provider/cart_cubit/cart_cubit.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -149,7 +147,7 @@ class CheckoutButton extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => OrderCheckoutScreen(
+            builder: (context) => CheckoutScreen(
               cartItems: cartItems,
               cartDecorator: cartDecorator,
             ),
