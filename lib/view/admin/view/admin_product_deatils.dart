@@ -9,6 +9,7 @@ import 'package:fashion_fusion/data/product/model/product_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class AdminProductDetailsScreen extends StatelessWidget {
   final ProductModel model;
@@ -91,13 +92,8 @@ class AdminProductDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "Created At: ${model.createdAt}",
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "Updated At: ${model.updatedAt}",
-                    style: const TextStyle(fontSize: 16),
+                    timeago.format(DateTime.parse(model.createdAt.toString())),
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                   20.verticalSpace,
                   CustomButton(
