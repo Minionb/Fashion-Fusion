@@ -10,7 +10,7 @@ abstract class ProductRepository {
   Future<Either<Failure, List<ProductModel>>> get(productQueryParams);
   Future<Either<Failure, ResponseUploadProductModel>> add(
       UploadProductModel model);
-  Future<Either<Failure, Unit>> update(UploadProductModel model);
+  Future<Either<Failure, Unit>> update(UploadProductModel model, String id);
   Future<Either<Failure, Unit>> delete(String id);
 }
 
@@ -49,17 +49,17 @@ class ProductRepositoryImpl implements ProductRepository {
 
   @override
   Future<Either<Failure, Unit>> delete(String id) async {
-
     return await _getMessage(() {
       return remoteDatasource.delete(id);
     });
   }
 
   @override
-  Future<Either<Failure, Unit>> update(UploadProductModel model) async {
+  Future<Either<Failure, Unit>> update(
+      UploadProductModel model, String id) async {
     if (await networkInfo.isConnected) {
       try {
-        final reposnse = await remoteDatasource.update(model);
+        final reposnse = await remoteDatasource.update(model,id);
         return Right(reposnse);
       } on ServerException {
         return Left(ServerFailure());

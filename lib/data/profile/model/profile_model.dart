@@ -77,12 +77,12 @@ class PaymentModel {
   }
 
   static String formatDate(String dateString) {
-  // Parse the input date string
-  DateTime dateTime = DateTime.parse(dateString);
+    // Parse the input date string
+    DateTime dateTime = DateTime.parse(dateString);
 
-  // Format the date to MM/YY format
-  String formattedDate = DateFormat('MM/yyyy').format(dateTime);
+    // Format the date to MM/YY format
+    String formattedDate = DateFormat('MM/yyyy').format(dateTime);
 
-  return formattedDate;
-}
+    return formattedDate;
+  }
 }

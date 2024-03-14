@@ -276,6 +276,7 @@ async function checkout(req, res) {
   try {
     const customerId = req.userId;
     const orderRequest = req.body;
+    
     // Check if cartItems is empty
     if (orderRequest.cartItems.length === 0) {
       return res
@@ -290,7 +291,7 @@ async function checkout(req, res) {
 
     await clearCart(customerId, orderRequest.cartItems);
 
-    res.status(201).json({ message: "Order created successfully", order });
+    res.status(201).json(order);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -298,10 +299,34 @@ async function checkout(req, res) {
 }
 
 // GET /orders
+async function getOrdersByCustomerId(req, res) {
+  try {
+    const customerId = req.params.customerId;
+    const orders = await OrderService.getAllOrders(customerId);
+
+    // Construct separate response objects for orders
+    const responseOrders = orders.map((order) => {
+      return {
+        orderId: order._id,
+        status: order.status,
+        totalAmount: order.totalAmount,
+        paymentMethod: order.payment.method,
+        deliveryMethod: order.delivery.method,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+      };
+    });
+
+    return res.status(200).json(responseOrders);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// GET /orders
 async function getOrders(req, res) {
   try {
-    const customerId = req.userId;
-    const orders = await OrderService.getAllOrders(customerId);
+    const orders = await OrderService.getAllOrders({});
 
     // Construct separate response objects for orders
     const responseOrders = orders.map((order) => {
@@ -522,12 +547,11 @@ class OrderManagementController {
     );
     attachRoute(server, "get", "/cart/items", getCartItems, "any");
 
-    console.log("** Checkout endpoints **");
-    attachRoute(server, "post", "/checkout", checkout, "any");
-
     console.log("** Order endpoints **");
+    attachRoute(server, "post", "/orders/checkout", checkout, "any");
     attachRoute(server, "get", "/orders", getOrders, "any");
     attachRoute(server, "get", "/orders/:id", getOrderById, "any");
+    attachRoute(server, "get", "/:customerId/orders", getOrdersByCustomerId, "any");
     attachRoute(server, "patch", "/orders/:orderId", patchOrder, "any");
     // for testing only
     attachRoute(server, "delete", "/orders", deleteOrders, "any");

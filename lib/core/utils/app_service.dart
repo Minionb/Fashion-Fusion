@@ -21,6 +21,8 @@ import 'package:fashion_fusion/data/favorite/repository/favorite_repository.dart
 import 'package:fashion_fusion/data/favorite/usecase/delete_favorite_usecase.dart';
 import 'package:fashion_fusion/data/favorite/usecase/get_favorite_usecase.dart';
 import 'package:fashion_fusion/data/favorite/usecase/put_favorite_usecase.dart';
+import 'package:fashion_fusion/data/order/datasource/order_remote_datasource.dart';
+import 'package:fashion_fusion/data/order/repository/order_repository.dart';
 import 'package:fashion_fusion/data/product/datasource/product_remote_datasource.dart';
 import 'package:fashion_fusion/data/product/repository/product_repository.dart';
 import 'package:fashion_fusion/data/product/usecase/add_product_usecase.dart';
@@ -41,9 +43,10 @@ import 'package:fashion_fusion/provider/customerCubit/customer_edit/customer_edi
 
 
 
-import 'package:fashion_fusion/provider/cart_cubit/cart/cart_cubit.dart';
+import 'package:fashion_fusion/provider/cart_cubit/cart_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite_edit/favorite_edit_cubit.dart';
+import 'package:fashion_fusion/provider/order_cubit/order_cubit.dart';
 import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
 import 'package:fashion_fusion/provider/product_cubit/product_edit/product_edit_cubit.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
@@ -108,12 +111,17 @@ Future<void> init() async {
 
 // Cart::START
   sl.registerFactory(() => CartCubit(repository: sl()));
+  sl.registerFactory(() => OrderCubit(repository: sl()));
 
   sl.registerLazySingleton<CartRepository>(
       () => CartRepositoryImpl(networkInfo: sl(), remoteDatasource: sl()));
-
   sl.registerLazySingleton<CartRemoteDataSource>(
       () => CartRemoteDataSourceImpl(apiConsumer: sl()));
+
+  sl.registerLazySingleton<OrderRepository>(
+      () => OrderRepositoryImpl(networkInfo: sl(), remoteDatasource: sl()));
+  sl.registerLazySingleton<OrderRemoteDataSource>(
+      () => OrderRemoteDataSourceImpl(apiConsumer: sl()));
 
 // Cart::END
 

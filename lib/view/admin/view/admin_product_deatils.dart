@@ -1,6 +1,12 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
+import 'package:fashion_fusion/core/utils/app_service.dart';
+import 'package:fashion_fusion/core/utils/navigator_extension.dart';
+import 'package:fashion_fusion/core/widgets/custom_button.dart';
+import 'package:fashion_fusion/provider/product_cubit/product_edit/product_edit_cubit.dart';
+import 'package:fashion_fusion/view/admin/view/admin_edit_product.dart';
 import 'package:flutter/material.dart';
 import 'package:fashion_fusion/data/product/model/product_model.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -29,22 +35,27 @@ class AdminProductDetailsScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        'H&M',
-                        style: TextStyle(
-                          color: const Color(0xFF222222),
-                          fontSize: 22.sp,
-                          fontWeight: FontWeight.w600,
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          model.productName ?? "",
+                          style: TextStyle(
+                            color: const Color(0xFF222222),
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                       const Spacer(),
-                      Text(
-                        '\$${model.price}',
-                        textAlign: TextAlign.right,
-                        style: const TextStyle(
-                          color: Color(0xFF222222),
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600,
+                      Expanded(
+                        child: Text(
+                          '\$${model.price}',
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                            color: const Color(0xFF222222),
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       )
                     ],
@@ -70,7 +81,7 @@ class AdminProductDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "Sold Quantity: ${model.soldQuantity}",
+                    "Quantity: ${model.soldQuantity}",
                     style: const TextStyle(fontSize: 16),
                   ),
                   const SizedBox(height: 10),
@@ -88,6 +99,18 @@ class AdminProductDetailsScreen extends StatelessWidget {
                     "Updated At: ${model.updatedAt}",
                     style: const TextStyle(fontSize: 16),
                   ),
+                  20.verticalSpace,
+                  CustomButton(
+                    label: "Edit Product",
+                    bg: Colors.red,
+                    onPressed: () {
+                      context.push(BlocProvider(
+                        create: (context) => sl<ProductEditCubit>(),
+                        child: AdminEditProductScreen(model: model),
+                      ));
+                    },
+                  ),
+                  50.verticalSpace,
                 ],
               ),
             ),

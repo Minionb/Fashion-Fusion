@@ -24,9 +24,9 @@ class ProfileEditCubit extends Cubit<ProfileEditState> {
         (r) =>ProfileEditSuccessState()));
   }
 
-  void updateProfile(UploadProfileModel model) async {
+  void updateProfile(UploadProfileModel model, String userID) async {
     emit(ProfileEditIsLoadingState());
-    final response = await update(model);
+    final response = await update(model, userID);
     emit(response.fold(
         (l) => ProfileEditErrorState(message: HelperMethod.mapFailureToMsg(l)),
         (r) =>ProfileEditSuccessState()));

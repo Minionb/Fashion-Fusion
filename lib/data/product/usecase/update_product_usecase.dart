@@ -6,7 +6,7 @@ import '../repository/product_repository.dart';
 class UpdateProductUsecase {
   final ProductRepository repository;
   UpdateProductUsecase({required this.repository});
-  Future<Either<Failure, Unit>> call(UploadProductModel model) async {
-    return await repository.update(model);
+  Future<Either<Failure, Unit>> call(UploadProductModel model,String id) async {
+    return await repository.update(model,id);
   }
 }

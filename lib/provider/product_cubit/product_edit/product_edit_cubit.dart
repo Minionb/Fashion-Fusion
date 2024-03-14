@@ -23,9 +23,9 @@ class ProductEditCubit extends Cubit<ProductEditState> {
         (r) => ProductEditSuccessState()));
   }
 
-  void updateProduct(UploadProductModel model) async {
+  void updateProduct(UploadProductModel model,String id ) async {
     emit(ProductEditIsLoadingState());
-    final response = await update(model);
+    final response = await update(model,id);
     emit(response.fold(
         (l) => ProductEditErrorState(message: HelperMethod.mapFailureToMsg(l)),
         (r) => ProductEditSuccessState()));
