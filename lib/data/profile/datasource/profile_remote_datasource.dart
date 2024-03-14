@@ -12,7 +12,7 @@ import '../model/upload_profile_model.dart';
 abstract class ProfileRemoteDataSource {
   Future<ProfileModel> get(String userID);
   Future<ResponseUploadProfileModel> add(UploadProfileModel model);
-  Future<Unit> update(UploadProfileModel model);
+  Future<Unit> update(UploadProfileModel model, String userID);
   Future<Unit> delete(int id);
 }
 
@@ -58,7 +58,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   @override
   Future<Unit> delete(int id) async{
   final response = await apiConsumer
-        .delete(EndPoints.profile);
+        .delete(EndPoints.profile + id.toString());
     if (response.statusCode == 201 || response.statusCode == 200) {
       return Future.value(unit);
     } else {
@@ -67,9 +67,9 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   }
 
   @override
-  Future<Unit> update(UploadProfileModel model) async{
+  Future<Unit> update(UploadProfileModel model, String userID) async{
   final response = await apiConsumer
-        .put(EndPoints.profile);
+        .put(EndPoints.profile + userID, body: model.toJson());
     if (response.statusCode == 201 || response.statusCode == 200) {
       return Future.value(unit);
     } else {

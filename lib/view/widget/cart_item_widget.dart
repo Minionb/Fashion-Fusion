@@ -17,7 +17,7 @@ class CartItemWidget extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
         child: Text(
-          model.productName,
+          model.productName?? '',
           maxLines: 2,
           textAlign: TextAlign.left,
           overflow: TextOverflow.fade,
@@ -28,7 +28,7 @@ class CartItemWidget extends StatelessWidget {
   }
 
   Text _price() {
-    var subtotal = model.price * model.quantity;
+    var subtotal = model.price! * model.quantity!;
     return Text(
       "\$${fomattedPrice(subtotal)}",
       style: TextStyle(color: AppColors.textGray),
@@ -46,7 +46,7 @@ class CartItemWidget extends StatelessWidget {
         ),
         child: ListTile(
           leading: ListTileImageWidget(
-            imageId: model.imageId,
+            imageId: model.imageId??'',
           ),
           title: Row(children: [_productName()]),
           subtitle: _buildSubtitle(),
@@ -76,15 +76,15 @@ class CartItemWidget extends StatelessWidget {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Row(children: [
             RemoveCartButton(
-                productId: model.productId, animateCondition: () => false),
+                productId: model.productId??'', animateCondition: () => false),
             const SizedBox(width: 16),
             Text(model.quantity.toString()),
             const SizedBox(width: 16),
             AddCartButton(
-                productId: model.productId, animateCondition: () => false)
+                productId: model.productId??'', animateCondition: () => false)
           ]),
           const Text('x'), // Quantity
-          Text("\$${fomattedPrice(model.price)}")
+          Text("\$${fomattedPrice(model.price??0.0)}")
         ]);
   }
 
@@ -94,7 +94,7 @@ class CartItemWidget extends StatelessWidget {
           const SizedBox(width: 16),
           const Text('x'), // Quantity
           const SizedBox(width: 16),
-          Text("\$${fomattedPrice(model.price)}")
+          Text("\$${fomattedPrice(model.price??0.0)}")
         ]);
   }
 

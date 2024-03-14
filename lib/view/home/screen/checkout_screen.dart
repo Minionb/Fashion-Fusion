@@ -1,39 +1,42 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
-import 'package:fashion_fusion/core/utils/cart_decorator_utils.dart';
+import 'package:fashion_fusion/core/utils/decorator_utils.dart';
+import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/data/cart/model/cart_item_model.dart';
 import 'package:fashion_fusion/data/customer/model/customer_model.dart';
-import 'package:fashion_fusion/provider/cart_cubit/cart/cart_cubit.dart';
+import 'package:fashion_fusion/data/order/model/order_model.dart';
 import 'package:fashion_fusion/provider/customerCubit/customer/customer_cubit.dart';
+import 'package:fashion_fusion/view/home/screen/order_screen.dart';
 import 'package:fashion_fusion/view/widget/cart_item_widget.dart';
-import 'package:fashion_fusion/view/home/widget/list_tile_product_image.dart';
 import 'package:fashion_fusion/view/home/widget/total_amount_widget.dart';
 import 'package:fashion_fusion/view/widget/address_card_widget.dart';
 import 'package:fashion_fusion/view/widget/payment_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toastification/toastification.dart';
 
-class OrderCheckoutScreen extends StatefulWidget {
+class CheckoutScreen extends StatefulWidget {
   final List<CartItemModel> cartItems;
   final CartDecorator cartDecorator;
 
-  const OrderCheckoutScreen({
-    Key? key,
-    required this.cartItems,
-    required this.cartDecorator,
-  }) : super(key: key);
+  const CheckoutScreen(
+      {super.key, required this.cartItems, required this.cartDecorator});
 
   @override
   State<StatefulWidget> createState() {
-    return _OrderCheckoutScreenState();
+    return _CheckoutScreenState(cartItems: cartItems);
   }
 }
 
-class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
-  int selectedAddressIndex = 0;
-  int selectedPaymentIndex = 0;
+class _CheckoutScreenState extends State<CheckoutScreen> {
+  int selectedAddressIndex = -1;
+  int selectedPaymentIndex = -1;
+  List<CartItemModel> cartItems;
+  late List<Payments> payments;
+  late List<Address> addresses;
+
+  _CheckoutScreenState({required this.cartItems});
 
   @override
   Widget build(BuildContext context) {
@@ -64,13 +67,14 @@ class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
               _buildPaymentOptionsSection(),
               _buildShippingDetailsSection(),
               const SizedBox(height: 30),
-              const PlaceOrderButton(),
+              PlaceOrderButton(onPressed: () => {checkout(context)}),
             ],
           ),
         ),
       ),
     );
   }
+
   Widget _buildOrderSummarySection() {
     return _buildSection(
       title: 'Order Summary',
@@ -116,7 +120,10 @@ class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        ...widget.cartItems.map((item) => CartItemWidget(model: item, readOnly: true,)),
+        ...widget.cartItems.map((item) => CartItemWidget(
+              model: item,
+              readOnly: true,
+            )),
         const SizedBox(height: 16),
         CartCheckoutAmountWidget(
           label: 'Subtotal Amount',
@@ -125,7 +132,7 @@ class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
         const SizedBox(height: 16),
         CartCheckoutAmountWidget(
           label: 'GST/HST',
-          value: widget.cartDecorator.getFormattedGstAmount(),
+          value: widget.cartDecorator.getFormattedTaxAmount(),
         ),
         const SizedBox(height: 16),
         CartCheckoutAmountWidget(
@@ -142,13 +149,17 @@ class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
     return BlocBuilder<CustomerCubit, CustomerState>(
       builder: (context, state) {
         if (state is GetCustomerByIdLoadedState) {
+          payments = state.model.payments ?? [];
+          if (selectedPaymentIndex < 0) {
+            selectedPaymentIndex = 0;
+          }
           // Render UI with stored payments
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (int i = 0; i < (state.model.payments?.length ?? 0); i++)
+              for (int i = 0; i < (payments.length); i++)
                 PaymentWidget(
-                  model: state.model.payments![i],
+                  model: payments[i],
                   isSelected: i ==
                       selectedPaymentIndex, // Check if this address is selected
                   onTap: () {
@@ -168,7 +179,7 @@ class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
   }
 
   void onAddressTap(int index) {
-    setState(() {      
+    setState(() {
       selectedAddressIndex = index; // Update selected index on tap
     });
   }
@@ -177,7 +188,11 @@ class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
     return BlocBuilder<CustomerCubit, CustomerState>(
       builder: (context, state) {
         if (state is GetCustomerByIdLoadedState) {
-          var addressWidgets = buildAddressWidgets(state.model.addresses ?? []);
+          addresses = state.model.addresses ?? [];
+          if (selectedAddressIndex < 0) {
+            selectedAddressIndex = 0;
+          }
+          var addressWidgets = buildAddressWidgets(addresses);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: addressWidgets,
@@ -201,10 +216,60 @@ class _OrderCheckoutScreenState extends State<OrderCheckoutScreen> {
         ),
     ];
   }
+
+  void checkout(BuildContext context) {
+    if (selectedAddressIndex < 0 || selectedPaymentIndex < 0) {
+      HelperMethod.showToast(context,
+          type: ToastificationType.error,
+          title: const Text('Payment and Address must be selected'));
+      return;
+    }
+    var cartDecorator = widget.cartDecorator;
+    final orderModel = OrderModel(
+        cartItems: widget.cartItems,
+        payment: payments[selectedPaymentIndex],
+        address: addresses[selectedAddressIndex],
+        delivery:
+            Delivery(method: "delivery", courier: "Canada Post"), // default
+        subtotal: cartDecorator.getSubTotalAmount(),
+        tax: cartDecorator.getTaxAmount(),
+        totalAmount: cartDecorator.getTotalAmount());
+
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OrderScreen(
+          orderModel: orderModel,
+        ),
+      ),
+    );
+  }
 }
 
-class PlaceOrderButton extends StatelessWidget {
-  const PlaceOrderButton({super.key});
+class PlaceOrderButton extends StatefulWidget {
+  final VoidCallback? onPressed;
+
+  const PlaceOrderButton({super.key, required this.onPressed});
+
+  @override
+  State<PlaceOrderButton> createState() => _PlaceOrderButtonState();
+}
+
+class _PlaceOrderButtonState extends State<PlaceOrderButton> {
+  @override
+  void initState() {
+    super.initState();
+    onPressed = widget.onPressed;
+  }
+
+  @override
+  void didUpdateWidget(PlaceOrderButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    onPressed = widget.onPressed;
+  }
+
+  VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -212,9 +277,7 @@ class PlaceOrderButton extends StatelessWidget {
       children: [
         Expanded(
           child: ElevatedButton(
-            onPressed: () {
-              // TODO: Add functionality for placing order
-            },
+            onPressed: onPressed,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary, // Set button color
               textStyle: const TextStyle(fontSize: 18), // Set text style
