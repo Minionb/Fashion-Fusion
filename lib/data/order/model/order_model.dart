@@ -42,8 +42,6 @@ class OrderModel {
       'payment': payment?.toJson(),
       'address': address?.toJson(),
       'delivery': delivery?.toJson(),
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
     };
   }
 
@@ -52,7 +50,7 @@ class OrderModel {
     List<CartItemModel>? cartItems =
         cartItemsJson?.map((item) => CartItemModel.fromJson(item)).toList();
     return OrderModel(
-      orderId: json['orderId'],
+      orderId: json['_id'],
       customerId: json['customerId'],
       cartItems: cartItems,
       subtotal: json['subtotal']?.toDouble(),

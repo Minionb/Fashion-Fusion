@@ -276,6 +276,7 @@ async function checkout(req, res) {
   try {
     const customerId = req.userId;
     const orderRequest = req.body;
+    
     // Check if cartItems is empty
     if (orderRequest.cartItems.length === 0) {
       return res

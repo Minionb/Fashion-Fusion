@@ -10,8 +10,9 @@ class CartDecorator {
 
   double getSubTotalAmount() {
     double totalAmount = 0.0;
+    //i changed this to include null-aware operator
     for (var item in cartItems) {
-      totalAmount += (item.price) * item.quantity;
+      totalAmount += (item.price ?? 0) * (item.quantity ?? 0);
     }
     return totalAmount;
   }
@@ -59,5 +60,9 @@ class OrderModelDecorator{
 class AppFormatter {
   static String getFormattedAmount(double amount) {
     return NumberFormat("#,##0.00", "en_US").format(amount);
+  }
+  static String formatDateDisplay(String originalDateString){
+    DateTime originalDate = DateTime.parse(originalDateString);
+    return DateFormat('MMM dd, yyyy').format(originalDate);
   }
 }
