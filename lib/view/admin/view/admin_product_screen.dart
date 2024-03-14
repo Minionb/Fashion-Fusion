@@ -9,11 +9,10 @@ import 'package:fashion_fusion/view/admin/widget/admin_product_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminProductScreen extends StatelessWidget {
   AdminProductScreen({super.key});
-   Map<String, String> productQueryParams = {};
+  Map<String, String> productQueryParams = {};
   @override
   Widget build(BuildContext context) {
     return HelperMethod.loader(
