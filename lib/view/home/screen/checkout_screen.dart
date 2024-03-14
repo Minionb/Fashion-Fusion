@@ -25,15 +25,19 @@ class CheckoutScreen extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return _CheckoutScreenState();
+    return _CheckoutScreenState(cartItems: cartItems);
   }
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   int selectedAddressIndex = -1;
   int selectedPaymentIndex = -1;
+  List<CartItemModel> cartItems;
   late List<Payments> payments;
   late List<Address> addresses;
+
+  _CheckoutScreenState({required this.cartItems});
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -225,10 +229,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         cartItems: widget.cartItems,
         payment: payments[selectedPaymentIndex],
         address: addresses[selectedAddressIndex],
-        delivery: Delivery(method: "delivery", courier: "Canada Post"), // default
+        delivery:
+            Delivery(method: "delivery", courier: "Canada Post"), // default
         subtotal: cartDecorator.getSubTotalAmount(),
         tax: cartDecorator.getTaxAmount(),
         totalAmount: cartDecorator.getTotalAmount());
+
+    Navigator.pop(context);
     Navigator.push(
       context,
       MaterialPageRoute(

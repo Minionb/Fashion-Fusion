@@ -88,8 +88,12 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   ListView _buildShoppingCartItems() {
-    List<CartItemWidget> cartItemWidgets =
-        cartItems.map((item) => CartItemWidget(model: item, readOnly: false,)).toList();
+    List<CartItemWidget> cartItemWidgets = cartItems
+        .map((item) => CartItemWidget(
+              model: item,
+              readOnly: false,
+            ))
+        .toList();
     return ListView(
       children: [
         ...cartItemWidgets,

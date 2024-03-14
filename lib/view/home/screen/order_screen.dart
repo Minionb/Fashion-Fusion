@@ -4,7 +4,6 @@ import 'package:fashion_fusion/core/utils/decorator_utils.dart';
 import 'package:fashion_fusion/data/order/model/order_model.dart';
 import 'package:fashion_fusion/provider/order_cubit/order_cubit.dart';
 import 'package:fashion_fusion/view/widget/cart_item_widget.dart';
-import 'package:fashion_fusion/view/home/widget/total_amount_widget.dart';
 import 'package:fashion_fusion/view/widget/address_card_widget.dart';
 import 'package:fashion_fusion/view/widget/payment_card_widget.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +47,7 @@ class _OrderScreenState extends State<OrderScreen> {
               return Scaffold(
                 appBar: AppBar(
                   title: Text(
-                    "Order Id ${orderModel.orderId!.substring(0, 5)}",
+                    "Order ${orderModel.orderId!.substring(0, 10).toUpperCase()}",
                     textAlign: TextAlign.left,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
@@ -141,11 +140,6 @@ class _OrderScreenState extends State<OrderScreen> {
               model: item,
               readOnly: true,
             )),
-        CartCheckoutAmountWidget(
-          label: 'Subtotal Amount',
-          value: widget.orderDecorator.getFormattedSubtotalAmount(),
-        ),
-        const SizedBox(height: 16),
       ],
     );
   }
@@ -202,7 +196,11 @@ class OrderSummaryWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _label("Order Date"),
+                      const SizedBox(height: 16.0),
                       _label("Order Total"),
+                      _label("GST/HST"),
+                      _label("Subtotal"),
+                      const SizedBox(height: 16.0),
                       _label("Shipping Method"),
                       _label("Courier"),
                     ],
@@ -212,8 +210,13 @@ class OrderSummaryWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _text(AppFormatter.formatDateDisplay(model.createdAt!)),
+                      const SizedBox(height: 16.0),
                       _text(
-                          '${AppFormatter.getFormattedAmount(model.totalAmount!)} (${getItemCount()} items)'),
+                          '\$${AppFormatter.getFormattedAmount(model.totalAmount!)} (${getItemCount()} items)'),
+                      _text('\$${AppFormatter.getFormattedAmount(model.tax!)}'),
+                      _text(
+                          '\$${AppFormatter.getFormattedAmount(model.subtotal!)}'),
+                      const SizedBox(height: 16.0),
                       _text(model.delivery?.method ?? "Delivery"),
                       _text(model.delivery?.courier ?? "No specified"),
                     ],
