@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../provider/cart_cubit/cart/cart_cubit.dart';
+import '../../provider/cart_cubit/cart_cubit.dart';
 
 abstract class CartButton extends StatefulWidget {
   final bool isDark;

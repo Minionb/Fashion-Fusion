@@ -39,8 +39,9 @@ class EndPoints {
   static const String deleteCartItemsById = '$cartResourcePath/:productId';
 
   // Orders
-  static const String postCheckout = '$baseUrl/checkout';
+  static const String postOrdersCheckout = '$baseUrl/orders/checkout';
   static const String orderResourcePath = '$baseUrl/orders';
+  static const String getOrdersByCustomerId = orderResourcePath;
   static const String getOrdersById = '$orderResourcePath/:orderId';
   static const String patchOrdersById = '$orderResourcePath/:orderId';
 
