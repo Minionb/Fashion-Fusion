@@ -125,9 +125,29 @@ function maskCreditNumbersInOrder(order) {
 }
 
 async function getAllOrders(customerId) {
-  const orders = await OrderModel.find({ customerId });
+  const orders = await OrderModel.find({ customerId }).sort({ createdAt: -1 });
+
   const maskedOrders = maskCreditNumbersInOrders(orders);
+
+  for (const order of maskedOrders) {
+    var newCartItems = await getCartProducts(order.cartItems);
+    order.cartItems = newCartItems;
+  }
+  
   return maskedOrders;
+}
+
+async function getCartProducts(cartItems) {
+  const productIds = cartItems.map((cartItem) => cartItem.productId);
+  const cartProducts = await ProductsModel.find({
+    _id: { $in: productIds },
+  });
+  cartItems.forEach( (cartItem) =>{
+    var product = getProduct(cartProducts, cartItem.productId);
+    if(product)
+      cartItem.productName = product.product_name;
+  });
+  return cartItems;
 }
 
 // Helper function to update order
