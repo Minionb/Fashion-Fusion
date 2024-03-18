@@ -127,7 +127,7 @@ function maskCreditNumbersInOrder(order) {
 async function getAllOrders(customerId) {
   const orders = await OrderModel.find({ customerId }).sort({ createdAt: -1 });
 
-  const maskedOrders = maskCreditNumbersInOrders(orders.toObject());
+  const maskedOrders = maskCreditNumbersInOrders(orders);
 
   for (const order of maskedOrders) {
     var newCartItems = await getCartProducts(order.cartItems);

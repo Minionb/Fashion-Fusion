@@ -128,7 +128,7 @@ class OrderListElementWidget extends StatelessWidget {
                   status: model.status!),
               createKeyValRow("Order Total",
                   '\$${AppFormatter.getFormattedAmount(model.totalAmount!)}'),
-              _label('Items (${model.cartItems!.length}):'),
+              _label('Items (${getItemCount()}):'),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: getCartItems(),
@@ -137,6 +137,13 @@ class OrderListElementWidget extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+  
+  int getItemCount() {
+    return model.cartItems!.fold<int>(
+      0,
+      (previousValue, element) => previousValue + element.quantity!,
     );
   }
 
