@@ -41,11 +41,16 @@ class EndPoints {
   // Orders
   static const String postOrdersCheckout = '$baseUrl/orders/checkout';
   static const String orderResourcePath = '$baseUrl/orders';
-  static const String getOrdersByCustomerId = orderResourcePath;
-  static const String getOrdersById = '$orderResourcePath/:orderId';
-  static const String patchOrdersById = '$orderResourcePath/:orderId';
+  static const String getOrdersById = '$orderResourcePath/${PathParameters.orderId}';
+  static const String patchOrdersById = '$orderResourcePath/${PathParameters.orderId}';
+  static const String getOrdersByCustomerId = '$baseUrl/${PathParameters.customerId}/orders';
 
   // Customers
   static const String customer = '$baseUrl/customers';
   static const String getCustomerById = '$customer/:customerId';
+}
+
+class PathParameters{
+  static const String customerId = ':customerId';
+  static const String orderId = ':orderId';
 }

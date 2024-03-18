@@ -133,7 +133,7 @@ async function getAllOrders(customerId) {
     var newCartItems = await getCartProducts(order.cartItems);
     order.cartItems = newCartItems;
   }
-  
+
   return maskedOrders;
 }
 
@@ -142,10 +142,9 @@ async function getCartProducts(cartItems) {
   const cartProducts = await ProductsModel.find({
     _id: { $in: productIds },
   });
-  cartItems.forEach( (cartItem) =>{
+  cartItems.forEach((cartItem) => {
     var product = getProduct(cartProducts, cartItem.productId);
-    if(product)
-      cartItem.productName = product.product_name;
+    if (product) cartItem.productName = product.product_name;
   });
   return cartItems;
 }
@@ -168,35 +167,18 @@ async function getOrderById(orderId) {
   const cartProducts = await ProductsModel.find({
     _id: { $in: productIds },
   });
-  // Construct a separate response object for the order
-  const responseOrder = {
-    orderId: order._id,
-    customerId: order.customerId,
-    cartItems: order.cartItems,
-    subtotal: order.subtotal,
-    tax: order.tax,
-    totalAmount: order.totalAmount,
-    status: order.status,
-    payment: order.payment,
-    address: order.address,
-    delivery: order.delivery,
-    createdAt: order.createdAt,
-    updatedAt: order.updatedAt,
-    // Add any other properties you want to include in the response
-  };
 
-  const maskedOrders = maskCreditNumbersInOrder(responseOrder);
-
-  const responseCartItems = cartItems.map((cartItem) => {
-    const product = OrderService.getProduct(cartProducts, cartItem.productId);
-    return {
-      productId: cartItem.productId,
-      quantity: cartItem.quantity,
-      price: product ? product.price : null,
-      productName: product ? product.product_name : null,
-    };
-  });
-  maskedOrders.cartItems = responseCartItems;
+  const maskedOrders = maskCreditNumbersInOrder(order);
+  for (const cartItem of maskedOrders.cartItems) {
+    const product = await OrderService.getProduct(cartProducts, cartItem.productId);
+    if (product) {
+      cartItem.price = product.price;
+      cartItem.productName = product.product_name;
+      if (product.images && product.images.length > 0) {
+        cartItem.imageId = product.images[0];
+      }
+    }
+  }
   return maskedOrders;
 }
 

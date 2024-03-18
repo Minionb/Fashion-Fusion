@@ -18,8 +18,10 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String imageUrl =
-        "http://127.0.0.1:3000/products/images/${model.images![0]}";
+    String imageUrl = '';
+    if (model.images != null) {
+      imageUrl = "http://127.0.0.1:3000/products/images/${model.images![0]}";
+    }
 
     return Container(
       decoration: const BoxDecoration(),

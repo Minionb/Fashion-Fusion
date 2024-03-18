@@ -61,6 +61,9 @@ class AppFormatter {
   static String getFormattedAmount(double amount) {
     return NumberFormat("#,##0.00", "en_US").format(amount);
   }
+  static String formatOrderId(String orderId){
+    return orderId.substring(0, 10).toUpperCase();
+  }
   static String formatDateDisplay(String originalDateString){
     DateTime originalDate = DateTime.parse(originalDateString);
     return DateFormat('MMM dd, yyyy').format(originalDate);

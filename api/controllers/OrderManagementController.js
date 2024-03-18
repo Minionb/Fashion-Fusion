@@ -371,23 +371,12 @@ async function getOrderById(req, res) {
   }
 }
 
-// Helper function to construct update fields
-function constructUpdateFields(orderStatus, payment, delivery) {
-  const updateFields = {};
-  if (orderStatus) updateFields["status"] = orderStatus;
-  // If payment or delivery details are provided in the request body, update them
-  if (payment) updateFields["payment"] = payment;
-  if (delivery) updateFields["delivery"] = delivery;
-  return updateFields;
-}
 // PATCH /orders/:orderId
 async function patchOrder(req, res) {
   try {
     const orderId = req.params.orderId;
-    const { orderStatus, payment, delivery } = req.body;
 
-    const updateFields = constructUpdateFields(orderStatus, payment, delivery);
-
+    const updateFields =  req.body;
     const updatedOrder = await OrderService.updateOrder(orderId, updateFields);
 
     if (!updatedOrder)
