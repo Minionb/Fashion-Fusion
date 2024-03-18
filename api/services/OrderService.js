@@ -76,8 +76,8 @@ const createOrder = async (customerId, orderRequest) => {
   });
 
   await order.save();
-
-  return order;
+  
+  return getOrderById(order._id.toString());
 };
 
 function normalizeOrderData(orderData) {
@@ -127,7 +127,7 @@ function maskCreditNumbersInOrder(order) {
 async function getAllOrders(customerId) {
   const orders = await OrderModel.find({ customerId }).sort({ createdAt: -1 });
 
-  const maskedOrders = maskCreditNumbersInOrders(orders);
+  const maskedOrders = maskCreditNumbersInOrders(orders.toObject());
 
   for (const order of maskedOrders) {
     var newCartItems = await getCartProducts(order.cartItems);
@@ -168,11 +168,11 @@ async function getOrderById(orderId) {
     _id: { $in: productIds },
   });
 
-  const maskedOrders = maskCreditNumbersInOrder(order);
-  for (const cartItem of maskedOrders.cartItems) {
+  const maskedOrders = maskCreditNumbersInOrder(order.toObject());
+  const newCartItems = [];
+  for (var cartItem of maskedOrders.cartItems) {
     const product = await OrderService.getProduct(cartProducts, cartItem.productId);
     if (product) {
-      cartItem.price = product.price;
       cartItem.productName = product.product_name;
       if (product.images && product.images.length > 0) {
         cartItem.imageId = product.images[0];
