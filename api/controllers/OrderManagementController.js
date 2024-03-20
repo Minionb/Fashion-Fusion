@@ -299,7 +299,7 @@ async function checkout(req, res) {
 async function getOrdersByCustomerId(req, res) {
   try {
     const customerId = req.params.customerId;
-    const orders = await OrderService.getAllOrders(customerId);
+    const orders = await OrderService.getAllOrders(customerId, -1);
 
     // Construct separate response objects for orders
     const responseOrders = orders.map((order) => {
@@ -329,7 +329,7 @@ async function getOrdersByCustomerId(req, res) {
 // GET /orders
 async function getOrders(req, res) {
   try {
-    const orders = await OrderService.getAllOrders({});
+    const orders = await OrderService.getAllOrders(null, 1);
 
     // Construct separate response objects for orders
     const responseOrders = orders.map((order) => {

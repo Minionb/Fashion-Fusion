@@ -124,8 +124,13 @@ function maskCreditNumbersInOrder(order) {
   return order;
 }
 
-async function getAllOrders(customerId) {
-  const orders = await OrderModel.find({ customerId }).sort({ createdAt: -1 });
+async function getCustomerOrders(customerId, createDateSort) {
+  var orders = [];
+  var createDateSortVal = createDateSort? createDateSort: -1
+  if(customerId)
+    orders = await OrderModel.find({ customerId }).sort({ createdAt: createDateSortVal });
+  else 
+    orders = await OrderModel.find().sort({ createdAt: createDateSortVal});
 
   const maskedOrders = maskCreditNumbersInOrders(orders);
 
@@ -184,7 +189,7 @@ async function getOrderById(orderId) {
 
 const OrderService = {
   createOrder: createOrder,
-  getAllOrders: getAllOrders,
+  getAllOrders: getCustomerOrders,
   getOrderById: getOrderById,
   updateOrder: updateOrder,
   getProductPrice: getProductPrice,
