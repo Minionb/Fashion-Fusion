@@ -48,7 +48,7 @@ class AppRoutes {
                 ));
       case Routes.forgetPassword:
         return MaterialPageRoute(
-            builder: (context) => const ForgetPasswordScreen());
+            builder: (context) => (const ForgetPasswordScreen()));
       case Routes.mainScren:
         return MaterialPageRoute(builder: (context) => const NavBar());
       case Routes.login:
