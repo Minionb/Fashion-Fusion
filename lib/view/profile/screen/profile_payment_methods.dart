@@ -1,14 +1,10 @@
 import 'package:fashion_fusion/core/utils/helper_method.dart';
-import 'package:fashion_fusion/data/customer/model/customer_model.dart';
 import 'package:fashion_fusion/data/profile/model/profile_model.dart';
-import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile_edit/profile_edit_cubit.dart';
-import 'package:fashion_fusion/view/profile/add_payment_method.dart';
+import 'package:fashion_fusion/view/profile/screen/add_payment_method.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:loader_overlay/loader_overlay.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
 
 // class ProfilePaymentMethods extends StatefulWidget {
@@ -62,7 +58,7 @@ class ProfilePaymentMethods extends StatelessWidget {
                   itemCount: paymentMethodsList.length,
                   itemBuilder: (context, index) {
                     return Padding(
-                      padding: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
                       child: PaymentOptionsCard(paymentMethod: paymentMethodsList[index])
                     );
                   }
@@ -109,16 +105,17 @@ class PaymentOptionsCard extends StatelessWidget {
       ),
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             Text(paymentMethod.method),
-            SizedBox(height: 8.0),
+            //const SizedBox(height: 8.0),
+            8.verticalSpace,
             FittedBox(
               fit: BoxFit.scaleDown,
-              child: Text("**** **** **** ${paymentMethod.cardNumber!.substring(paymentMethod.cardNumber!.length - 4)}",
+              child: Text("**** **** **** ${paymentMethod.cardNumber.substring(paymentMethod.cardNumber.length - 4)}",
                 style: const TextStyle(
                   fontSize: 24.0,
                   letterSpacing: 4.0,
@@ -126,21 +123,21 @@ class PaymentOptionsCard extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Card Holder Name",
+                    const Text("Card Holder Name",
                       style: TextStyle(
                         fontSize: 12.0,
                         fontWeight: FontWeight.bold
                       ),
                     ),
                     Text(paymentMethod.name,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16.0,
                         fontWeight: FontWeight.bold
                       ),
@@ -150,14 +147,14 @@ class PaymentOptionsCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Expiry Date",
+                    const Text("Expiry Date",
                       style: TextStyle(
                         fontSize: 12.0,
                         fontWeight: FontWeight.bold
                       ),
                     ),
                     Text(paymentMethod.expirationDate,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16.0,
                         fontWeight: FontWeight.bold
                       ),
@@ -174,7 +171,6 @@ class PaymentOptionsCard extends StatelessWidget {
 }
 
 void toAddPaymentMethod(BuildContext context, List<PaymentModel> paymentMethodsList) async {
-  //Navigator.of(context).push(route)
 
   // Navigator.pushReplacement(
   //     context, MaterialPageRoute(builder: (context) => AddPaymentMethod(curPayments: paymentMethodsList)));

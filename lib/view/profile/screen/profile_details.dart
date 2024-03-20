@@ -1,16 +1,20 @@
 import 'package:fashion_fusion/core/utils/helper_method.dart';
-import 'package:fashion_fusion/data/customer/model/customer_model.dart';
 import 'package:fashion_fusion/data/profile/model/profile_model.dart';
+import 'package:fashion_fusion/provider/auth/auth_cubit.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
+import 'package:fashion_fusion/provider/profile_cubit/profile_edit/profile_edit_cubit.dart';
 import 'package:fashion_fusion/view/auth/screen/welcome_screen.dart';
+import 'package:fashion_fusion/view/customer_service/screen/customer_service_screen.dart';
+import 'package:fashion_fusion/view/home/widget/app_bar.dart';
+import 'package:fashion_fusion/view/profile/screen/profile_addresses_screen.dart';
+import 'package:fashion_fusion/view/profile/screen/profile_orders_screen.dart';
 import 'package:fashion_fusion/view/profile/screen/customer_order_list.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_payment_methods.dart';
+import 'package:fashion_fusion/view/profile/screen/profile_settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
-import 'package:toastification/toastification.dart';
 
 class ProfileDetails extends StatefulWidget {
   const ProfileDetails({super.key});
@@ -20,105 +24,122 @@ class ProfileDetails extends StatefulWidget {
 }
 
 class _ProfileDetails extends State<ProfileDetails> {
-  final profileFirstName = "";
-  final profileLastName = "";
-  var profile;
+  late ProfileModel profile;
+
+  Future<void> _fetchProfile() async {
+    setState(() {
+      context.read<ProfileCubit>().getProfile(sl<SharedPreferences>().getString("userID")!);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfile();
+  }
 
   @override
   Widget build(BuildContext context) {
-    print(sl<SharedPreferences>().getString("userID"));
+    debugPrint(sl<SharedPreferences>().getString("userID"));
 
     /// Details
     return HelperMethod.loader(
-        child: Scaffold(
-            appBar: AppBar(),
-            body: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 8),
-                    child: Text("My profile",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 30)),
-                  ),
-                  BlocBuilder<ProfileCubit, ProfileState>(
-                      builder: (context, state) {
-                    if (state is ProfileIsLoadingState) {
-                      print("Profile LOADING");
-                      context.loaderOverlay.show();
-                    }
-                    if (state is ProfileLoadedState) {
-                      context.loaderOverlay.hide();
-                      profile = state.model;
-                      print("Profile LOADED");
-                      return ProfileTitle(
-                        name: "${profile.firstName} ${profile.lastName}",
-                        email: profile.email!,
-                        payments: state.model!.payments,
-                      );
-                    }
-                    if (state is ProfileErrorState) {
-                      context.loaderOverlay.hide();
-                      HelperMethod.showToast(context,
-                          title: Text(state.errorMessage),
-                          type: ToastificationType.error);
-                    }
-                    return const SizedBox();
-                  }),
-                ],
-              ),
-            )));
+      child: Scaffold(
+        body: SafeArea(
+          bottom: false,
+          child: NestedScrollView(
+            headerSliverBuilder: (BuildContext context, bool innerBoxScrolled) {
+              return <Widget>[
+                const HomescreenAppBar(title: "My Profile"),
+              ];
+            },
+            body: _buildBody()
+          ),
+        )
+      )
+    );
+  }
+
+  Widget _buildBody() {
+    return Center(
+      child: BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, state) {
+          if (state is ProfileLoadedState) {
+            profile = state.model!;
+            debugPrint("Profile LOADED");
+            return _buildProfileBody();
+          } else {
+            return RefreshIndicator(
+              onRefresh: () async {
+                _fetchProfile();
+              },
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ), 
+            );
+          }
+        }
+      ),
+    );
+  }
+
+  Widget _buildProfileBody() {
+    return RefreshIndicator(
+      onRefresh: () async {
+        _fetchProfile();
+      },
+      child: ProfileTitle(
+        profile: profile,
+      )
+    );
   }
 }
 
 class ProfileTitle extends StatelessWidget {
-  final String name;
-  final String email;
-  final List<PaymentModel> payments;
+  final ProfileModel profile;
 
   const ProfileTitle({
     super.key,
-    required this.name,
-    required this.email,
-    required this.payments
+    required this.profile,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return ListView(
       children: [
-        Row(
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle, color: Colors.lightBlue[400]),
-              child: Center(
-                  child: Text(name.substring(0, 1),
+        Padding(
+          padding: const EdgeInsets.only(left: 15, right: 15),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle, color: Colors.lightBlue[400]),
+                child: Center(
+                  child: Text(profile.firstName!.substring(0, 1),
                       style: const TextStyle(
                           color: Colors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.bold))),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: Text(name,
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
-                ),
-                Padding(
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
                     padding: const EdgeInsets.only(left: 10),
-                    child: Text(email,
-                        style:
-                            const TextStyle(color: Colors.grey, fontSize: 12))),
-              ],
-            )
-          ],
+                    child: Text("${profile.firstName} ${profile.lastName}",
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Text(profile.email!,
+                          style:
+                              const TextStyle(color: Colors.grey, fontSize: 12))),
+                ],
+              )
+            ],
+          ),
         ),
         const Padding(padding: EdgeInsets.all(15)),
         ProfileOptionsCard(
@@ -128,15 +149,23 @@ class ProfileTitle extends StatelessWidget {
         ProfileOptionsCard(
             title: "Shipping addresses",
             subtitle: "[] addresses",
-            routeWidget: ProfilePaymentMethods(paymentMethodsList: payments)),
+            routeWidget: ShippingAddresses()),
         ProfileOptionsCard(
             title: "Payment methods",
-            subtitle: "Visa **[]",
-            routeWidget: ProfilePaymentMethods(paymentMethodsList: payments)),
+            subtitle: profile.payments.isNotEmpty ? "${profile.payments[0].method} **${profile.payments[0].cardNumber.substring(17)}" : "No saved payment methods",
+            routeWidget: ProfilePaymentMethods(paymentMethodsList: profile.payments)),
         ProfileOptionsCard(
             title: "Settings",
-            subtitle: "Notifications, password",
-            routeWidget: ProfilePaymentMethods(paymentMethodsList: payments)),
+            subtitle: "Email, password",
+            routeWidget: BlocProvider(
+                create: (context) => sl<ProfileEditCubit>(),
+                child: ProfileSettings(profile: profile,),
+            ),
+        ),
+        ProfileOptionsCard(
+            title: "Customer Service",
+            subtitle: "FAQ, Help",
+            routeWidget: CustomerService()),
         const SignOutCard(
             title: "Sign Out",
             subtitle: "Sign out from your account",
@@ -151,41 +180,50 @@ class ProfileOptionsCard extends StatelessWidget {
   final String subtitle;
   final Widget routeWidget;
 
-  const ProfileOptionsCard(
-      {super.key,
-      required this.title,
-      required this.subtitle,
-      required this.routeWidget});
+  const ProfileOptionsCard({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.routeWidget
+  });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-        onTap: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => routeWidget));
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(title,
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.grey,
-                  )
-                ],
-              ),
-              Text(subtitle,
-                  style: const TextStyle(color: Colors.grey, fontSize: 10)),
-            ],
-          ),
-        ));
+      onTap: () {
+        Navigator.push(
+          context, MaterialPageRoute(builder: (context) => BlocProvider(
+            create: (context) => sl<ProfileEditCubit>(),
+            child: BlocProvider(
+              create: (context) => sl<AuthCubit>(),
+              child: routeWidget,
+            ),
+          ))
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(title,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.grey,
+                )
+              ],
+            ),
+            Text(subtitle,
+                style: const TextStyle(color: Colors.grey, fontSize: 10)),
+          ],
+        ),
+      )
+    );
   }
 }
 
@@ -194,64 +232,66 @@ class SignOutCard extends StatelessWidget {
   final String subtitle;
   final Widget routeWidget;
 
-  const SignOutCard(
-      {super.key,
-      required this.title,
-      required this.subtitle,
-      required this.routeWidget});
+  const SignOutCard({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.routeWidget
+  });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Confirm Sign Out'),
-                content: const Text('Are you sure you want to sign out?'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => routeWidget),
-                      );
-                    },
-                    child: const Text('Yes'),
-                  ),
-                ],
-              );
-            },
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(title,
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.grey,
-                  )
-                ],
-              ),
-              Text(subtitle,
-                  style: const TextStyle(color: Colors.grey, fontSize: 10)),
-            ],
-          ),
-        ));
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirm Sign Out'),
+              content: const Text('Are you sure you want to sign out?'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => routeWidget),
+                    );
+                  },
+                  child: const Text('Yes'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(title,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.grey,
+                )
+              ],
+            ),
+            Text(subtitle,
+                style: const TextStyle(color: Colors.grey, fontSize: 10)),
+          ],
+        ),
+      )
+    );
   }
 }
