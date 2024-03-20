@@ -1,4 +1,5 @@
 import 'package:fashion_fusion/core/utils/helper_method.dart';
+import 'package:fashion_fusion/data/order/model/admin_order_model.dart';
 import 'package:fashion_fusion/data/order/model/order_list_model.dart';
 import 'package:fashion_fusion/data/order/model/order_model.dart';
 import 'package:fashion_fusion/data/order/repository/order_repository.dart';
@@ -33,5 +34,14 @@ class OrderCubit extends Cubit<OrderState> {
     emit(response.fold(
         (l) => ErrorState(message: HelperMethod.mapFailureToMsg(l)),
         (r) => OrderListLoadedState(model: r)));
+  }
+
+  void adminGetORders() async {
+    emit(OrderIsLoadingState());
+    print("qeffe");
+    final response = await repository.adminGetOrders();
+    emit(response.fold(
+        (l) => ErrorState(message: HelperMethod.mapFailureToMsg(l)),
+        (r) => OrderAdminLoadedState(model: r)));
   }
 }

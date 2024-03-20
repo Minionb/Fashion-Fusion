@@ -57,8 +57,8 @@ class OrderModel {
       tax: json['tax']?.toDouble(),
       totalAmount: json['totalAmount']?.toDouble(),
       status: json['status'],
-      payment:
-          json['payment'] != null ? Payments.fromJson(json['payment']) : null,
+      // payment:
+      //     json['payment'] != null ? Payments.fromJson(json['payment']) : null,
       address:
           json['address'] != null ? Address.fromJson(json['address']) : null,
       delivery:
