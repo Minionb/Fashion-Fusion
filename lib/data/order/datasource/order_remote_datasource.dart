@@ -6,6 +6,7 @@ import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/data/cart/model/cart_item_model.dart';
 import 'package:fashion_fusion/data/cart/model/put_item_model.dart';
 import 'package:fashion_fusion/data/order/model/admin_order_model.dart';
+import 'package:fashion_fusion/data/order/model/admin_update_status_model.dart';
 import 'package:fashion_fusion/data/order/model/order_list_model.dart';
 import 'package:fashion_fusion/data/order/model/order_model.dart';
 import 'package:fashion_fusion/error/exceptions.dart';
@@ -16,6 +17,8 @@ abstract class OrderRemoteDataSource {
   Future<List<OrderListModel>> getOrderByCustomerId();
   Future<OrderModel> postOrderCheckout(OrderModel model);
   Future<OrderModel> getOrderById(String orderId);
+  Future<AdminOrderUpdateStatusResponse> updateOrderStatus(
+      AdminOrderUpdateStatusModel model);
   Future<List<OrderModel>> getOrders();
   Future<List<AdminOrderModel>> adminGetOrders();
   Future<List<CartItemModel>> patchOrder(PutCartItemModel model);
@@ -122,6 +125,23 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       } catch (e) {
         throw const FetchDataException();
       }
+    } else {
+      throw const ServerException();
+    }
+  }
+
+  @override
+  Future<AdminOrderUpdateStatusResponse> updateOrderStatus(
+      AdminOrderUpdateStatusModel model) async {
+    final response = await apiConsumer.patch(
+        "${EndPoints.adminGetOrders}/${model.orderID}",
+        body: model.toJson());
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      final Map<String, dynamic> jsonList = json.decode(response.data);
+      final AdminOrderUpdateStatusResponse orderModel =
+          AdminOrderUpdateStatusResponse.fromJson(jsonList);
+
+      return Future.value(orderModel);
     } else {
       throw const ServerException();
     }

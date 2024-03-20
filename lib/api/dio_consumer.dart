@@ -93,6 +93,24 @@ class DioConsumer implements ApiConsumer {
   }
 
   @override
+  Future patch(String path,
+      {Map<String, dynamic>? body,
+      Map<String, dynamic>? queryParameters}) async {
+    try {
+      var jsonBody = utf8.encode(json.encode(body));
+      final response = await client.patch(path,
+          queryParameters: queryParameters,
+          options: Options(
+              headers: {HttpHeaders.contentTypeHeader: "application/json"}),
+          data: jsonBody);
+
+      return response;
+    } on DioException catch (error) {
+      _handleDioError(error);
+    }
+  }
+
+  @override
   Future delete(String path,
       {dynamic body,
       bool formDataIsEnabled = false,

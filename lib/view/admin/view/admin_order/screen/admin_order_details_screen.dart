@@ -1,14 +1,19 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/decorator_utils.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
+import 'package:fashion_fusion/core/widgets/custom_button.dart';
 import 'package:fashion_fusion/data/customer/model/customer_model.dart';
+import 'package:fashion_fusion/data/order/model/admin_update_status_model.dart';
 import 'package:fashion_fusion/data/order/model/order_model.dart';
 import 'package:fashion_fusion/provider/order_cubit/order_cubit.dart';
+import 'package:fashion_fusion/provider/order_edit_cubit/order_edit_cubit_cubit.dart';
 import 'package:fashion_fusion/view/widget/cart_item_widget.dart';
 import 'package:fashion_fusion/view/widget/address_card_widget.dart';
 import 'package:fashion_fusion/view/widget/payment_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
 class AdminOrderDetailsScreen extends StatefulWidget {
   String? orderId;
@@ -26,41 +31,142 @@ class _AdminOrderDetailsScreenState extends State<AdminOrderDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<OrderCubit, OrderState>(
-      builder: (context, state) {
-        if (state is OrderSuccessState) {
-          orderModel = state.model;
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(
-                "Order ${AppFormatter.formatOrderId(orderModel.orderId ?? '')}",
-                textAlign: TextAlign.left,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildOrderSummarySection(),
-                  _buildCartItemsSection(),
-                  _buildShippingDetailsSection(),
-                  // 50.verticalSpace
-                ],
-              ),
-            ),
-          );
-        } else if (state is ErrorState) {
-          return HelperMethod.emptyWidget(title: "Request failed.");
-        } else {
-          return const CircularProgressIndicator();
+    return BlocListener<OrderEditCubit, OrderEditState>(
+      listener: (context, state) {
+        if (state is OrderEditIsLoadingState) {
+          context.loaderOverlay.show();
+        }
+        if (state is OrderEditSuccessfullyState) {
+          setState(() {
+            orderModel.status = state.model.order?.status;
+          });
+          context.loaderOverlay.hide();
+        }
+        if (state is OrderEditErrorState) {
+          context.loaderOverlay.hide();
         }
       },
+      child: BlocBuilder<OrderCubit, OrderState>(
+        builder: (context, state) {
+          if (state is OrderSuccessState) {
+            orderModel = state.model;
+            return HelperMethod.loader(
+              child: Scaffold(
+                appBar: AppBar(
+                  title: Text(
+                    "Order ${AppFormatter.formatOrderId(orderModel.orderId ?? '')}",
+                    textAlign: TextAlign.left,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                    ),
+                  ),
+                ),
+                body: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildOrderSummarySection(),
+                      _buildCartItemsSection(),
+                      _buildShippingDetailsSection(),
+                      20.verticalSpace,
+                      CustomButton(
+                        label: getOrderStatusLabel(orderModel.status ?? ""),
+                        bg: AppColors.primary,
+                        onPressed: () {
+                          updateOrderStatus(
+                              context, widget.orderId ?? "", orderModel.status);
+                        },
+                      ),
+                      25.verticalSpace
+                    ],
+                  ),
+                ),
+              ),
+            );
+          } else if (state is ErrorState) {
+            return HelperMethod.emptyWidget(title: "Request failed.");
+          } else {
+            return HelperMethod.loadinWidget();
+          }
+        },
+      ),
     );
+  }
+
+  // Function to get status label based on enum value
+  String getOrderStatusLabel(String status) {
+    switch (status.toLowerCase()) {
+      case "pending":
+        return "Processing";
+      case "processing":
+        return "Out for Delivery";
+      case "out for delivery":
+        return "Delivered";
+      case "delivered":
+        return "Order Delivered";
+      default:
+        return "";
+    }
+  }
+
+  void updateOrderStatus(BuildContext context, String orderId, String? status) {
+    if (status == null) return; // Handle null status
+
+    String newStatus = "";
+
+    switch (status.toLowerCase()) {
+      case "pending":
+        newStatus = "processing";
+        break;
+      case "processing":
+        newStatus = "out for delivery";
+        break;
+      case "out for delivery":
+        newStatus = "delivered";
+        break;
+      case "delivered":
+        // Do nothing or handle accordingly
+        break;
+      default:
+        // Handle invalid status
+        break;
+    }
+
+    if (newStatus.isNotEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext dContext) {
+          return AlertDialog(
+            title: const Text("Confirm Status Update"),
+            content: Text(
+                "Are you sure you want to update the status to '$newStatus'?"),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(dContext).pop();
+                },
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Update status here
+                  context.read<OrderEditCubit>().updateOrderStatus(
+                        AdminOrderUpdateStatusModel(
+                          orderID: orderId,
+                          orderStatus: newStatus,
+                        ),
+                      );
+                  Navigator.of(dContext).pop();
+                },
+                child: const Text("Confirm"),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   Widget _buildCartItemsSection() {
@@ -68,13 +174,6 @@ class _AdminOrderDetailsScreenState extends State<AdminOrderDetailsScreen> {
       title: 'Items',
       content: _buildShoppingCartItems(),
       initiallyExpanded: true,
-    );
-  }
-
-  Widget _buildPaymentOptionsSection() {
-    return _buildSection(
-      title: 'Payment Options',
-      content: _buildPaymentOptions(),
     );
   }
 
