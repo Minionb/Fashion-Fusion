@@ -110,7 +110,7 @@ Future<List<ProductModel>> get(productQueryParams) async {
 
     http.StreamedResponse response = await request.send();
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 ||response.statusCode == 201) {
       debugPrint(await response.stream.bytesToString());
     } else {
       debugPrint(response.reasonPhrase);

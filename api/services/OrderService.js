@@ -76,8 +76,8 @@ const createOrder = async (customerId, orderRequest) => {
   });
 
   await order.save();
-
-  return order;
+  
+  return getOrderById(order._id.toString());
 };
 
 function normalizeOrderData(orderData) {
@@ -124,10 +124,34 @@ function maskCreditNumbersInOrder(order) {
   return order;
 }
 
-async function getAllOrders(customerId) {
-  const orders = await OrderModel.find({ customerId });
+async function getCustomerOrders(customerId, createDateSort) {
+  var orders = [];
+  var createDateSortVal = createDateSort? createDateSort: -1
+  if(customerId)
+    orders = await OrderModel.find({ customerId }).sort({ createdAt: createDateSortVal });
+  else 
+    orders = await OrderModel.find().sort({ createdAt: createDateSortVal});
+
   const maskedOrders = maskCreditNumbersInOrders(orders);
+
+  for (const order of maskedOrders) {
+    var newCartItems = await getCartProducts(order.cartItems);
+    order.cartItems = newCartItems;
+  }
+
   return maskedOrders;
+}
+
+async function getCartProducts(cartItems) {
+  const productIds = cartItems.map((cartItem) => cartItem.productId);
+  const cartProducts = await ProductsModel.find({
+    _id: { $in: productIds },
+  });
+  cartItems.forEach((cartItem) => {
+    var product = getProduct(cartProducts, cartItem.productId);
+    if (product) cartItem.productName = product.product_name;
+  });
+  return cartItems;
 }
 
 // Helper function to update order
@@ -148,41 +172,24 @@ async function getOrderById(orderId) {
   const cartProducts = await ProductsModel.find({
     _id: { $in: productIds },
   });
-  // Construct a separate response object for the order
-  const responseOrder = {
-    orderId: order._id,
-    customerId: order.customerId,
-    cartItems: order.cartItems,
-    subtotal: order.subtotal,
-    tax: order.tax,
-    totalAmount: order.totalAmount,
-    status: order.status,
-    payment: order.payment,
-    address: order.address,
-    delivery: order.delivery,
-    createdAt: order.createdAt,
-    updatedAt: order.updatedAt,
-    // Add any other properties you want to include in the response
-  };
 
-  const maskedOrders = maskCreditNumbersInOrder(responseOrder);
-
-  const responseCartItems = cartItems.map((cartItem) => {
-    const product = OrderService.getProduct(cartProducts, cartItem.productId);
-    return {
-      productId: cartItem.productId,
-      quantity: cartItem.quantity,
-      price: product ? product.price : null,
-      productName: product ? product.product_name : null,
-    };
-  });
-  maskedOrders.cartItems = responseCartItems;
+  const maskedOrders = maskCreditNumbersInOrder(order.toObject());
+  const newCartItems = [];
+  for (var cartItem of maskedOrders.cartItems) {
+    const product = await OrderService.getProduct(cartProducts, cartItem.productId);
+    if (product) {
+      cartItem.productName = product.product_name;
+      if (product.images && product.images.length > 0) {
+        cartItem.imageId = product.images[0];
+      }
+    }
+  }
   return maskedOrders;
 }
 
 const OrderService = {
   createOrder: createOrder,
-  getAllOrders: getAllOrders,
+  getAllOrders: getCustomerOrders,
   getOrderById: getOrderById,
   updateOrder: updateOrder,
   getProductPrice: getProductPrice,

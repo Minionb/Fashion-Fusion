@@ -22,6 +22,21 @@ class OrderLoadedState extends OrderState {
   const OrderLoadedState({required this.model});
 }
 
+abstract class OrderListState extends OrderState {
+  const OrderListState();
+
+  @override
+  List<Object> get props => [];
+}
+
+
+class OrderListLoadedState extends OrderListState {
+  final List<OrderListModel> model;
+
+  const OrderListLoadedState({required this.model});
+}
+
+
 class ErrorState extends OrderState {
   final String message;
 

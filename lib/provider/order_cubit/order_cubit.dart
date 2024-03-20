@@ -1,4 +1,5 @@
 import 'package:fashion_fusion/core/utils/helper_method.dart';
+import 'package:fashion_fusion/data/order/model/order_list_model.dart';
 import 'package:fashion_fusion/data/order/model/order_model.dart';
 import 'package:fashion_fusion/data/order/repository/order_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,5 +17,21 @@ class OrderCubit extends Cubit<OrderState> {
     emit(response.fold(
         (l) => ErrorState(message: HelperMethod.mapFailureToMsg(l)),
         (r) => OrderSuccessState(model: r)));
+  }
+
+  void getOrderId(String orderId) async {
+    emit(OrderIsLoadingState());
+    final response = await repository.getOrderById(orderId);
+    emit(response.fold(
+        (l) => ErrorState(message: HelperMethod.mapFailureToMsg(l)),
+        (r) => OrderSuccessState(model: r)));
+  }
+
+  void getOrdersByCustomerId() async {
+    emit(OrderIsLoadingState());
+    final response = await repository.getOrderByCustomerId();
+    emit(response.fold(
+        (l) => ErrorState(message: HelperMethod.mapFailureToMsg(l)),
+        (r) => OrderListLoadedState(model: r)));
   }
 }
