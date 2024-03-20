@@ -1,5 +1,6 @@
 import 'package:fashion_fusion/config/routes/app_routes.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
+import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/utils/helper_validation.dart';
 import 'package:fashion_fusion/core/utils/navigator_extension.dart';
 import 'package:fashion_fusion/core/widgets/custom_text_field.dart';
@@ -7,11 +8,13 @@ import 'package:fashion_fusion/data/auth/model/login_model.dart';
 import 'package:fashion_fusion/data/profile/model/profile_model.dart';
 import 'package:fashion_fusion/data/profile/model/upload_profile_model.dart';
 import 'package:fashion_fusion/provider/auth/auth_cubit.dart';
+import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile_edit/profile_edit_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fashion_fusion/core/utils/app_colors.dart';
 
 class ProfileSettings extends StatefulWidget {
   final ProfileModel profile;
@@ -22,35 +25,101 @@ class ProfileSettings extends StatefulWidget {
 }
 
 class _ProfileSettings extends State<ProfileSettings> {
-  //var profile;
+  late ProfileModel profile;
+
+  Future<void> _fetchProfile() async {
+    setState(() {
+      context.read<ProfileCubit>().getProfile(sl<SharedPreferences>().getString("userID")!);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfile();
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ProfileEditCubit>(
       create: (context) => sl<ProfileEditCubit>(),
-      child: Scaffold(
-        appBar: AppBar(),
-        body: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(bottom: 8),
-                child: Text("Settings",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
-              ),
-              const Text("Personal Information", style: TextStyle(fontWeight: FontWeight.bold)),
-              
-              InfoCards(cardTitle: "Name", cardContent: "${widget.profile.firstName} ${widget.profile.lastName}", email: widget.profile.email!,),
-              InfoCards(cardTitle: "Email", cardContent: widget.profile.email!, email: widget.profile.email!),
-              // TODO
-              //InfoCards(cardTitle: "Password", cardContent: "", email: widget.profile.email!),
-              //InfoCards(cardTitle: "Address", cardContent: widget.profile.address!),
-              InfoCards(cardTitle: "Mobile Number", cardContent: widget.profile.telephoneNumber!, email: widget.profile.email!),
-            ],
-          ),
-        )
+      child: HelperMethod.loader(
+        child: Scaffold(
+          appBar: AppBar(title: Text("Settings",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),),
+          body: SafeArea(
+            bottom: false,
+            child: _buildBody()
+          )
+          // Padding(
+          //   padding: const EdgeInsets.all(20),
+          //   child: Column(
+          //     crossAxisAlignment: CrossAxisAlignment.start,
+          //     children: [
+          //       const Padding(
+          //         padding: EdgeInsets.only(bottom: 8),
+          //         child: Text("Settings",
+          //           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
+          //       ),
+          //       const Text("Personal Information", style: TextStyle(fontWeight: FontWeight.bold)),
+                
+          //       InfoCards(cardTitle: "Name", cardContent: "${widget.profile.firstName} ${widget.profile.lastName}", email: widget.profile.email!,),
+          //       InfoCards(cardTitle: "Email", cardContent: widget.profile.email!, email: widget.profile.email!),
+          //       // TODO
+          //       //InfoCards(cardTitle: "Password", cardContent: "", email: widget.profile.email!),
+          //       //InfoCards(cardTitle: "Address", cardContent: widget.profile.address!),
+          //       InfoCards(cardTitle: "Mobile Number", cardContent: widget.profile.telephoneNumber!, email: widget.profile.email!),
+          //     ],
+          //   ),
+          // )
+        ),
+      )
+    );
+  }
+
+  Widget _buildBody() {
+    return Center(
+      child: BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, state) {
+          if (state is ProfileLoadedState) {
+            profile = state.model!;
+            debugPrint("Profile LOADED");
+            return _buildSettingsBody();
+          } else {
+            return RefreshIndicator(
+              onRefresh: () async {
+                _fetchProfile();
+              },
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ), 
+            );
+          }
+        }
+      ),
+    );
+  }
+
+  Widget _buildSettingsBody() {
+    return RefreshIndicator(
+      onRefresh: () async {
+        _fetchProfile();
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: ListView(
+          children: [
+            10.verticalSpace,
+            const Text("Personal Information", style: TextStyle(fontWeight: FontWeight.bold)),
+            
+            InfoCards(cardTitle: "Name", cardContent: "${profile.firstName} ${profile.lastName}", email: profile.email!,),
+            InfoCards(cardTitle: "Email", cardContent: widget.profile.email!, email: profile.email!),
+            // TODO
+            //InfoCards(cardTitle: "Password", cardContent: "", email: widget.profile.email!),
+            //InfoCards(cardTitle: "Address", cardContent: widget.profile.address!),
+            InfoCards(cardTitle: "Mobile Number", cardContent: profile.telephoneNumber!, email: profile.email!),
+          ],
+        ),
       )
     );
   }
@@ -78,11 +147,11 @@ class InfoCards extends StatelessWidget {
     }
 
     return Card(
-      elevation: 1.0,
+      elevation: 0.0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5.0)
       ),
-      color: Colors.white,
+      color: AppColors.bg,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(16.0),
@@ -99,20 +168,25 @@ class InfoCards extends StatelessWidget {
             ),
             const Expanded(child: Spacer()),
             Card(
-              color: Colors.white,
-              elevation: 2.0,
+              color: AppColors.bg,
+              elevation: 0.0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(7.0)
+                borderRadius: BorderRadius.circular(20),
+                side: const BorderSide(
+                  color: Colors.black,
+                  width: 1.0
+                )
               ),
               child: InkWell(
-                splashColor: Colors.blue.withAlpha(30),
+                splashColor: AppColors.primary,
+                borderRadius: BorderRadius.circular(20),
                 onTap: () {
                   _showModalBottomSheet(context);
                   debugPrint('Edit $cardTitle Pressed');
                 },
                 child: const SizedBox(
-                  width: 90,
-                  height: 50,
+                  width: 80,
+                  height: 40,
                   child: Center(
                     child: Text('Edit', style: TextStyle(fontSize: 16),),
                   )

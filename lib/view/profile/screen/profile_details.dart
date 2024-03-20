@@ -193,7 +193,7 @@ class ProfileOptionsCard extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context, MaterialPageRoute(builder: (context) => BlocProvider(
-            create: (context) => sl<ProfileEditCubit>(),
+            create: (context) => sl<ProfileCubit>(),
             child: BlocProvider(
               create: (context) => sl<AuthCubit>(),
               child: routeWidget,
