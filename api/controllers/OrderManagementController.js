@@ -276,7 +276,7 @@ async function checkout(req, res) {
   try {
     const customerId = req.userId;
     const orderRequest = req.body;
-    
+
     // Check if cartItems is empty
     if (orderRequest.cartItems.length === 0) {
       return res
@@ -284,10 +284,7 @@ async function checkout(req, res) {
         .json({ message: "Cart is empty. Cannot proceed with checkout." });
     }
 
-    const order = await OrderService.createOrder(
-      customerId,
-      orderRequest
-    );
+    const order = await OrderService.createOrder(customerId, orderRequest);
 
     await clearCart(customerId, orderRequest.cartItems);
 
@@ -302,13 +299,19 @@ async function checkout(req, res) {
 async function getOrdersByCustomerId(req, res) {
   try {
     const customerId = req.params.customerId;
-    const orders = await OrderService.getAllOrders(customerId);
+    const orders = await OrderService.getAllOrders(customerId, -1);
 
     // Construct separate response objects for orders
     const responseOrders = orders.map((order) => {
       return {
         orderId: order._id,
         status: order.status,
+        cartItems: order.cartItems.map((cartItem) => ({
+          productId: cartItem.productId,
+          productName: cartItem.productName,
+          quantity: cartItem.quantity,
+          price: cartItem.price,
+        })),
         totalAmount: order.totalAmount,
         paymentMethod: order.payment.method,
         deliveryMethod: order.delivery.method,
@@ -326,7 +329,7 @@ async function getOrdersByCustomerId(req, res) {
 // GET /orders
 async function getOrders(req, res) {
   try {
-    const orders = await OrderService.getAllOrders({});
+    const orders = await OrderService.getAllOrders(null, 1);
 
     // Construct separate response objects for orders
     const responseOrders = orders.map((order) => {
@@ -368,23 +371,12 @@ async function getOrderById(req, res) {
   }
 }
 
-// Helper function to construct update fields
-function constructUpdateFields(orderStatus, payment, delivery) {
-  const updateFields = {};
-  if (orderStatus) updateFields["status"] = orderStatus;
-  // If payment or delivery details are provided in the request body, update them
-  if (payment) updateFields["payment"] = payment;
-  if (delivery) updateFields["delivery"] = delivery;
-  return updateFields;
-}
 // PATCH /orders/:orderId
 async function patchOrder(req, res) {
   try {
     const orderId = req.params.orderId;
-    const { orderStatus, payment, delivery } = req.body;
 
-    const updateFields = constructUpdateFields(orderStatus, payment, delivery);
-
+    const updateFields =  req.body;
     const updatedOrder = await OrderService.updateOrder(orderId, updateFields);
 
     if (!updatedOrder)
@@ -404,7 +396,7 @@ async function deleteOrders(req, res) {
     const deleted = await OrdersModel.deleteMany({});
     res
       .status(200)
-      .json({ message: "Order deleted successfully", data: deleted});
+      .json({ message: "Order deleted successfully", data: deleted });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -551,7 +543,13 @@ class OrderManagementController {
     attachRoute(server, "post", "/orders/checkout", checkout, "any");
     attachRoute(server, "get", "/orders", getOrders, "any");
     attachRoute(server, "get", "/orders/:id", getOrderById, "any");
-    attachRoute(server, "get", "/:customerId/orders", getOrdersByCustomerId, "any");
+    attachRoute(
+      server,
+      "get",
+      "/:customerId/orders",
+      getOrdersByCustomerId,
+      "any"
+    );
     attachRoute(server, "patch", "/orders/:orderId", patchOrder, "any");
     // for testing only
     attachRoute(server, "delete", "/orders", deleteOrders, "any");

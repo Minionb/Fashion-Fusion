@@ -1,6 +1,7 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/core/utils/decorator_utils.dart';
+import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/data/order/model/order_model.dart';
 import 'package:fashion_fusion/provider/order_cubit/order_cubit.dart';
 import 'package:fashion_fusion/view/widget/cart_item_widget.dart';
@@ -10,13 +11,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class OrderScreen extends StatefulWidget {
-  final OrderModel orderModel;
+  OrderModel? orderModel;
+  String? orderId;
   late OrderModelDecorator orderDecorator;
 
-  OrderScreen({
-    super.key,
-    required this.orderModel,
-  });
+  OrderScreen({super.key, this.orderModel, this.orderId});
   @override
   State<StatefulWidget> createState() {
     return _OrderScreenState();
@@ -28,14 +27,16 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    widget.orderDecorator = OrderModelDecorator(orderModel: widget.orderModel);
     return MultiBlocProvider(
         providers: [
           BlocProvider<OrderCubit>(create: (context) {
-            if (widget.orderModel.orderId == null) {
-              return sl<OrderCubit>()..postOrderCheckout(widget.orderModel);
+            if (widget.orderModel != null) {
+              widget.orderDecorator =
+                  OrderModelDecorator(orderModel: widget.orderModel!);
+              return sl<OrderCubit>()..postOrderCheckout(widget.orderModel!);
+            } else if (widget.orderId != null) {
+              return sl<OrderCubit>()..getOrderId(widget.orderId!);
             } else {
-              // If orderId is not null, return an OrderCubit without calling postOrderCheckout
               return sl<OrderCubit>();
             }
           }),
@@ -47,7 +48,7 @@ class _OrderScreenState extends State<OrderScreen> {
               return Scaffold(
                 appBar: AppBar(
                   title: Text(
-                    "Order ${orderModel.orderId!.substring(0, 10).toUpperCase()}",
+                    "Order ${AppFormatter.formatOrderId(orderModel.orderId ?? '')}",
                     textAlign: TextAlign.left,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
@@ -68,6 +69,8 @@ class _OrderScreenState extends State<OrderScreen> {
                   ),
                 ),
               );
+            } else if (state is ErrorState) {
+              return HelperMethod.emptyWidget(title: "Request failed.");
             } else {
               return const CircularProgressIndicator();
             }
@@ -132,15 +135,17 @@ class _OrderScreenState extends State<OrderScreen> {
   }
 
   Widget _buildShoppingCartItems() {
+    var list = orderModel.cartItems ?? [];
+    var children = [
+      ...list.map((item) => CartItemWidget(
+            model: item,
+            readOnly: true,
+          )),
+    ];
     return ListView(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      children: [
-        ...widget.orderModel.cartItems!.map((item) => CartItemWidget(
-              model: item,
-              readOnly: true,
-            )),
-      ],
+      children: children,
     );
   }
 
@@ -148,14 +153,14 @@ class _OrderScreenState extends State<OrderScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PaymentWidget(model: widget.orderModel.payment!, onTap: () {})
+        PaymentWidget(model: orderModel.payment!, onTap: () {})
       ],
     );
   }
 
   Widget _buildShippingDetails() {
     return AddressWidget(
-      model: widget.orderModel.address!,
+      model: orderModel.address!,
       onTap: () {},
     );
   }
@@ -212,10 +217,11 @@ class OrderSummaryWidget extends StatelessWidget {
                       _text(AppFormatter.formatDateDisplay(model.createdAt!)),
                       const SizedBox(height: 16.0),
                       _text(
-                          '\$${AppFormatter.getFormattedAmount(model.totalAmount!)} (${getItemCount()} items)'),
-                      _text('\$${AppFormatter.getFormattedAmount(model.tax!)}'),
+                          '\$${AppFormatter.getFormattedAmount(model.totalAmount ?? 0.0)} (${getItemCount()} items)'),
                       _text(
-                          '\$${AppFormatter.getFormattedAmount(model.subtotal!)}'),
+                          '\$${AppFormatter.getFormattedAmount(model.tax ?? 0.0)}'),
+                      _text(
+                          '\$${AppFormatter.getFormattedAmount(model.subtotal ?? 0.0)}'),
                       const SizedBox(height: 16.0),
                       _text(model.delivery?.method ?? "Delivery"),
                       _text(model.delivery?.courier ?? "No specified"),

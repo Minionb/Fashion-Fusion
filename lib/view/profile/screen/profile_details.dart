@@ -3,6 +3,7 @@ import 'package:fashion_fusion/data/customer/model/customer_model.dart';
 import 'package:fashion_fusion/data/profile/model/profile_model.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
 import 'package:fashion_fusion/view/auth/screen/welcome_screen.dart';
+import 'package:fashion_fusion/view/profile/screen/customer_order_list.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_payment_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -123,7 +124,7 @@ class ProfileTitle extends StatelessWidget {
         ProfileOptionsCard(
             title: "My orders",
             subtitle: "Already have [] orders",
-            routeWidget: ProfilePaymentMethods(paymentMethodsList: payments)),
+            routeWidget: CustomerOrderListScreen()),
         ProfileOptionsCard(
             title: "Shipping addresses",
             subtitle: "[] addresses",
