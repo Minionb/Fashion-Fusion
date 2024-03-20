@@ -22,6 +22,12 @@ class OrderLoadedState extends OrderState {
   const OrderLoadedState({required this.model});
 }
 
+class OrderAdminLoadedState extends OrderState {
+  final List<AdminOrderModel> model;
+
+  const OrderAdminLoadedState({required this.model});
+}
+
 abstract class OrderListState extends OrderState {
   const OrderListState();
 
@@ -29,13 +35,17 @@ abstract class OrderListState extends OrderState {
   List<Object> get props => [];
 }
 
-
 class OrderListLoadedState extends OrderListState {
   final List<OrderListModel> model;
 
   const OrderListLoadedState({required this.model});
 }
 
+class OrderUpdatedStatus extends OrderListState {
+  final AdminOrderUpdateStatusResponse response;
+
+  const OrderUpdatedStatus({required this.response});
+}
 
 class ErrorState extends OrderState {
   final String message;
