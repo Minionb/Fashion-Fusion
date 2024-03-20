@@ -14,7 +14,7 @@ class ProfileIsLoadingState extends ProfileState {}
 class ProfileLoadedState extends ProfileState {
   final ProfileModel? model;
   
-  ProfileLoadedState({this.model});
+  const ProfileLoadedState({this.model});
 }
 
 class ProfileErrorState extends ProfileState {
