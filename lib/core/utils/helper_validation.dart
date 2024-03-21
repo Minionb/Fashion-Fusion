@@ -147,4 +147,27 @@ class ValidationHelper {
     }
     return null;
   }
+
+  static String? passwordNewValidation(String? password1, String? password2) {
+    if (password1?.isEmpty ?? true) {
+      return 'Please enter your new password';
+    }
+    if (password1 == password2) {
+      return 'Please edit a new password';
+    }
+    if (password1!.length < 6) {
+      return 'Password must be at least 6 characters long';
+    }
+    return null;
+  }
+
+  static String? passwordMatchValidation(String? password1, String? password2) {
+    if (password1?.isEmpty ?? true) {
+      return 'Please enter your new password';
+    }
+    if (password1 != password2) {
+      return 'Passwords do not match';
+    }
+    return null;
+  }
 }

@@ -1,8 +1,12 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
+import 'package:fashion_fusion/core/utils/app_service.dart';
+import 'package:fashion_fusion/provider/order_cubit/order_cubit.dart';
 import 'package:fashion_fusion/view/admin/view/admin_category_screen.dart';
+import 'package:fashion_fusion/view/admin/view/admin_order/screen/admin_order_screen.dart';
 import 'package:fashion_fusion/view/admin/view/list_all_customers_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent-tab-view.dart';
 
 class AdminNavBar extends StatefulWidget {
@@ -58,7 +62,10 @@ class _AdminNavBarState extends State<AdminNavBar> {
     return [
       const ListAllCustomersScreen(),
       const AdminCategoryScreen(),
-      Container(),
+      BlocProvider(
+        create: (context) => sl<OrderCubit>()..adminGetORders(),
+        child: const AdminOrderScreen(),
+      ),
       Container(),
     ];
   }
