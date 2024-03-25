@@ -13,15 +13,16 @@ async function postResetPassword(req, res) {
       return res.status(404).send("Email not found");
     }
 
-    const token = crypto.randomBytes(8).toString("hex");
+    const tempPassword = crypto.randomBytes(8).toString("hex");
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+    
     await ResetPasswordModel.deleteMany({ email: email });
     await ResetPasswordModel.create({
       customerId: existingCustomer._id,
-      token,
+      password: hashedPassword,
       email,
     });
 
-    const hashedPassword = await bcrypt.hash(token, 10);
     existingCustomer.password = hashedPassword;
     console.log(`customerId=${existingCustomer._id} updated with temporary password`);
     existingCustomer.save();
@@ -29,7 +30,7 @@ async function postResetPassword(req, res) {
     const mailOptions = {
       to: email,
       subject: "Reset your password",
-      text: `Thanks for contacting Fashion Fushion. Your temporary password : ${token}`,
+      text: `Thanks for contacting Fashion Fushion. Your temporary password : ${tempPassword}`,
     };
 
     await sendMail(mailOptions);

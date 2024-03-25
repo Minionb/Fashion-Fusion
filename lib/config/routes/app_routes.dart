@@ -48,7 +48,10 @@ class AppRoutes {
                 ));
       case Routes.forgetPassword:
         return MaterialPageRoute(
-            builder: (context) => (const ForgetPasswordScreen()));
+            builder: (context) => BlocProvider(
+              create: (contex) => sl<AuthCubit>(),
+              child: const ForgetPasswordScreen(),
+              ));
       case Routes.mainScren:
         return MaterialPageRoute(builder: (context) => const NavBar());
       case Routes.login:

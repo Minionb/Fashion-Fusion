@@ -14,7 +14,7 @@ abstract class AuthRemoteDataSource {
   Future<ResponseModel> login(LoginModel model);
   Future<Status> register(RegisterUserModel model);
   Future<Unit> logout();
-  Future<Unit> forgetPassword();
+  Future<Status> forgetPassword(String email);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -60,7 +60,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<Unit> forgetPassword() async {
-    throw UnimplementedError();
+  Future<Status> forgetPassword(String email) async {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['email'] = email;
+    final Response response = await apiConsumer.post(
+      EndPoints.resetPassword,
+      body: data,
+    );
+    if (response.statusCode == StatusCode.ok ||
+        response.statusCode == StatusCode.created) {
+      final jsonData = json.decode(response.data);
+      return Status.fromJson(jsonData);
+    } else {
+      String jsonDataString = response.toString();
+      final jsonData = jsonDecode(jsonDataString);
+      throw ServerException(jsonData["message"]);
+    }
   }
 }

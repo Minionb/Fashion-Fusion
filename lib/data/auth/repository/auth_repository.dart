@@ -11,7 +11,7 @@ import '../datasource/auth_remote_datasource.dart';
 abstract class AuthRepository {
   Future<Either<Failure, ResponseModel>> login(LoginModel model);
   Future<Either<Failure, Status>> regiter(RegisterUserModel model);
-  Future<Either<Failure, Unit>> forgetPassword();
+  Future<Either<Failure, Status>> forgetPassword(String email);
   Future<Either<Failure, Unit>> logout();
 }
 
@@ -55,10 +55,10 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> forgetPassword() async {
+  Future<Either<Failure, Status>> forgetPassword(String email) async {
     if (await networkInfo.isConnected) {
       try {
-        final reposnse = await remoteDatasource.forgetPassword();
+        final reposnse = await remoteDatasource.forgetPassword(email);
         return Right(reposnse);
       } on ServerException {
         return Left(ServerFailure());
