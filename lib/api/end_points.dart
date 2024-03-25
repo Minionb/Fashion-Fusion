@@ -41,6 +41,7 @@ class EndPoints {
   // Orders
   static const String postOrdersCheckout = '$baseUrl/orders/checkout';
   static const String orderResourcePath = '$baseUrl/orders';
+  static const String adminGetOrders = '$baseUrl/orders';
   static const String getOrdersById = '$orderResourcePath/${PathParameters.orderId}';
   static const String patchOrdersById = '$orderResourcePath/${PathParameters.orderId}';
   static const String getOrdersByCustomerId = '$baseUrl/${PathParameters.customerId}/orders';

@@ -38,16 +38,14 @@ import 'package:fashion_fusion/data/profile/usecase/get_profile_usecase.dart';
 import 'package:fashion_fusion/data/profile/usecase/update_profile_usecase.dart';
 import 'package:fashion_fusion/provider/auth/auth_cubit.dart';
 
-
 import 'package:fashion_fusion/provider/customerCubit/customer/customer_cubit.dart';
 import 'package:fashion_fusion/provider/customerCubit/customer_edit/customer_edit_cubit.dart';
-
-
 
 import 'package:fashion_fusion/provider/cart_cubit/cart_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite_edit/favorite_edit_cubit.dart';
 import 'package:fashion_fusion/provider/order_cubit/order_cubit.dart';
+import 'package:fashion_fusion/provider/order_edit_cubit/order_edit_cubit_cubit.dart';
 import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
 import 'package:fashion_fusion/provider/product_cubit/product_edit/product_edit_cubit.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
@@ -61,6 +59,7 @@ final sl = GetIt.instance;
 Future<void> init() async {
   sl.registerFactory(
       () => AuthCubit(registerUsecase: sl(), loginUsecase: sl(), resetPasswordUsecase: sl()));
+  sl.registerFactory(() => OrderEditCubit(repository: sl()));
   // //! Repository
   sl.registerLazySingleton<AuthRepository>(
       () => AuthRepositoryImpl(networkInfo: sl(), remoteDatasource: sl()));
@@ -143,9 +142,10 @@ Future<void> init() async {
 
   sl.registerLazySingleton<ProfileRemoteDataSource>(
       () => ProfileRemoteDataSourceImpl(apiConsumer: sl()));
-      
+
 // Customer::START
-  sl.registerFactory(() => CustomerCubit(get: sl(), getCustomerByIdUsecase: sl()));
+  sl.registerFactory(
+      () => CustomerCubit(get: sl(), getCustomerByIdUsecase: sl()));
   sl.registerFactory(
       () => CustomerEditCubit(add: sl(), update: sl(), delete: sl()));
 
