@@ -1,5 +1,6 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
+import 'package:fashion_fusion/core/widgets/custom_search_bar.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
 import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
 import 'package:fashion_fusion/view/home/widget/product_card.dart';
@@ -28,11 +29,12 @@ class _HomeScreenState extends State<HomeScreen> {
   };
   late List<String> _favoriteIds;
   late List<ProductModel> products;
+  TextEditingController searchController = TextEditingController();
 
   Future<void> _fetchProducts(ProductCubit productCubit) async {
-      setState(() {
-        productCubit.getProduct(productQueryParams);
-      });
+    setState(() {
+      productCubit.getProduct(productQueryParams);
+    });
   }
 
   @override
@@ -41,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _fetchProducts(context.read<ProductCubit>());
   }
 
+  @override
   Widget build(BuildContext context) {
     // HelperMethod.loader is a custom widget that wraps the child with a loader if needed
     return HelperMethod.loader(
@@ -150,85 +153,75 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   SliverAppBar _buildAppBar1() {
-    TextEditingController searchController = TextEditingController();
- 
     void handleSearchButtonTap() {
       setState(() {
-       if (searchController.text != ""){
+        if (searchController.text != "") {
           productName = "${searchController.text}*";
           productQueryParams = {
-                  'productName': productName,
-              };
-        }
-        else{
+            'productName': productName,
+          };
+        } else {
           productQueryParams = {
-              'productName': '',
+            'productName': '',
           };
         }
-         _fetchProducts(context.read<ProductCubit>());
+        _fetchProducts(context.read<ProductCubit>());
       });
     }
 
-
-  return SliverAppBar(
-    expandedHeight: 150.sp,
-    floating: false,
-    elevation: 0,
-    systemOverlayStyle: SystemUiOverlayStyle.dark,
-    flexibleSpace: FlexibleSpaceBar(
-      collapseMode: CollapseMode.parallax,
-      background: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AppBar(
-            systemOverlayStyle: SystemUiOverlayStyle.dark,
-            leading: const Icon(CupertinoIcons.line_horizontal_3),
-            elevation: 0,
-            actions: [
-              Row(
-                children: [
-                  Container(
-                    width: 250,
-                    child: TextField(
-                      controller: searchController,
-                      decoration: const InputDecoration(
-                        hintText: 'Search Products',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  GestureDetector(
-                    onTap: () {
-                      // Handle the search icon click
-                      handleSearchButtonTap(); 
-                    },
-                    child: const Icon(CupertinoIcons.search),
-                  ),
-                  //const Icon(CupertinoIcons.search),
-                  const SizedBox(width: 10),
-                  const Icon(CupertinoIcons.bell),
-                  const SizedBox(width: 15),
-                ],
-              )
-            ],
-          ),
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0),
-            child: Text(
-              "Discover\nYour Best Clothing",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 24.sp,
+    return SliverAppBar(
+      expandedHeight: 150.sp,
+      floating: false,
+      elevation: 0,
+      systemOverlayStyle: SystemUiOverlayStyle.dark,
+      flexibleSpace: FlexibleSpaceBar(
+        collapseMode: CollapseMode.parallax,
+        background: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AppBar(
+              systemOverlayStyle: SystemUiOverlayStyle.dark,
+              leading: const Icon(CupertinoIcons.line_horizontal_3),
+              elevation: 0,
+              title: AnimatedSearchBar(
+                animationDuration: const Duration(seconds: 3330),
+                controller: searchController,
+                searchDecoration: const InputDecoration(
+                  hintText: "Search here...",
+                  border: UnderlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  debugPrint("value on Change");
+                  setState(() {
+                    handleSearchButtonTap();
+                  });
+                },
+              ),
+              actions: const [
+                Row(
+                  children: [
+                    Icon(CupertinoIcons.bell),
+                    SizedBox(width: 15),
+                  ],
+                )
+              ],
+            ),
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              child: Text(
+                "Discover\nYour Best Clothing",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24.sp,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   SliverAppBar _buildAppBar2() {
     return SliverAppBar(
@@ -254,7 +247,7 @@ class _HomeScreenState extends State<HomeScreen> {
               catIndex = index;
               cat = (_cat[index] == "All") ? "" : _cat[index];
               productQueryParams = {
-                 'category': cat,
+                'category': cat,
               };
               _fetchProducts(context.read<ProductCubit>());
             });
