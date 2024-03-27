@@ -1,7 +1,7 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/widgets/cart_button.dart';
 import 'package:fashion_fusion/core/widgets/like_button.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:fashion_fusion/view/home/widget/product_details_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fashion_fusion/data/product/model/product_model.dart';
@@ -23,7 +23,20 @@ class ProductCard extends StatelessWidget {
       imageUrl = "http://127.0.0.1:3000/products/images/${model.images![0]}";
     }
 
-    return Container(
+    return GestureDetector(
+      onTap: () => {
+        Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProductDetailWidget(
+                          model : model,
+                          isFavorite: isFavorite
+                        ),
+                      ),
+                    )
+      },
+    
+      child: Container(
       decoration: const BoxDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,6 +63,7 @@ class ProductCard extends StatelessWidget {
           )
         ],
       ),
+    )
     );
   }
 

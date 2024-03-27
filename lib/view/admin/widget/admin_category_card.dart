@@ -7,17 +7,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class AdminCategoryCard extends StatefulWidget {
-  final String model;
+  final String category;
 
-  const AdminCategoryCard({super.key, required this.model});
+  const AdminCategoryCard({super.key, required this.category});
 
   @override
   State<AdminCategoryCard> createState() => _AdminCategoryCardState();
 }
 
 class _AdminCategoryCardState extends State<AdminCategoryCard> {
-
-  Map<String, String> productQueryParams = {};
 
   @override
   Widget build(BuildContext context) {
@@ -47,18 +45,20 @@ class _AdminCategoryCardState extends State<AdminCategoryCard> {
               label: 'Edit',
             ),
           ]),
-      key: Key(widget.model),
+      key: Key(widget.category),
       direction: Axis.horizontal,
       child: ListTile(
         onTap: () {
           context.pushNamedNAV(BlocProvider(
-            create: (context) => sl<ProductCubit>()..getProduct(productQueryParams),
-            child:  AdminProductScreen(),
+            create: (context) => sl<ProductCubit>()..getProduct({
+                'category': widget.category,
+              }),
+            child:  AdminProductScreen(category: widget.category),
           ));
         },
         style: ListTileStyle.drawer,
         visualDensity: VisualDensity.comfortable,
-        title: Text(widget.model),
+        title: Text(widget.category),
         trailing: Icon(
           Icons.arrow_forward_ios,
           color: Colors.black.withOpacity(0.5),

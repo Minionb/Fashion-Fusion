@@ -1,14 +1,22 @@
+import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/data/auth/model/login_model.dart';
 import 'package:fashion_fusion/data/auth/model/signup_model.dart';
 import 'package:fashion_fusion/data/auth/usecase/login_usecase.dart';
 import 'package:fashion_fusion/data/auth/usecase/register_usecase.dart';
+import 'package:fashion_fusion/data/auth/usecase/reset_password_usecase.dart';
 import 'package:fashion_fusion/provider/states/cubit_states.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthCubit extends Cubit<CubitState> {
   final LoginUsecase loginUsecase;
   final RegisterUsecase registerUsecase;
-  AuthCubit({required this.registerUsecase, required this.loginUsecase})
+  final ResetPasswordUsecase resetPasswordUsecase;
+
+  AuthCubit(
+      {required this.registerUsecase,
+      required this.loginUsecase,
+      required this.resetPasswordUsecase})
       : super(Initial());
 
   void login(LoginModel model) async {
@@ -23,5 +31,18 @@ class AuthCubit extends Cubit<CubitState> {
     final response = await registerUsecase(model);
     emit(response.fold((l) => DataFailure(errorMessage: l.toString()),
         (r) => DataSuccess(data: r)));
+  }
+
+  void resetPassword(String email) async {
+    emit(DataLoading());
+    final response = await resetPasswordUsecase(email);
+    emit(response.fold((l) => DataFailure(errorMessage: l.toString()),
+        (r) => DataSuccess(data: r)));
+  }
+
+  void signOut() async {
+    emit(DataLoading());
+    await sl<SharedPreferences>().clear();
+    emit(DataSuccess());
   }
 }

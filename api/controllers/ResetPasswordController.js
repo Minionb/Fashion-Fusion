@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const { CustomersModel, ResetTokensModel } = require("../schema/index");
+const { CustomersModel, ResetPasswordModel: ResetPasswordModel } = require("../schema/index");
 const { app_properties } = require("../util/properties");
 const { sendMail } = require("../util/emailer");
 const crypto = require("crypto");
@@ -8,44 +8,50 @@ async function postResetPassword(req, res) {
   const { email } = req.body;
 
   try {
-    const existingCustomer = await CustomersModel.findOne({ email });
+    const existingCustomer = await CustomersModel.findOne({ email: email });
     if (!existingCustomer) {
       return res.status(404).send("Email not found");
     }
 
-    const token = crypto.randomBytes(20).toString("hex");
-    await ResetTokensModel.create({
+    const tempPassword = crypto.randomBytes(8).toString("hex");
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+    
+    await ResetPasswordModel.deleteMany({ email: email });
+    await ResetPasswordModel.create({
       customerId: existingCustomer._id,
-      token,
+      password: hashedPassword,
       email,
     });
 
-    const resetLink = `${app_properties.server}/customers/reset-password/${token}`;
+    existingCustomer.password = hashedPassword;
+    console.log(`customerId=${existingCustomer._id} updated with temporary password`);
+    existingCustomer.save();
+    
     const mailOptions = {
       to: email,
       subject: "Reset your password",
-      text: `Click on the following link to reset your password: ${resetLink}`,
+      text: `Thanks for contacting Fashion Fushion. Your temporary password : ${tempPassword}`,
     };
 
     await sendMail(mailOptions);
-    res.send("Reset email sent");
+    res.send({ message: "Reset email sent" });
   } catch (error) {
     console.error(error);
     res.status(500).send("Failed to process request");
   }
 }
 async function postSetPassword(req, res) {
-  const { token, newPassword } = req.body;
+  const { token: oldPassword, newPassword } = req.body;
 
   try {
     // Find the token in the database
-    const resetToken = await ResetTokensModel.findOne({ token });
+    const resetPassword = await ResetPasswordModel.findOne({ token: oldPassword });
 
-    if (resetToken) {
+    if (resetPassword) {
       // Delete the token from the database
-      await ResetTokensModel.deleteOne({ _id: resetToken._id });
+      await ResetPasswordModel.deleteOne({ _id: resetPassword._id });
       // Find the user associated with the token
-      const customer = await CustomersModel.findById(resetToken.customerId);
+      const customer = await CustomersModel.findById(resetPassword.customerId);
 
       if (customer) {
         // Update user's password
@@ -57,7 +63,7 @@ async function postSetPassword(req, res) {
         res.status(404).send("User not found");
       }
     } else {
-      res.status(400).send("Invalid or expired token");
+      res.status(400).send("Invalid or expired password");
     }
   } catch (error) {
     console.error(error);
