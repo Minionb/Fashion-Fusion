@@ -2,6 +2,7 @@ import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/widgets/custom_search_bar.dart';
 import 'package:fashion_fusion/core/widgets/skelton.dart';
+import 'package:fashion_fusion/provider/cart_cubit/cart_cubit.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
 import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
 import 'package:fashion_fusion/view/home/widget/product_card.dart';
@@ -12,6 +13,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:fashion_fusion/data/product/model/product_model.dart';
+import 'package:loader_overlay/loader_overlay.dart';
+import 'package:toastification/toastification.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -143,32 +146,49 @@ class _HomeScreenState extends State<HomeScreen> {
 
 // Building the products list
   Widget _buildProductsList() {
-    return AnimationLimiter(
-      child: GridView.builder(
-        padding: const EdgeInsets.fromLTRB(15, 15, 15, 50),
-        itemCount: products.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 20,
-          crossAxisSpacing: 20,
-          childAspectRatio: 0.72,
-        ),
-        itemBuilder: (context, index) {
-          final model = products[index];
-          final bool isFavorite = _favoriteIds.contains(model.id);
-          return AnimationConfiguration.staggeredList(
-            position: index,
-            duration: const Duration(milliseconds: 900),
-            child: SlideAnimation(
-              child: FadeInAnimation(
-                child: ProductCard(
-                  model: model,
-                  isFavorite: isFavorite,
+    return BlocListener<CartCubit, CartState>(
+      listener: (context, state) {
+        if (state is CartIsLoadingState) {
+          context.loaderOverlay.show();
+        }
+        if (state is CartSuccessState) {
+          context.loaderOverlay.hide();
+          HelperMethod.showToast(context,
+              title: const Text("Item added successfully"),
+              type: ToastificationType.success);
+        }
+        if (state is CartErrorState) {
+          context.loaderOverlay.hide();
+        }
+      },
+      child: AnimationLimiter(
+        child: GridView.builder(
+          padding: const EdgeInsets.fromLTRB(15, 15, 15, 50),
+          itemCount: products.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 20,
+            crossAxisSpacing: 20,
+            childAspectRatio: 0.72,
+          ),
+          itemBuilder: (context, index) {
+            final model = products[index];
+            final bool isFavorite = _favoriteIds.contains(model.id);
+
+            return AnimationConfiguration.staggeredList(
+              position: index,
+              duration: const Duration(milliseconds: 900),
+              child: SlideAnimation(
+                child: FadeInAnimation(
+                  child: ProductCard(
+                    model: model,
+                    isFavorite: isFavorite,
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
