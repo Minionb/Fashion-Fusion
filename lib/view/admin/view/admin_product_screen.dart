@@ -10,9 +10,44 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class AdminProductScreen extends StatelessWidget {
-  AdminProductScreen({super.key});
-  Map<String, String> productQueryParams = {};
+
+class AdminProductScreen extends StatefulWidget {
+  final String category;
+  AdminProductScreen({super.key,required this.category});
+
+  @override
+  State<AdminProductScreen> createState() => _AdminProductScreenState();
+}
+  
+class _AdminProductScreenState extends State<AdminProductScreen> {
+  Map<String, String> productQueryParams = {
+    'category': '',
+    'productName': '',
+  };
+  int catIndex = 0;
+  String productName = "";
+
+  TextEditingController searchController = TextEditingController();
+ 
+    void handleSearchButtonTap() {
+      setState(() {
+        if (searchController.text != ""){
+          productName = "${searchController.text}*";
+          productQueryParams = {
+                  'category': widget.category,
+                  'productName': productName,
+              };
+        }
+        else{
+          productQueryParams = {
+              'category': widget.category,
+              'productName': '',
+          };
+        }
+         context.read<ProductCubit>().getProduct(productQueryParams);
+      });
+    }
+
   @override
   Widget build(BuildContext context) {
     return HelperMethod.loader(
@@ -22,7 +57,32 @@ class AdminProductScreen extends StatelessWidget {
         appBar: AppBar(
           title: const Text("Product"),
         ),
-        body: BlocBuilder<ProductCubit, ProductState>(
+        body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: searchController,
+                    decoration: const InputDecoration(
+                      labelText: 'Search Products',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () {
+                    handleSearchButtonTap(); 
+                  },
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: BlocBuilder<ProductCubit, ProductState>(
           builder: (context, state) {
             if (state is ProductIsLoadingState) {
               return HelperMethod.loadinWidget();
@@ -49,7 +109,10 @@ class AdminProductScreen extends StatelessWidget {
             return const SizedBox();
           },
         ),
-      ),
+          )
+        ]
+        ),
+      )
     );
   }
 
