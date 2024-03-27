@@ -79,7 +79,7 @@ class ValidationHelper {
     return null;
   }
 
-  static String? cardNumberValidation(String? value) {
+  static String? cardNumberValidation(String? value, String? method) {
     if (value?.isEmpty ?? true) {
       return 'Please enter the card number';
     }
@@ -91,10 +91,13 @@ class ValidationHelper {
     if (value.length != 19) {
       return 'Card number must be 16 digits with a space after the 4th, 8th, and 12th digits';
     }
+    if ((method == 'VISA' && value[0] != "4") || (method == "Mastercard" && (value[0] != "2" && value[0] != '5')) || (method == 'American Express' && value[0] != "3")) {
+      return 'Card number does not match the selected card type';
+    }
     return null;
   }
 
-  static String? cardExpMonthValidation(String? value, int curMonth) {
+  static String? cardExpMonthValidation(String? value) {
     if (value?.isEmpty ?? true) {
       return 'Please enter the card expiration month';
     }
@@ -113,7 +116,7 @@ class ValidationHelper {
     return null;
   }
 
-  static String? cardExpYearValidation(String? value, int curYear) {
+  static String? cardExpYearValidation(String? value, int curYear, int? enteredMonth, int curMonth) {
 
     if (value?.isEmpty ?? true) {
       return 'Please enter the card expiration year';
@@ -127,7 +130,7 @@ class ValidationHelper {
       return 'Card expiration year must be 4 digits';
     }
 
-    if (int.parse(value) < curYear) {
+    if ((int.parse(value) < curYear) || (int.parse(value) == curYear && enteredMonth! < curMonth)) {
       return 'Card is expired';
     }
 
