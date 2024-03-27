@@ -15,6 +15,14 @@ class AppColors {
   static Color grayDK = HexColor("ABB4BD");
   static Color whiteDK = HexColor("F6F6F6");
   static Color darkSeliverDK = HexColor("707070");
+
+  // Credit Cards
+  static Color visaPrimary = const Color.fromARGB(255, 29, 128, 233);
+  static Color visaSecondary = const Color.fromARGB(255, 187, 207, 246);
+  static Color mastercardPrimary = const Color.fromARGB(255, 16, 16, 16);
+  static Color mastercardSecondary = const Color.fromARGB(255, 103, 103, 103);
+  static Color americanEPrimary = const Color(0xFFDAA520);
+  static Color americanESecondary = const Color.fromARGB(255, 255, 236, 175);
 }
 
 class HexColor extends Color {

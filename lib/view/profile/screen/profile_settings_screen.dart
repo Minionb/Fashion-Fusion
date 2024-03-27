@@ -1,8 +1,6 @@
-import 'package:fashion_fusion/config/routes/app_routes.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/utils/helper_validation.dart';
-import 'package:fashion_fusion/core/utils/navigator_extension.dart';
 import 'package:fashion_fusion/core/widgets/custom_text_field.dart';
 import 'package:fashion_fusion/data/auth/model/login_model.dart';
 import 'package:fashion_fusion/data/profile/model/profile_model.dart';
@@ -45,7 +43,7 @@ class _ProfileSettings extends State<ProfileSettings> {
       create: (context) => sl<ProfileEditCubit>(),
       child: HelperMethod.loader(
         child: Scaffold(
-          appBar: AppBar(title: Text("Settings",
+          appBar: AppBar(title: const Text("Settings",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),),
           body: SafeArea(
             bottom: false,
