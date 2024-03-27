@@ -1,6 +1,7 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/widgets/custom_search_bar.dart';
+import 'package:fashion_fusion/core/widgets/skelton.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite/favorite_cubit.dart';
 import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
 import 'package:fashion_fusion/view/home/widget/product_card.dart';
@@ -95,8 +96,28 @@ class _HomeScreenState extends State<HomeScreen> {
 
 // Building loading state widget
   Widget _buildLoadingState() {
-    return const Center(
-      child: CircularProgressIndicator(),
+    return AnimationLimiter(
+      child: GridView.builder(
+        padding: const EdgeInsets.fromLTRB(15, 15, 15, 50),
+        itemCount: 10,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 20,
+          crossAxisSpacing: 20,
+          childAspectRatio: 0.72,
+        ),
+        itemBuilder: (context, index) {
+          return AnimationConfiguration.staggeredList(
+            position: index,
+            duration: const Duration(milliseconds: 900),
+            child: const SlideAnimation(
+              child: FadeInAnimation(
+                child: Skelton(),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
