@@ -25,7 +25,7 @@ class _AdminCategoryScreenState extends State<AdminCategoryScreen> {
       body: ListView.separated(
           itemBuilder: (context, index) {
             return AdminCategoryCard(
-              model: _cat[index],
+              category: _cat[index],
             );
           },
           separatorBuilder: (context, index) => const Divider(),

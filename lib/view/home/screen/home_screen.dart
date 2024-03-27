@@ -154,10 +154,17 @@ class _HomeScreenState extends State<HomeScreen> {
  
     void handleSearchButtonTap() {
       setState(() {
-        productName = "${searchController.text}*";
-        productQueryParams = {
-                'productName': productName,
-            };
+       if (searchController.text != ""){
+          productName = "${searchController.text}*";
+          productQueryParams = {
+                  'productName': productName,
+              };
+        }
+        else{
+          productQueryParams = {
+              'productName': '',
+          };
+        }
          _fetchProducts(context.read<ProductCubit>());
       });
     }
