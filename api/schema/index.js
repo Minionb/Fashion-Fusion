@@ -1,5 +1,5 @@
 const AdminsModel = require("./adminSchema");
-const ResetTokensModel = require("./resetTokenSchema");
+const ResetPasswordModel = require("./resetPasswordSchema");
 const ProductsModel = require("./productSchema");
 const ProductImagesModel = require("./productImageSchema");
 const CartsModel = require("./cartSchema");
@@ -10,7 +10,7 @@ const { CustomersModel, paymentSchema, addressSchema } = require("./customerSche
 module.exports = {
   CustomersModel,
   AdminsModel,
-  ResetTokensModel,
+  ResetPasswordModel,
   ProductsModel,
   ProductImagesModel,
   CartsModel,

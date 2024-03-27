@@ -7,6 +7,7 @@ import 'package:fashion_fusion/data/auth/datasource/auth_remote_datasource.dart'
 import 'package:fashion_fusion/data/auth/repository/auth_repository.dart';
 import 'package:fashion_fusion/data/auth/usecase/login_usecase.dart';
 import 'package:fashion_fusion/data/auth/usecase/register_usecase.dart';
+import 'package:fashion_fusion/data/auth/usecase/reset_password_usecase.dart';
 import 'package:fashion_fusion/data/cart/datasource/cart_remote_datasource.dart';
 import 'package:fashion_fusion/data/cart/repository/cart_repository.dart';
 import 'package:fashion_fusion/data/customer/datasource/customer_remote_datasource.dart';
@@ -57,7 +58,7 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   sl.registerFactory(
-      () => AuthCubit(registerUsecase: sl(), loginUsecase: sl()));
+      () => AuthCubit(registerUsecase: sl(), loginUsecase: sl(), resetPasswordUsecase: sl()));
   sl.registerFactory(() => OrderEditCubit(repository: sl()));
   // //! Repository
   sl.registerLazySingleton<AuthRepository>(
@@ -73,6 +74,8 @@ Future<void> init() async {
   sl.registerLazySingleton<LoginUsecase>(() => LoginUsecase(repository: sl()));
   sl.registerLazySingleton<RegisterUsecase>(
       () => RegisterUsecase(repository: sl()));
+  sl.registerLazySingleton<ResetPasswordUsecase>(
+      () => ResetPasswordUsecase(repository: sl()));
 
 // Product::START
   sl.registerFactory(() => ProductCubit(get: sl()));
