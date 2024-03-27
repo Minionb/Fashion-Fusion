@@ -189,7 +189,11 @@ async function updateCustomerData(customerId, updateData) {
   if (!existingCustomer) {
     throw new Error("Customer not found");
   }
-
+  if(updateData.newPassword)  {
+    const passwordMatch = await bcrypt.compare(updateData.oldPassword, user.password);
+    if(!passwordMatch)
+      throw new Error("Password not matching!");
+  }
   // Convert card expiry from MM/YYYY to Date object before applying updates
   updateData = await normalizeCustomerData(updateData);
 
