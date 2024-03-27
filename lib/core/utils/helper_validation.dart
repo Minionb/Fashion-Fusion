@@ -91,7 +91,7 @@ class ValidationHelper {
     if (value.length != 19) {
       return 'Card number must be 16 digits with a space after the 4th, 8th, and 12th digits';
     }
-    if ((method == 'VISA' && value[0] != "4") || (method == "Mastercard" && (value[0] != "2" && value[0] != '5')) || (method == 'American Express' && value[0] != "3")) {
+    if ((method == 'VISA' && value[0] != "4") || (method == "Mastercard" && (value[0] != "2" && value[0] != '5')) || (method == 'American Express' && (value.substring(0, 2) != "34" && value.substring(0, 2) != "37"))) {
       return 'Card number does not match the selected card type';
     }
     return null;
