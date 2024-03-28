@@ -44,15 +44,8 @@ class _ProfileSettings extends State<ProfileSettings> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-        providers: [
-          BlocProvider<ProfileEditCubit>(
-            create: (context) => sl<ProfileEditCubit>(),
-          ),
-          BlocProvider<AuthCubit>(
-            create: (context) => sl<AuthCubit>(),
-          )
-        ],
+    return BlocProvider<ProfileEditCubit>(
+        create: (context) => sl<ProfileEditCubit>(),
         child: HelperMethod.loader(
           child: Scaffold(
               appBar: AppBar(
@@ -135,10 +128,6 @@ class _ProfileSettings extends State<ProfileSettings> {
                   cardTitle: "Mobile Number",
                   cardContent: profile.telephoneNumber!,
                   email: profile.email!),
-              InfoCards(
-                  cardTitle: "Password",
-                  cardContent: "",
-                  email: widget.profile.email!),
             ],
           ),
         ));
@@ -300,52 +289,22 @@ class InfoCards extends StatelessWidget {
                                 ),
                               ],
                             )
-                          : cardTitle == "Password"
-                              ? Column(
-                                  children: [
-                                    CustomTextField(
-                                      label: "Old Password",
-                                      hint: "",
-                                      ctrl: _editCtrl1,
-                                      validator: (p0) =>
-                                          ValidationHelper.passwordValidation(
-                                              p0),
-                                    ),
-                                    10.verticalSpace,
-                                    CustomTextField(
-                                      label: "New Password",
-                                      hint: "",
-                                      ctrl: _editCtrl2,
-                                      validator: (p0) => ValidationHelper
-                                          .passwordNewValidation(
-                                              p0, _editCtrl1.text),
-                                    ),
-                                    10.verticalSpace,
-                                    CustomTextField(
-                                      label: "Repeat New Password",
-                                      hint: "",
-                                      ctrl: _editCtrl3,
-                                      validator: (p0) => ValidationHelper
-                                          .passwordMatchValidation(
-                                              p0, _editCtrl2.text),
-                                    ),
-                                  ],
+                          : cardTitle == "Email"
+                              ? CustomTextField(
+                                  label: "Email",
+                                  hint: "",
+                                  ctrl: _editCtrl1,
+                                  validator: (p0) =>
+                                      ValidationHelper.emailValidation(p0),
                                 )
-                              : cardTitle == "Email"
-                                  ? CustomTextField(
-                                      label: "Email",
-                                      hint: "",
-                                      ctrl: _editCtrl1,
-                                      validator: (p0) =>
-                                          ValidationHelper.emailValidation(p0),
-                                    )
-                                  : CustomTextField(
-                                      label: "Mobile Number",
-                                      hint: "",
-                                      ctrl: _editCtrl1,
-                                      validator: (p0) => ValidationHelper
-                                          .phoneNumberValidation(p0),
-                                    ),
+                              : CustomTextField(
+                                  label: "Mobile Number",
+                                  hint: "",
+                                  ctrl: _editCtrl1,
+                                  validator: (p0) =>
+                                      ValidationHelper.phoneNumberValidation(
+                                          p0),
+                                ),
                     ),
                     ElevatedButton(
                         style: ElevatedButton.styleFrom(

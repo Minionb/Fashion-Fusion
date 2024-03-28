@@ -43,7 +43,7 @@ async function postResetPassword(req, res) {
     res.send({ message: "Reset email sent" });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Failed to process request");
+    res.status(500).send({errorMessage: "Failed to process request"});
   }
 }
 async function postSetPassword(req, res) {
@@ -64,13 +64,13 @@ async function postSetPassword(req, res) {
       customer.password = await bcrypt.hash(password, 10);
       await customer.save();
 
-      res.send("Password reset successfully");
+      res.send({message: "Password reset successfully"});
     } else {
-      res.status(404).send("User not found");
+      res.status(404).send({message: "User not found"});
     }
   } catch (error) {
     console.error(error);
-    res.status(500).send("Failed to process request");
+    res.status(500).send({errorMessage: error.message});
   }
 }
 
