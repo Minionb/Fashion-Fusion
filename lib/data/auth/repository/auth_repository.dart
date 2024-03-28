@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:fashion_fusion/api/netwok_info.dart';
 import 'package:fashion_fusion/data/auth/model/login_model.dart';
 import 'package:fashion_fusion/data/auth/model/responed_model.dart';
+import 'package:fashion_fusion/data/auth/model/set_password.dart';
 import 'package:fashion_fusion/data/auth/model/signup_model.dart';
 import 'package:fashion_fusion/data/auth/model/status_model.dart';
 import 'package:fashion_fusion/error/exceptions.dart';
@@ -12,6 +13,7 @@ abstract class AuthRepository {
   Future<Either<Failure, ResponseModel>> login(LoginModel model);
   Future<Either<Failure, Status>> regiter(RegisterUserModel model);
   Future<Either<Failure, Status>> forgetPassword(String email);
+  Future<Either<Failure, Status>> setPassword(SetPasswordModel setPassword);
   Future<Either<Failure, Unit>> logout();
 }
 
@@ -79,6 +81,19 @@ class AuthRepositoryImpl implements AuthRepository {
     } else {
       return Left(OfflineFailure());
     }
+  }
+  
+  @override
+  Future<Either<Failure, Status>> setPassword(SetPasswordModel setPasswordModel) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final reposnse = await remoteDatasource.setPassword(setPasswordModel);
+        return Right(reposnse);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {}
+    throw const ServerException();
   }
 }
 

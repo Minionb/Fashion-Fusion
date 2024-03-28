@@ -6,6 +6,7 @@ import 'package:fashion_fusion/provider/profile_cubit/profile_edit/profile_edit_
 import 'package:fashion_fusion/view/auth/screen/welcome_screen.dart';
 import 'package:fashion_fusion/view/customer_service/screen/customer_service_screen.dart';
 import 'package:fashion_fusion/view/home/widget/app_bar.dart';
+import 'package:fashion_fusion/view/profile/screen/change_password_screen.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_addresses_screen.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_orders_screen.dart';
 import 'package:fashion_fusion/view/profile/screen/customer_order_list.dart';
@@ -156,10 +157,18 @@ class ProfileTitle extends StatelessWidget {
             routeWidget: ProfilePaymentMethods(paymentMethodsList: profile.payments)),
         ProfileOptionsCard(
             title: "Settings",
-            subtitle: "Email, password",
+            subtitle: "Email",
             routeWidget: BlocProvider(
                 create: (context) => sl<ProfileEditCubit>(),
                 child: ProfileSettings(profile: profile,),
+            ),
+        ),
+        ProfileOptionsCard(
+            title: "Security",
+            subtitle: "Password",
+            routeWidget: BlocProvider(
+                create: (context) => sl<AuthCubit>(),
+                child: const ChangePasswordScreen(),
             ),
         ),
         ProfileOptionsCard(

@@ -14,7 +14,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // TODO: Add more payment options
-const List<String> paymentOpsList = <String>['VISA'];
+const List<String> paymentOpsList = <String>['VISA', 'Mastercard', 'American Express'];
 
 class AddPaymentMethod extends StatefulWidget {
   final List<PaymentModel> curPayments;
@@ -90,7 +90,7 @@ class _AddPaymentMethod extends State<AddPaymentMethod> {
                   label: "Card Number", 
                   hint: "1234 1234 1234 1234", 
                   ctrl: _cardNumCtrl,
-                  validator:(p0) => ValidationHelper.cardNumberValidation(p0),
+                  validator:(p0) => ValidationHelper.cardNumberValidation(p0, selectedMethod),
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.next,
                 ),
@@ -127,21 +127,26 @@ class _AddPaymentMethod extends State<AddPaymentMethod> {
                     Expanded(
                       child: CustomTextField(
                         validator:(p0) => 
-                            ValidationHelper.cardExpMonthValidation(p0, int.parse(DateFormat("MM").format(DateTime.now()))),
+                            ValidationHelper.cardExpMonthValidation(p0),
                         label: "Month", 
                         hint: "01", 
                         ctrl: _expDateMonthCtrl
                       ),
                     ),
                     10.horizontalSpace,
-                    const Text("/", style: TextStyle(fontSize: 30),),
+                    Column(
+                      children: [
+                        20.verticalSpace,
+                        const Text("/", style: TextStyle(fontSize: 30),),
+                      ],
+                    ),
                     10.horizontalSpace,
                     Expanded(
                       child: CustomTextField(
                         validator:(p0) => 
-                            ValidationHelper.cardExpYearValidation(p0, int.parse(DateFormat("yyyy").format(DateTime.now()))),
+                            ValidationHelper.cardExpYearValidation(p0, int.parse(DateFormat("yyyy").format(DateTime.now())), int.parse(_expDateMonthCtrl.text), int.parse(DateFormat("MM").format(DateTime.now()))),
                         label: "Year", 
-                        hint: "2000", 
+                        hint: DateFormat("yyyy").format(DateTime.now()), 
                         ctrl: _expDateYearCtrl
                       ),
                     )
@@ -223,14 +228,6 @@ class _AddPaymentMethod extends State<AddPaymentMethod> {
                   onPressed: () {
                     if (selectedMethod != "") {
                       if (_formKey.currentState!.validate()) {
-                        widget.curPayments.add(PaymentModel(
-                          name: "${_holderFirstNameCtrl.text} ${_holderLastNameCtrl.text}", 
-                          method: selectedMethod, 
-                          cardNumber: _cardNumCtrl.text, 
-                          expirationDate: "${_expDateMonthCtrl.text}/${_expDateYearCtrl.text}",
-                          cvv: _cvvCtrl.text
-                        ));
-                        print(widget.curPayments);
                         // BlocProvider.of<ProfileEditCubit>(this.context).updateProfile(
                         //   UploadProfileModel(dictionary: 'payments', newData: widget.curPayments), 
                         //   sl<SharedPreferences>().getString("userID")!
@@ -250,6 +247,14 @@ class _AddPaymentMethod extends State<AddPaymentMethod> {
                                 ),
                                 TextButton(
                                   onPressed: () {
+                                    widget.curPayments.add(PaymentModel(
+                                      name: "${_holderFirstNameCtrl.text} ${_holderLastNameCtrl.text}", 
+                                      method: selectedMethod, 
+                                      cardNumber: _cardNumCtrl.text, 
+                                      expirationDate: "${_expDateMonthCtrl.text}/${_expDateYearCtrl.text}",
+                                      cvv: _cvvCtrl.text
+                                    ));
+                                    print(widget.curPayments);
                                     // BlocProvider.of<ProfileEditCubit>(context).updateProfile(
                                       // UploadProfileModel(dictionary: 'payments', newData: widget.curPayments), 
                                       // sl<SharedPreferences>().getString("userID")!
@@ -281,7 +286,7 @@ class _AddPaymentMethod extends State<AddPaymentMethod> {
                                       context, MaterialPageRoute(builder: (context) => ProfilePaymentMethods(paymentMethodsList: widget.curPayments)));
                                     //Navigator.of(context).pop(widget.curPayments);
                                   }, 
-                                  child: const Text('OK')
+                                  child: const Text('Save')
                                 )
                               ],
                             );

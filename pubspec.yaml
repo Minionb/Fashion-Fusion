@@ -45,6 +45,7 @@ dependencies:
   http: ^1.2.0
   timeago: ^3.6.1
 
+
 dependency_overrides: 
   photo_manager: ^3.0.0-dev.2
 
@@ -64,6 +65,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/faq_data.json
 
 
   # fonts:

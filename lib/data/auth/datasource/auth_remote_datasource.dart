@@ -6,6 +6,7 @@ import 'package:fashion_fusion/api/end_points.dart';
 import 'package:fashion_fusion/api/status_code.dart';
 import 'package:fashion_fusion/data/auth/model/login_model.dart';
 import 'package:fashion_fusion/data/auth/model/responed_model.dart';
+import 'package:fashion_fusion/data/auth/model/set_password.dart';
 import 'package:fashion_fusion/data/auth/model/signup_model.dart';
 import 'package:fashion_fusion/data/auth/model/status_model.dart';
 import 'package:fashion_fusion/error/exceptions.dart';
@@ -15,6 +16,7 @@ abstract class AuthRemoteDataSource {
   Future<Status> register(RegisterUserModel model);
   Future<Unit> logout();
   Future<Status> forgetPassword(String email);
+  Future<Status> setPassword(SetPasswordModel setPasswordModel);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -65,6 +67,24 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     data['email'] = email;
     final Response response = await apiConsumer.post(
       EndPoints.resetPassword,
+      body: data,
+    );
+    if (response.statusCode == StatusCode.ok ||
+        response.statusCode == StatusCode.created) {
+      final jsonData = json.decode(response.data);
+      return Status.fromJson(jsonData);
+    } else {
+      String jsonDataString = response.toString();
+      final jsonData = jsonDecode(jsonDataString);
+      throw ServerException(jsonData["message"]);
+    }
+  }
+  
+  @override
+  Future<Status> setPassword(SetPasswordModel setPasswordModel) async {
+    final Map<String, dynamic> data = setPasswordModel.toJson();
+    final Response response = await apiConsumer.post(
+      EndPoints.setPassword,
       body: data,
     );
     if (response.statusCode == StatusCode.ok ||

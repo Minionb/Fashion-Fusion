@@ -1,7 +1,9 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
+import 'package:fashion_fusion/provider/auth/auth_cubit.dart';
 import 'package:fashion_fusion/provider/customerCubit/customer/customer_cubit.dart';
+import 'package:fashion_fusion/view/admin/widget/admin_app_drawer.dart';
 import 'package:fashion_fusion/view/admin/widget/customer_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,6 +28,10 @@ class _ListAllCustomersScreenState extends State<ListAllCustomersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: BlocProvider(
+        create: (context) => sl<AuthCubit>(),
+        child: const AppDrawer(),
+      ),
       backgroundColor: AppColors.bg,
       appBar: AppBar(
         bottom: HelperMethod.appBarDivider(),

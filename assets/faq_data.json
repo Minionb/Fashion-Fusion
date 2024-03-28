@@ -1,0 +1,34 @@
+[
+    {
+        "title": "Cancel Items or Orders",
+        "content": "To cancel items or orders:\n    1.\n    2.\n    3."
+    },
+    {
+        "title": "Track Order",
+        "content": ""
+    },
+    {
+        "title": "Find a missing item from your package",
+        "content": "If an item is missing from your package, please email us at customer.support@fashionfusion.com or give us a call at 1-111-111-1111 and we will help you resolve your issue."
+    },
+    {
+        "title": "What if my order arrives damaged?",
+        "content": "If your order arrives damaged, please email us at customer.support@fashionfusion.com with a picture of your damaged order and we will help you resolve your issue."
+    },
+    {
+        "title": "How long does it take to get a refund?",
+        "content": "A refund will be issued at least one business week after returning the package."
+    },
+    {
+        "title": "What is my order status?",
+        "content": "Check your order history. Each order is displayed with a Status."
+    },
+    {
+        "title": "Why is my card declined?",
+        "content": "If your card has been declined please navigate to the payments screen in your profile details. Make sure that your payment information is correct and your card has not expired."
+    },
+    {
+        "title": "What are the primary payment methods?",
+        "content": "The payment methods that we currently support are: Visa, Mastercard, and American Express."
+    }
+]
