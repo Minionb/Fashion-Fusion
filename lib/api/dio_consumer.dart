@@ -119,9 +119,9 @@ class DioConsumer implements ApiConsumer {
       var jsonBody = json.encode(body);
       final response = await client.delete(path,
           queryParameters: queryParameters,
-          //  options: options ??
-          //       Options(
-          //           headers: {HttpHeaders.contentTypeHeader: "application/json"}),
+           options: 
+                Options(
+                    headers: {HttpHeaders.contentTypeHeader: "application/json"}),
           data: formDataIsEnabled ? FormData.fromMap(body!) : jsonBody);
       return response;
     } on DioException catch (error) {
