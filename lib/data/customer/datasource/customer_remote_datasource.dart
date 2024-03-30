@@ -11,7 +11,7 @@ import 'package:dio/dio.dart';
 import '../model/upload_customer_model.dart';
 
 abstract class CustomerRemoteDataSource {
-  Future<CustomerModel> getCustomers();
+  Future<CustomerModel> getCustomers(customerQueryParams);
   Future<CustomerDataModel> getCustomerById(String customerId);
   Future<ResponseUploadCustomerModel> add(UploadCustomerModel model);
   Future<Unit> update(UploadCustomerModel model);
@@ -40,9 +40,9 @@ class CustomerRemoteDataSourceImpl implements CustomerRemoteDataSource {
   }
 
   @override
-  Future<CustomerModel> getCustomers() async {
+  Future<CustomerModel> getCustomers(customerQueryParams) async {
 
-    final Response response = await apiConsumer.get(EndPoints.customer);
+    final Response response = await apiConsumer.get(EndPoints.customer, queryParameters: customerQueryParams);
     if (response.statusCode == StatusCode.ok) {
       try {
         final CustomerModel decodedJson =

@@ -25,6 +25,19 @@ class _ListAllCustomersScreenState extends State<ListAllCustomersScreen> {
     print(sl<SharedPreferences>().getString("token"));
   }
 
+  TextEditingController firstNameController = TextEditingController();
+  TextEditingController lastNameController = TextEditingController();
+
+  String firstName = '';
+  String lastName = '';
+
+
+  Map<String, String> customerQueryParams = {
+    'first_name': '',
+    'last_name': '',
+  };
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +50,60 @@ class _ListAllCustomersScreenState extends State<ListAllCustomersScreen> {
         bottom: HelperMethod.appBarDivider(),
         title: const Text("Users"),
       ),
-      body: BlocBuilder<CustomerCubit, CustomerState>(
+      body: Column(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            height: 60,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: TextField(
+                      controller: firstNameController,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        labelText: 'First Name',
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: TextField(
+                      controller: lastNameController,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        labelText: 'Last Name',
+                      ),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () {
+                    setState(() {
+                      firstName = firstNameController.text;
+                      lastName = lastNameController.text;
+                      customerQueryParams = {
+                        'first_name': firstName,
+                        'last_name': lastName,
+                      };
+                    });
+                  },
+                ),
+              ]
+            )
+          ),
+      Expanded(
+        child: BlocBuilder<CustomerCubit, CustomerState>(
         builder: (context, state) {
           if (state is CustomerIsLoadingState) {
             return HelperMethod.loadinWidget();
@@ -59,6 +125,10 @@ class _ListAllCustomersScreenState extends State<ListAllCustomersScreen> {
           return const SizedBox();
         },
       ),
+      )
+      ]
+      )
     );
+    
   }
 }
