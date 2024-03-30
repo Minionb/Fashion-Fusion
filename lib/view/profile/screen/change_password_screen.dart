@@ -253,8 +253,8 @@ class ChangePasswordButton extends StatelessWidget {
             onPressed: isProcessing || errors.isNotEmpty ? null : onPressed,
             style: ElevatedButton.styleFrom(
               backgroundColor: isProcessing || errors.isNotEmpty
-                  ? Colors.grey // Color when disabled
-                  : AppColors.primary, // Color when enabled
+                  ? AppColors.disabled
+                  : AppColors.primary,
               textStyle: const TextStyle(fontSize: 18),
             ),
             child: const Text(
