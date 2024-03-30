@@ -170,8 +170,9 @@ async function registerCustomer(req, res) {
 }
 
 function getCustomers(req, res) {
-  // Query the database to retrieve all customers, excluding the password field
-  CustomersModel.find({}, { password: 0 })
+  const filter = buildFilter(req.query);
+  // Query the database to retrieve all customers with filter, excluding the password field
+  CustomersModel.find(filter, { password: 0 })
     .then((customers) => {
       // Return all of the users in the system
       return res.status(200).send(customers);
@@ -180,6 +181,15 @@ function getCustomers(req, res) {
       console.error(error.message);
       return res.status(500).json({ message: "Something went wrong" });
     });
+}
+
+function buildFilter(query) {
+  const filter = {};
+  if (query.first_name)
+    filter.first_name = RegExp(query.first_name, "i");
+  if (query.last_name)
+    filter.last_name = RegExp(query.last_name, "i");
+  return filter;
 }
 
 // Function to convert DD-MM-YYYY string to Date object for date_of_birth
