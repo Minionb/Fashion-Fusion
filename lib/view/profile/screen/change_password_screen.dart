@@ -1,3 +1,4 @@
+import 'package:fashion_fusion/config/theme/app_theme.dart';
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/data/auth/model/set_password.dart';
@@ -251,12 +252,9 @@ class ChangePasswordButton extends StatelessWidget {
         Expanded(
           child: ElevatedButton(
             onPressed: isProcessing || errors.isNotEmpty ? null : onPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isProcessing || errors.isNotEmpty
-                  ? AppColors.disabled
-                  : AppColors.primary,
-              textStyle: const TextStyle(fontSize: 18),
-            ),
+            style: isProcessing || errors.isNotEmpty
+                ? AppTheme.disabledButtonStyle()
+                : AppTheme.primaryButtonStyle(),
             child: const Text(
               'Change Password',
               style: TextStyle(color: Colors.white),

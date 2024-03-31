@@ -150,7 +150,7 @@ class ProfileTitle extends StatelessWidget {
         ProfileOptionsCard(
             title: "Shipping addresses",
             subtitle: "[] addresses",
-            routeWidget: ShippingAddresses()),
+            routeWidget: AddressListScreen()),
         ProfileOptionsCard(
             title: "Payment methods",
             subtitle: profile.payments.isNotEmpty ? "${profile.payments[0].method} **${profile.payments[0].cardNumber.substring(17)}" : "No saved payment methods",
