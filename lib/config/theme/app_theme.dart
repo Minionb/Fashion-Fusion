@@ -19,6 +19,19 @@ class AppTheme {
     );
   }
 
+  static ButtonStyle primaryButtonStyle(){
+    return ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              textStyle: const TextStyle(fontSize: 18),
+            );
+  }
+  static ButtonStyle disabledButtonStyle(){
+    return ElevatedButton.styleFrom(
+              backgroundColor: AppColors.disabled,
+              textStyle: const TextStyle(fontSize: 18),
+            );
+  }
+
   static ThemeData appThemeDark() {
     return ThemeData(
       appBarTheme: AppBarTheme(backgroundColor: AppColors.bgDK),
