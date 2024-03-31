@@ -39,7 +39,6 @@ class OrderCubit extends Cubit<OrderState> {
 
   void adminGetORders() async {
     emit(OrderIsLoadingState());
-    print("qeffe");
     final response = await repository.adminGetOrders();
     emit(response.fold(
         (l) => ErrorState(message: HelperMethod.mapFailureToMsg(l)),

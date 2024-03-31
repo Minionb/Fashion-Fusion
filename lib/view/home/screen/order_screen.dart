@@ -4,6 +4,7 @@ import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/core/utils/decorator_utils.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/utils/order_utils.dart';
+import 'package:fashion_fusion/data/order/model/admin_update_status_model.dart';
 import 'package:fashion_fusion/data/order/model/order_model.dart';
 import 'package:fashion_fusion/provider/order_cubit/order_cubit.dart';
 import 'package:fashion_fusion/view/widget/cart_item_widget.dart';
@@ -11,6 +12,8 @@ import 'package:fashion_fusion/view/widget/address_card_widget.dart';
 import 'package:fashion_fusion/view/widget/payment_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../provider/order_edit_cubit/order_edit_cubit_cubit.dart';
 
 class OrderScreen extends StatefulWidget {
   OrderModel? orderModel;
@@ -42,6 +45,9 @@ class _OrderScreenState extends State<OrderScreen> {
               return sl<OrderCubit>();
             }
           }),
+          BlocProvider<OrderEditCubit>(
+            create: (context) => sl<OrderEditCubit>(),
+          ),
         ],
         child: BlocBuilder<OrderCubit, OrderState>(
           builder: (context, state) {
@@ -205,7 +211,7 @@ class OrderSummaryWidget extends StatelessWidget {
               createKeyValRow(
                   "Courier", model.delivery?.courier ?? "Not specified"),
               const SizedBox(height: 16.0),
-              _cancelOrderButton()
+              if (model.status == 'pending') _cancelOrderButton(context)
             ],
           ),
         ),
@@ -213,7 +219,7 @@ class OrderSummaryWidget extends StatelessWidget {
     );
   }
 
-  Row _buildTitleRow(String label, String val, {String status = ""}){
+  Row _buildTitleRow(String label, String val, {String status = ""}) {
     return Row(
       children: [
         Expanded(
@@ -243,14 +249,18 @@ class OrderSummaryWidget extends StatelessWidget {
     );
   }
 
-  Widget _cancelOrderButton() {
-    bool ifOrderIsProcessing = model.status == 'pending';
+  Widget _cancelOrderButton(BuildContext context) {
+    bool ifOrderIsPending = model.status == 'pending';
     return Row(
       children: [
         Expanded(
           child: ElevatedButton(
-            onPressed: () {},
-            style: !ifOrderIsProcessing
+            onPressed: ifOrderIsPending
+                ? () {
+                    _confirmCancelOrder(context);
+                  }
+                : null,
+            style: !ifOrderIsPending
                 ? AppTheme.disabledButtonStyle()
                 : AppTheme.primaryButtonStyle(),
             child: const Text(
@@ -260,6 +270,40 @@ class OrderSummaryWidget extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  void _confirmCancelOrder(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dContext) {
+        return AlertDialog(
+          title: const Text("Cancel order"),
+          content: const Text("Are you sure you want to cancel the order?"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("No"),
+              onPressed: () {
+                Navigator.of(dContext).pop();
+              },
+            ),
+            TextButton(
+              child: const Text("Yes"),
+              onPressed: () {
+                // Update status here
+                sl<OrderEditCubit>().updateOrderStatus(
+                  AdminOrderUpdateStatusModel(
+                    orderID: model.orderId!,
+                    orderStatus: 'cancelled',
+                  ),
+                );
+                model.status = 'cancelled';
+                Navigator.of(dContext).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
