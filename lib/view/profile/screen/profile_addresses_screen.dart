@@ -4,6 +4,7 @@ import 'package:fashion_fusion/data/customer/model/customer_model.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile_edit/profile_edit_cubit.dart';
 import 'package:fashion_fusion/view/home/widget/empty_list_widget.dart';
+import 'package:fashion_fusion/view/profile/screen/add_edit_address_screen.dart';
 import 'package:fashion_fusion/view/widget/address_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -104,11 +105,22 @@ class _AddressListScreenState extends State<AddressListScreen> {
               AddressWidget(
                 model: _addresses[i],
                 onTap: () {
-                  // onAddressTap(i);
+                  gotoAddress(address: _addresses[i]);
                 },
               ),
             _addAddressButton(),
           ],
+        ),
+      ),
+    );
+  }
+
+  void gotoAddress({Address? address}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditAddressScreen(
+          address: address,
         ),
       ),
     );
@@ -120,7 +132,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
         Expanded(
           child: ElevatedButton(
             onPressed: () {
-              // TODO go to add address screen
+              gotoAddress();
             },
             style: AppTheme.primaryButtonStyle(),
             child: const Text(
