@@ -12,9 +12,9 @@ class CustomerInitial extends CustomerState {}
 class CustomerIsLoadingState extends CustomerState {}
 
 class CustomerLoadedState extends CustomerState {
-  final CustomerModel model;
+  final List<CustomerDataModel> models;
   
-  const CustomerLoadedState({required this.model});
+  const CustomerLoadedState({required this.models});
 }
 
 class GetCustomerByIdLoadedState extends CustomerState {

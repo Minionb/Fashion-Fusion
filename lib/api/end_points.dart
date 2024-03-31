@@ -48,6 +48,7 @@ class EndPoints {
 
   // Customers
   static const String customer = '$baseUrl/customers';
+  static const String getCustomers = '$customer?';
   static const String getCustomerById = '$customer/${PathParameters.customerId}';
 
   // Reset Password

@@ -21,6 +21,8 @@ class Routes {
 }
 
 class AppRoutes {
+  static get customerQueryParams => null;
+
   static Route? onGenerate(RouteSettings routeSettings) {
     switch (routeSettings.name) {
       case Routes.init:
@@ -32,7 +34,7 @@ class AppRoutes {
                   ? const NavBar()
                   // To check if the user is admin or customer
                   : BlocProvider(
-                      create: (context) => sl<CustomerCubit>()..getCustomer(),
+                      create: (context) => sl<CustomerCubit>()..getCustomer(customerQueryParams),
                       child: const AdminNavBar(),
                     ))
               : BlocProvider(
@@ -63,7 +65,7 @@ class AppRoutes {
       case Routes.adminMainScreen:
         return MaterialPageRoute(
             builder: (context) => BlocProvider(
-                  create: (context) => sl<CustomerCubit>()..getCustomer(),
+                  create: (context) => sl<CustomerCubit>()..getCustomer(customerQueryParams),
                   child: const AdminNavBar(),
                 ));
       default:

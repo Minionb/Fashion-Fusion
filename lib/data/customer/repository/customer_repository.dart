@@ -9,7 +9,7 @@ import '../model/upload_customer_model.dart';
 
 
 abstract class CustomerRepository {
-  Future<Either<Failure, CustomerModel>> getCustomers();
+  Future<Either<Failure, List<CustomerDataModel>>> getCustomers(customerQueryParams);
   Future<Either<Failure, ResponseUploadCustomerModel>> add(UploadCustomerModel model);
   Future<Either<Failure, CustomerDataModel>> getCustomerById(String customerId);
   Future<Either<Failure, Unit>> update(UploadCustomerModel model);
@@ -38,10 +38,10 @@ class CustomerRepositoryImpl implements CustomerRepository {
   }
   
   @override
-  Future<Either<Failure,  CustomerModel>> getCustomers() async {
+  Future<Either<Failure,  List<CustomerDataModel>>> getCustomers(customerQueryParams) async {
     if (await networkInfo.isConnected) {
       try {
-        final reposnse = await remoteDatasource.getCustomers();
+        final reposnse = await remoteDatasource.getCustomers(customerQueryParams);
         return Right(reposnse);
       } on ServerException {
         return Left(ServerFailure());
