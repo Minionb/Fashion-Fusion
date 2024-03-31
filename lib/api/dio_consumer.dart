@@ -116,14 +116,36 @@ class DioConsumer implements ApiConsumer {
       bool formDataIsEnabled = false,
       Map<String, dynamic>? queryParameters}) async {
     try {
-      var jsonBody = json.encode(body);
-      final response = await client.delete(path,
-          queryParameters: queryParameters,
-           options: 
-                Options(
-                    headers: {HttpHeaders.contentTypeHeader: "application/json"}),
-          data: formDataIsEnabled ? FormData.fromMap(body!) : jsonBody);
-      return response;
+      var options =
+          Options(headers: {HttpHeaders.contentTypeHeader: "application/json"});
+
+      // Check if body is null or empty
+      if (body != null && body.isNotEmpty) {
+        // Encode the body to JSON if it's not null or empty
+        var jsonBody = json.encode(body);
+        options = Options(
+          headers: {HttpHeaders.contentTypeHeader: "application/json"},
+        );
+
+        if (formDataIsEnabled) {
+          await client.delete(path,
+              queryParameters: queryParameters,
+              options: options,
+              data: FormData.fromMap(body));
+          return;
+        } else {
+          await client.delete(path,
+              queryParameters: queryParameters,
+              options: options,
+              data: jsonBody);
+          return;
+        }
+      } else {
+        // If body is null or empty, simply make the delete request without data
+        final response = await client.delete(path,
+            queryParameters: queryParameters, options: options);
+        return response;
+      }
     } on DioException catch (error) {
       _handleDioError(error);
     }
