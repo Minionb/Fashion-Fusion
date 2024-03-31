@@ -80,7 +80,7 @@ class _OrderScreenState extends State<OrderScreen> {
             } else if (state is ErrorState) {
               return HelperMethod.emptyWidget(title: "Request failed.");
             } else {
-              return const CircularProgressIndicator();
+              return const Center(child: CircularProgressIndicator());
             }
           },
         ));

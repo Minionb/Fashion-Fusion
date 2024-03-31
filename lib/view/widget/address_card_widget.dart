@@ -31,14 +31,29 @@ class AddressWidget extends StatelessWidget {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _text(model.addressLine1 ?? ""),
-              _text(model.addressLine2 ?? ""),
-              _text(model.city ?? ""),
-              _text((model.zipCode ?? "").toUpperCase())
+              _createKeyValRow('Address line 1', model.addressLine1 ?? ""),
+              _createKeyValRow('Address line 2', model.addressLine2 ?? ""),
+              _createKeyValRow('City', model.city ?? ""),
+              _createKeyValRow('Zip Code', (model.zipCode ?? "").toUpperCase())
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Row _createKeyValRow(String label, String val) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 1,
+          child: _label(label),
+        ),
+        Expanded(
+          flex: 2,
+          child: _text(val),
+        ),
+      ],
     );
   }
 
@@ -52,6 +67,16 @@ class AddressWidget extends StatelessWidget {
     );
   }
 
+  Widget _label(String text) {
+    var formattedText = formatText(text);
+    return Text(
+      formattedText,
+      maxLines: 1,
+      textAlign: TextAlign.left,
+      overflow: TextOverflow.fade,
+    );
+  }
+
   Widget _text(String addressLine) {
     return Text(
       addressLine,
@@ -59,5 +84,16 @@ class AddressWidget extends StatelessWidget {
       textAlign: TextAlign.left,
       overflow: TextOverflow.fade,
     );
+  }
+
+  String formatText(String text) {
+    String formattedText = '';
+    if (text.isNotEmpty) {
+      var firstLetter = text[0];
+      formattedText = firstLetter.toUpperCase() + text.substring(1);
+    } else {
+      formattedText = '';
+    }
+    return formattedText;
   }
 }

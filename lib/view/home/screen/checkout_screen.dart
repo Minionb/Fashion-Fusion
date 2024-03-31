@@ -245,7 +245,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const ShippingAddresses()),
+            MaterialPageRoute(builder: (context) => const AddressListScreen()),
           );
         }),
       for (int i = 0; i < (addresses.length); i++)
