@@ -10,9 +10,8 @@ const { convertExpiryToDate } = require("../util/formattingUtils");
 async function login(req, res, userModel) {
   try {
     const { email, password } = req.body;
-
-    // Find the user with the provided email
-    const user = await userModel.findOne({ email });
+    const lowercaseEmail = email.toLowerCase();
+    const user = await userModel.findOne({ email: lowercaseEmail });
 
     // If user is not found, return an error
     if (!user) {
