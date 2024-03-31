@@ -7,7 +7,7 @@ import '../model/customer_model.dart';
 class GetCustomerUsecase {
   final CustomerRepository repository;
   GetCustomerUsecase({required this.repository});
-  Future<Either<Failure, CustomerModel>> call(customerQueryParams) async {
+  Future<Either<Failure, List<CustomerDataModel>>> call(customerQueryParams) async {
     return await repository.getCustomers(customerQueryParams);
   }
 }

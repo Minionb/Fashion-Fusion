@@ -23,6 +23,7 @@ class _ListAllCustomersScreenState extends State<ListAllCustomersScreen> {
     // TODO: implement initState
     super.initState();
     print(sl<SharedPreferences>().getString("token"));
+    _fetchCustomers(context.read<CustomerCubit>());
   }
 
   TextEditingController firstNameController = TextEditingController();
@@ -37,6 +38,33 @@ class _ListAllCustomersScreenState extends State<ListAllCustomersScreen> {
     'last_name': '',
   };
 
+
+  Future<void> _fetchCustomers(CustomerCubit customerCubit) async {
+    setState(() {
+      customerCubit.getCustomer(customerQueryParams);
+    });
+  }
+
+  void handleSearchButtonTap() {
+      setState(() {
+        if (firstNameController.text != "") {
+          firstName = "${firstNameController.text}*";
+        } else {
+          firstName = "";
+        }
+        if (lastNameController.text != "") {
+          lastName = "${lastNameController.text}*";
+        } else {
+          lastName = "";
+        }
+
+        customerQueryParams = {
+          'first_name': firstName,
+          'last_name': lastName,
+        };
+        _fetchCustomers(context.read<CustomerCubit>());
+      });
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +99,12 @@ class _ListAllCustomersScreenState extends State<ListAllCustomersScreen> {
                         border: InputBorder.none,
                         labelText: 'First Name',
                       ),
+                  onChanged: (value) {
+                    debugPrint("value on Change");
+                    setState(() {
+                      handleSearchButtonTap();
+                    });
+                    },
                     ),
                   ),
                 ),
@@ -83,21 +117,14 @@ class _ListAllCustomersScreenState extends State<ListAllCustomersScreen> {
                         border: InputBorder.none,
                         labelText: 'Last Name',
                       ),
+                    onChanged: (value) {
+                      debugPrint("value on Change");
+                      setState(() {
+                        handleSearchButtonTap();
+                      });
+                    },
                     ),
                   ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () {
-                    setState(() {
-                      firstName = firstNameController.text;
-                      lastName = lastNameController.text;
-                      customerQueryParams = {
-                        'first_name': firstName,
-                        'last_name': lastName,
-                      };
-                    });
-                  },
                 ),
               ]
             )
@@ -109,15 +136,30 @@ class _ListAllCustomersScreenState extends State<ListAllCustomersScreen> {
             return HelperMethod.loadinWidget();
           }
           if (state is CustomerLoadedState) {
-            final mdoel = state.model;
-            return ListView.separated(
+            //final mdoel = state.model;
+            return RefreshIndicator(
+                onRefresh: () async {
+                  context.read<CustomerCubit>().getCustomer(customerQueryParams);
+                },
+                child: ListView.separated(
                 padding: const EdgeInsets.fromLTRB(12, 15, 12, 50).w,
                 itemBuilder: (context, index) {
-                  final user = mdoel.model?[index];
-                  return CustomerCard(user: user);
-                },
-                separatorBuilder: (context, index) => const Divider(),
-                itemCount: mdoel.model?.length ?? 0);
+                    return BlocProvider(
+                        create: (context) => sl<CustomerCubit>(),
+                        child: CustomerCard(user: state.models[index]),
+                      );
+                    },
+                    separatorBuilder: (context, index) => 10.verticalSpace,
+                    itemCount: state.models.length),
+
+                
+                //   final user = state.models[index];
+                //   return CustomerCard(user: user);
+                // },
+                // separatorBuilder: (context, index) => const Divider(),
+                // itemCount: state.models.length ?? 0
+                );
+
           }
           if (state is CustomerErrorState) {
             return HelperMethod.emptyWidget();

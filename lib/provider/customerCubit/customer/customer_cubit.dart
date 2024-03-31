@@ -18,7 +18,7 @@ class CustomerCubit extends Cubit<CustomerState> {
     final response = await get(customerQueryParams);
     emit(response.fold(
         (l) => CustomerErrorState(message: HelperMethod.mapFailureToMsg(l)),
-        (r) => CustomerLoadedState(model: r)));
+        (r) => CustomerLoadedState(models: r)));
   }
 
   void getCustomerById(String userId) async {
