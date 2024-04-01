@@ -1,7 +1,6 @@
 import 'package:fashion_fusion/core/utils/app_images.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
-import 'package:fashion_fusion/core/utils/navigator_extension.dart';
 import 'package:fashion_fusion/provider/order_cubit/order_cubit.dart';
 import 'package:fashion_fusion/provider/order_edit_cubit/order_edit_cubit_cubit.dart';
 import 'package:fashion_fusion/view/admin/view/admin_order/screen/admin_order_details_screen.dart';
@@ -50,6 +49,7 @@ class AdminOrderScreen extends StatelessWidget {
                           Colors.grey; // Change color for delivered status
                       break;
                     case "cancelled": // Add case for cancelled status
+                    case "cancel": // Add case for cancelled status
                       statusColor =
                           Colors.red; // Set color for cancelled status
                       break;
@@ -60,20 +60,26 @@ class AdminOrderScreen extends StatelessWidget {
                   }
                   return ListTile(
                     onTap: () {
-                      context.push(MultiBlocProvider(
-                        providers: [
-                          BlocProvider(
-                            create: (context) => sl<OrderCubit>()
-                              ..getOrderId(model.orderId ?? ""),
-                          ),
-                          BlocProvider(
-                            create: (context) => sl<OrderEditCubit>(),
-                          ),
-                        ],
-                        child: AdminOrderDetailsScreen(
-                          orderId: model.orderId,
-                        ),
-                      ));
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) {
+                          return MultiBlocProvider(
+                            providers: [
+                              BlocProvider(
+                                create: (context) => sl<OrderCubit>()
+                                  ..getOrderId(model.orderId ?? ""),
+                              ),
+                              BlocProvider(
+                                create: (context) => sl<OrderEditCubit>(),
+                              ),
+                            ],
+                            child: AdminOrderDetailsScreen(
+                              orderId: model.orderId,
+                            ),
+                          );
+                        },
+                      )).then((value) {
+                        context.read<OrderCubit>().adminGetORders();
+                      });
                     },
                     dense: true,
                     title: Text("ID:${model.orderId?.substring(0, 10) ?? ""}"),
@@ -116,7 +122,8 @@ class AdminOrderScreen extends StatelessWidget {
         return "Out for delivery";
       case "delivered":
         return "Delivered";
-      case "cancelled": // Return "Cancelled" for cancelled status
+      case "cancelled":
+      case "cancel":
         return "Cancelled";
       default:
         return "";
