@@ -1,5 +1,6 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomTextField extends StatefulWidget {
@@ -12,7 +13,9 @@ class CustomTextField extends StatefulWidget {
   final bool isPassword;
   final TextInputAction? textInputAction;
   final FocusNode? focusNode;
+  final List<TextInputFormatter>? inputFormatters;
   final void Function(String)? onChanged;
+
   const CustomTextField({
     super.key,
     required this.label,
@@ -24,7 +27,8 @@ class CustomTextField extends StatefulWidget {
     this.isPassword = false,
     this.textInputAction,
     this.focusNode,
-    this.onChanged,
+    this.onChanged, 
+    this.inputFormatters,
   });
 
   @override
@@ -47,6 +51,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           keyboardType: widget.keyboardType,
           controller: widget.ctrl,
           textInputAction: widget.textInputAction,
+          inputFormatters: widget.inputFormatters,
           decoration: InputDecoration(
             suffixIcon: widget.isPassword
                 ? IconButton(

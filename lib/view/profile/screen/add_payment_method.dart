@@ -8,6 +8,7 @@ import 'package:fashion_fusion/data/profile/model/upload_profile_model.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile_edit/profile_edit_cubit.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_payment_methods.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -100,34 +101,9 @@ class _AddPaymentMethod extends State<AddPaymentMethod> {
                         p0, selectedMethod),
                     keyboardType: TextInputType.number,
                     textInputAction: TextInputAction.next,
+                    inputFormatters: [CreditCardFormatter()],
                   ),
                   const Spacer(),
-                  //const Text("Expiration Date"),
-                  // TextField(
-                  //   controller: _expDateCtrl,
-                  //   decoration: const InputDecoration(
-                  //     icon: Icon(Icons.calendar_today),
-                  //     labelText: "Enter Date"
-                  //   ),
-                  //   readOnly: true,
-                  //   onTap: () async {
-                  //     DateTime? pickedDate = await showDatePicker(
-                  //       context: context,
-                  //       initialDate: DateTime.now(),
-                  //       firstDate: DateTime.now(),
-                  //       lastDate: DateTime(2101)
-                  //     );
-                  //     if (pickedDate != null) {
-                  //       String formattedDate = DateFormat("MM/yyyy").format(pickedDate);
-                  //       setState(() {
-                  //         _expDateCtrl.text = formattedDate;
-                  //       });
-                  //     }
-                  //     else {
-                  //       print("Exp Date Not Seleceted");
-                  //     }
-                  //   },
-                  // ),
                   const Text("Card Expiration Date"),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -177,76 +153,10 @@ class _AddPaymentMethod extends State<AddPaymentMethod> {
                     textInputAction: TextInputAction.next,
                   ),
                   const Spacer(),
-                  // BlocListener<ProfileEditCubit, ProfileEditState>(
-                  //   listener: (context, state) {
-                  //     if (state is ProfileEditIsLoadingState) {
-                  //       context.loaderOverlay.show();
-                  //     }
-                  //     if (state is ProfileEditErrorState) {
-                  //       context.loaderOverlay.hide();
-                  //       HelperMethod.showToast(context,
-                  //               title: Text(state.message),
-                  //               type: ToastificationType.error);
-                  //     }
-                  //   },
-                  //   child: CustomButton(
-                  //     onPressed: () {
-                  //       if (selectedMethod != "") {
-                  //         if (_formKey.currentState!.validate()) {
-                  //           widget.curPayments.add(PaymentModel(
-                  //             name: "${_holderFirstNameCtrl.text} ${_holderLastNameCtrl.text}",
-                  //             method: selectedMethod,
-                  //             cardNumber: _cardNumCtrl.text,
-                  //             expirationDate: _expDateCtrl.text,
-                  //             cvv: _cvvCtrl.text
-                  //           ));
-                  //           print(widget.curPayments);
-                  //           context.read<ProfileEditCubit>().updateProfile(
-                  //             UploadProfileModel(dictionary: 'payments', newData: widget.curPayments),
-                  //             sl<SharedPreferences>().getString("userID")!
-                  //           );
-                  //           showDialog(
-                  //             context: context,
-                  //             builder: (BuildContext context1) {
-                  //               return AlertDialog(
-                  //                 title: const Text(
-                  //                   'Successfully added payment method!'),
-                  //                 actions: <Widget>[
-                  //                   TextButton(
-                  //                     onPressed: () {
-                  //                       Navigator.pop(context1);
-                  //                     },
-                  //                     child: const Text('Cancel'),
-                  //                   ),
-                  //                   TextButton(
-                  //                     onPressed: () {
-                  //                       Navigator.pop(context1);
-                  //                       //Navigator.pop(context);
-                  //                       Navigator.pushReplacement(
-                  //                         context, MaterialPageRoute(builder: (context) => ProfilePaymentMethods(paymentMethodsList: widget.curPayments)));
-                  //                       //Navigator.of(context).pop(widget.curPayments);
-                  //                     },
-                  //                     child: const Text('OK')
-                  //                   )
-                  //                 ],
-                  //               );
-                  //             }
-                  //           );
-                  //         }
-                  //       }
-                  //     },
-                  //     label: "Save",
-                  //     bg: AppColors.primary,
-                  //   ),
-                  // ),
                   CustomButton(
                     onPressed: () {
                       if (selectedMethod != "") {
                         if (_formKey.currentState!.validate()) {
-                          // BlocProvider.of<ProfileEditCubit>(this.context).updateProfile(
-                          //   UploadProfileModel(dictionary: 'payments', newData: widget.curPayments),
-                          //   sl<SharedPreferences>().getString("userID")!
-                          // );
                           showDialog(
                               context: context,
                               builder: (BuildContext context1) {
@@ -269,17 +179,11 @@ class _AddPaymentMethod extends State<AddPaymentMethod> {
                                               expirationDate:
                                                   "${_expDateMonthCtrl.text}/${_expDateYearCtrl.text}",
                                               cvv: _cvvCtrl.text));
-                                          print(widget.curPayments);
-                                          // BlocProvider.of<ProfileEditCubit>(context).updateProfile(
-                                          // UploadProfileModel(dictionary: 'payments', newData: widget.curPayments),
-                                          // sl<SharedPreferences>().getString("userID")!
-                                          // );
                                           List<Map<String, dynamic>>
                                               jsonListCurPayments = widget
                                                   .curPayments
                                                   .map((e) => e.toJson())
                                                   .toList();
-                                          print(jsonListCurPayments);
                                           context
                                               .read<ProfileEditCubit>()
                                               .updateProfile(
@@ -306,7 +210,6 @@ class _AddPaymentMethod extends State<AddPaymentMethod> {
                                                   ],
                                                 );
                                               });
-                                          //Navigator.pop(context);
                                           Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
@@ -315,7 +218,6 @@ class _AddPaymentMethod extends State<AddPaymentMethod> {
                                                           paymentMethodsList:
                                                               widget
                                                                   .curPayments)));
-                                          //Navigator.of(context).pop(widget.curPayments);
                                         },
                                         child: const Text('Save'))
                                   ],
@@ -364,6 +266,34 @@ class _DropDownMenu extends State<DropDownMenu> {
           paymentOpsList.map<DropdownMenuEntry<String>>((String value) {
         return DropdownMenuEntry<String>(value: value, label: value);
       }).toList(),
+    );
+  }
+}
+
+class CreditCardFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    const maxLength = 16; // Maximum length for a credit card number with spaces
+    final newText = newValue.text.replaceAll(RegExp(r'\D'), ''); // Remove non-digits
+
+    if (newText.length > maxLength) {
+      // Prevent exceeding maximum length
+      return oldValue;
+    }
+
+    var formattedValue = '';
+    for (var i = 0; i < newText.length; i++) {
+      formattedValue += newText[i];
+      if ((i + 1) % 4 == 0 && i != newText.length - 1) {
+        // Insert space every 4 digits, except at the end
+        formattedValue += ' ';
+      }
+    }
+
+    return TextEditingValue(
+      text: formattedValue,
+      selection: TextSelection.collapsed(offset: formattedValue.length),
     );
   }
 }
