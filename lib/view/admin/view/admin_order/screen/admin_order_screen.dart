@@ -23,7 +23,11 @@ class AdminOrderScreen extends StatelessWidget {
             return HelperMethod.loadinWidget();
           }
           if (state is OrderAdminLoadedState) {
-            final data = state.model;
+            final data = state.model
+                .where((element) =>
+                    element.status?.toLowerCase() != "cancel" &&
+                    element.status?.toLowerCase() != "cancelled")
+                .toList();
             return RefreshIndicator(
               onRefresh: () async =>
                   context.read<OrderCubit>().adminGetORders(),
