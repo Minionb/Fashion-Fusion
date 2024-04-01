@@ -11,7 +11,7 @@ import 'package:dio/dio.dart';
 import '../model/upload_customer_model.dart';
 
 abstract class CustomerRemoteDataSource {
-  Future<CustomerModel> getCustomers();
+  Future<List<CustomerDataModel>> getCustomers(customerQueryParams);
   Future<CustomerDataModel> getCustomerById(String customerId);
   Future<ResponseUploadCustomerModel> add(UploadCustomerModel model);
   Future<Unit> update(UploadCustomerModel model);
@@ -40,13 +40,15 @@ class CustomerRemoteDataSourceImpl implements CustomerRemoteDataSource {
   }
 
   @override
-  Future<CustomerModel> getCustomers() async {
+  Future<List<CustomerDataModel>> getCustomers(customerQueryParams) async {
 
-    final Response response = await apiConsumer.get(EndPoints.customer);
+    final Response response = await apiConsumer.get(EndPoints.getCustomers, queryParameters: customerQueryParams);
     if (response.statusCode == StatusCode.ok) {
       try {
-        final CustomerModel decodedJson =
-            CustomerModel.fromJson(json.decode(response.data));
+        final List<dynamic> jsonList = json.decode(response.data);
+        final List<CustomerDataModel> decodedJson = jsonList.map((json) => CustomerDataModel.fromJson(json)).toList();
+        // final CustomerModel decodedJson =
+        //     CustomerModel.fromJson(json.decode(response.data));
         return decodedJson;
       } catch (e) {
         throw const FetchDataException();
