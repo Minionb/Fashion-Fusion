@@ -200,13 +200,22 @@ class ProfileOptionsCard extends StatelessWidget {
     return InkWell(
       onTap: () {
         Navigator.push(
-          context, MaterialPageRoute(builder: (context) => BlocProvider(
-            create: (context) => sl<ProfileCubit>(),
-            child: BlocProvider(
-              create: (context) => sl<AuthCubit>(),
+          context, MaterialPageRoute(builder: (context) =>           
+            MultiBlocProvider(
+              providers: [
+                BlocProvider<AuthCubit>(
+                  create: (context) => sl<AuthCubit>(),
+                ),
+                BlocProvider<ProfileCubit>(
+                  create: (context) => sl<ProfileCubit>(),
+                ),
+                BlocProvider<ProfileEditCubit>(
+                  create: (context) => sl<ProfileEditCubit>(),
+                ),
+              ],
               child: routeWidget,
             ),
-          ))
+          )
         );
       },
       child: Padding(

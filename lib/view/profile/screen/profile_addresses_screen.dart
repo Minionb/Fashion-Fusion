@@ -24,7 +24,7 @@ class AddressListScreen extends StatefulWidget {
 class _AddressListScreenState extends State<AddressListScreen> {
   late List<Address> _addresses;
 
-  Future<void> _fetchProfile() async {
+  Future<void> _fetchProfile(BuildContext context) async {
     setState(() {
       context
           .read<ProfileCubit>()
@@ -35,13 +35,16 @@ class _AddressListScreenState extends State<AddressListScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchProfile();
   }
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
         providers: [
+          BlocProvider<ProfileCubit>(
+            create: (context) => sl<ProfileCubit>()
+            ..getProfile(sl<SharedPreferences>().getString("userID")!),
+          ),
           BlocProvider<ProfileEditCubit>(
             create: (context) => sl<ProfileEditCubit>(),
           ),
@@ -52,7 +55,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
               HelperMethod.showToast(context,
                   type: ToastificationType.success,
                   title: const Text('Profile updated successfully'));
-              _fetchProfile();
+              _fetchProfile(context);
             } else if (state is ProfileEditErrorState) {
               HelperMethod.showToast(context,
                   type: ToastificationType.success,
@@ -82,7 +85,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                 } else if (state is ProfileErrorState) {
                   return RefreshIndicator(
                     onRefresh: () async {
-                      _fetchProfile();
+                      _fetchProfile(context);
                     },
                     child: const Center(
                       child: EmptyListWidget(
@@ -93,7 +96,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                 } else {
                   return RefreshIndicator(
                     onRefresh: () async {
-                      _fetchProfile();
+                      _fetchProfile(context);
                     },
                     child: const Center(
                       child: CircularProgressIndicator(),
@@ -109,7 +112,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
   Widget _buildAddressesBody(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
-        _fetchProfile();
+        _fetchProfile(context);
       },
       child: AnimationLimiter(
         child: ListView(

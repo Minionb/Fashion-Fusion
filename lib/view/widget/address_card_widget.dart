@@ -52,12 +52,12 @@ class AddressWidget extends StatelessWidget {
   }
 
   Widget _buildDeleteIconButton(BuildContext context) {
-    return IconButton(
+    return Column(crossAxisAlignment: CrossAxisAlignment.end, children: [IconButton(
       icon: const Icon(Icons.delete),
       onPressed: () {
         showDeleteDialog(context);
       },
-    );
+    )]);
   }
 
   void showDeleteDialog(BuildContext context) {
