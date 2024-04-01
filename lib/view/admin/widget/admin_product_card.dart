@@ -1,6 +1,7 @@
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/utils/navigator_extension.dart';
 import 'package:fashion_fusion/data/product/model/product_model.dart';
+import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
 import 'package:fashion_fusion/provider/product_cubit/product_edit/product_edit_cubit.dart';
 import 'package:fashion_fusion/view/admin/view/admin_product_deatils.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +12,8 @@ import 'package:toastification/toastification.dart';
 
 class AdminProductCard extends StatefulWidget {
   final ProductModel model;
-
-  const AdminProductCard({super.key, required this.model});
+  Map<String, String>? productQueryParams;
+  AdminProductCard({super.key, required this.model, this.productQueryParams});
 
   @override
   State<AdminProductCard> createState() => _AdminProductCardState();
@@ -24,15 +25,17 @@ class _AdminProductCardState extends State<AdminProductCard> {
     return BlocListener<ProductEditCubit, ProductEditState>(
       listener: (context, state) {
         if (state is ProductEditIsLoadingState) {
-          context.loaderOverlay.show();
+          // context.loaderOverlay.show();
         }
         if (state is ProductEditSuccessState) {
+          context.loaderOverlay.hide();
           context.loaderOverlay.hide();
           HelperMethod.showToast(context,
               title: const Text("Product deleted successfully"),
               type: ToastificationType.success);
         }
         if (state is ProductEditErrorState) {
+          context.loaderOverlay.hide();
           context.loaderOverlay.hide();
           HelperMethod.showToast(context,
               title: Text(state.message), type: ToastificationType.error);
@@ -41,17 +44,42 @@ class _AdminProductCardState extends State<AdminProductCard> {
       child: Slidable(
         startActionPane: ActionPane(
           motion: const ScrollMotion(),
-          dismissible: DismissiblePane(onDismissed: () {
-            context
-                .read<ProductEditCubit>()
-                .deleteProduct(widget.model.id ?? "");
-          }),
           children: [
             SlidableAction(
-              onPressed: (context) {
-                context
-                    .read<ProductEditCubit>()
-                    .deleteProduct(widget.model.id ?? "");
+              onPressed: (_) {
+                showDialog(
+                  context: context,
+                  builder: (_) {
+                    return AlertDialog(
+                      title: const Text("Delete Product"),
+                      content: const Text(
+                          "Are you sure you want to delete this product?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop("deleted");
+                          },
+                          child: const Text("Cancel"),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            context
+                                .read<ProductEditCubit>()
+                                .deleteProduct(widget.model.id ?? "");
+                            Navigator.of(context).pop("deleted");
+                          },
+                          child: const Text("Delete"),
+                        ),
+                      ],
+                    );
+                  },
+                ).then((value) {
+                  if (value != null) {
+                    context
+                        .read<ProductCubit>()
+                        .getProduct(widget.productQueryParams);
+                  }
+                });
               },
               backgroundColor: const Color(0xFFFE4A49),
               foregroundColor: Colors.white,

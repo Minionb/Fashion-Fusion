@@ -87,13 +87,18 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
               if (state is ProductLoadedState) {
                 return RefreshIndicator(
                   onRefresh: () async {
-                    context.read<ProductCubit>().getProduct(productQueryParams);
+                    context
+                        .read<ProductCubit>()
+                        .getProduct({"category": widget.category});
                   },
                   child: ListView.separated(
                       itemBuilder: (context, index) {
                         return BlocProvider(
                           create: (context) => sl<ProductEditCubit>(),
-                          child: AdminProductCard(model: state.models[index]),
+                          child: AdminProductCard(
+                            model: state.models[index],
+                            productQueryParams: {"category": widget.category},
+                          ),
                         );
                       },
                       separatorBuilder: (context, index) => 10.verticalSpace,
