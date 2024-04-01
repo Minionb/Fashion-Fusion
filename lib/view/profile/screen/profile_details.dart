@@ -8,7 +8,6 @@ import 'package:fashion_fusion/view/customer_service/screen/customer_service_scr
 import 'package:fashion_fusion/view/home/widget/app_bar.dart';
 import 'package:fashion_fusion/view/profile/screen/change_password_screen.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_addresses_screen.dart';
-import 'package:fashion_fusion/view/profile/screen/profile_orders_screen.dart';
 import 'package:fashion_fusion/view/profile/screen/customer_order_list.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_payment_methods.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_settings_screen.dart';
