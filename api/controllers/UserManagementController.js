@@ -10,9 +10,8 @@ const { convertExpiryToDate } = require("../util/formattingUtils");
 async function login(req, res, userModel) {
   try {
     const { email, password } = req.body;
-
-    // Find the user with the provided email
-    const user = await userModel.findOne({ email });
+    const lowercaseEmail = email.toLowerCase();
+    const user = await userModel.findOne({ email: lowercaseEmail });
 
     // If user is not found, return an error
     if (!user) {
@@ -170,8 +169,9 @@ async function registerCustomer(req, res) {
 }
 
 function getCustomers(req, res) {
-  // Query the database to retrieve all customers, excluding the password field
-  CustomersModel.find({}, { password: 0 })
+  const filter = buildFilter(req.query);
+  // Query the database to retrieve all customers with filter, excluding the password field
+  CustomersModel.find(filter, { password: 0 })
     .then((customers) => {
       // Return all of the users in the system
       return res.status(200).send(customers);
@@ -182,6 +182,15 @@ function getCustomers(req, res) {
     });
 }
 
+function buildFilter(query) {
+  const filter = {};
+  if (query.first_name)
+    filter.first_name = RegExp(query.first_name, "i");
+  if (query.last_name)
+    filter.last_name = RegExp(query.last_name, "i");
+  return filter;
+}
+
 // Function to convert DD-MM-YYYY string to Date object for date_of_birth
 // Function to update customer data
 async function updateCustomerData(customerId, updateData) {
@@ -189,7 +198,11 @@ async function updateCustomerData(customerId, updateData) {
   if (!existingCustomer) {
     throw new Error("Customer not found");
   }
-
+  if(updateData.newPassword)  {
+    const passwordMatch = await bcrypt.compare(updateData.oldPassword, user.password);
+    if(!passwordMatch)
+      throw new Error("Password not matching!");
+  }
   // Convert card expiry from MM/YYYY to Date object before applying updates
   updateData = await normalizeCustomerData(updateData);
 
@@ -215,6 +228,7 @@ async function normalizeCustomerData(updateData) {
   if (updateData.addresses) {
     updateData.addresses.forEach((add) => {
       if (!add.country) add.country = "Canada";
+      
     });
   }
 

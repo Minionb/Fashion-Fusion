@@ -6,8 +6,8 @@ import 'package:fashion_fusion/provider/profile_cubit/profile_edit/profile_edit_
 import 'package:fashion_fusion/view/auth/screen/welcome_screen.dart';
 import 'package:fashion_fusion/view/customer_service/screen/customer_service_screen.dart';
 import 'package:fashion_fusion/view/home/widget/app_bar.dart';
+import 'package:fashion_fusion/view/profile/screen/change_password_screen.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_addresses_screen.dart';
-import 'package:fashion_fusion/view/profile/screen/profile_orders_screen.dart';
 import 'package:fashion_fusion/view/profile/screen/customer_order_list.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_payment_methods.dart';
 import 'package:fashion_fusion/view/profile/screen/profile_settings_screen.dart';
@@ -149,17 +149,25 @@ class ProfileTitle extends StatelessWidget {
         ProfileOptionsCard(
             title: "Shipping addresses",
             subtitle: "[] addresses",
-            routeWidget: ShippingAddresses()),
+            routeWidget: AddressListScreen()),
         ProfileOptionsCard(
             title: "Payment methods",
             subtitle: profile.payments.isNotEmpty ? "${profile.payments[0].method} **${profile.payments[0].cardNumber.substring(17)}" : "No saved payment methods",
             routeWidget: ProfilePaymentMethods(paymentMethodsList: profile.payments)),
         ProfileOptionsCard(
             title: "Settings",
-            subtitle: "Email, password",
+            subtitle: "Email",
             routeWidget: BlocProvider(
                 create: (context) => sl<ProfileEditCubit>(),
                 child: ProfileSettings(profile: profile,),
+            ),
+        ),
+        ProfileOptionsCard(
+            title: "Security",
+            subtitle: "Password",
+            routeWidget: BlocProvider(
+                create: (context) => sl<AuthCubit>(),
+                child: const ChangePasswordScreen(),
             ),
         ),
         ProfileOptionsCard(
@@ -192,13 +200,22 @@ class ProfileOptionsCard extends StatelessWidget {
     return InkWell(
       onTap: () {
         Navigator.push(
-          context, MaterialPageRoute(builder: (context) => BlocProvider(
-            create: (context) => sl<ProfileCubit>(),
-            child: BlocProvider(
-              create: (context) => sl<AuthCubit>(),
+          context, MaterialPageRoute(builder: (context) =>           
+            MultiBlocProvider(
+              providers: [
+                BlocProvider<AuthCubit>(
+                  create: (context) => sl<AuthCubit>(),
+                ),
+                BlocProvider<ProfileCubit>(
+                  create: (context) => sl<ProfileCubit>(),
+                ),
+                BlocProvider<ProfileEditCubit>(
+                  create: (context) => sl<ProfileEditCubit>(),
+                ),
+              ],
               child: routeWidget,
             ),
-          ))
+          )
         );
       },
       child: Padding(

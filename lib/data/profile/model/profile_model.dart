@@ -1,3 +1,4 @@
+import 'package:fashion_fusion/data/customer/model/customer_model.dart';
 import 'package:intl/intl.dart';
 
 class ProfileModel {
@@ -5,39 +6,44 @@ class ProfileModel {
   String? password;
   String? firstName;
   String? lastName;
-  String? address;
   // Date? dateOfBirth;
   String? gender;
   String? telephoneNumber;
   List<PaymentModel> payments;
+  List<Address> addresses;
 
-  ProfileModel({
-    required this.email,
-    required this.password,
-    required this.firstName,
-    required this.lastName,
-    required this.address,
-    required this.gender,
-    required this.telephoneNumber,
-    required this.payments,
-  });
+  ProfileModel(
+      {required this.email,
+      required this.password,
+      required this.firstName,
+      required this.lastName,
+      required this.gender,
+      required this.telephoneNumber,
+      required this.payments,
+      required this.addresses});
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     var paymentsList = json['payments'] as List<dynamic>;
     List<PaymentModel> payments = paymentsList.map((paymentJson) {
       return PaymentModel.fromJson(paymentJson);
     }).toList();
+    var addressList = json['addresses'] as List<dynamic>;
+    List<Address> addreses = [];
+    if (addressList.isNotEmpty) {
+      addreses = addressList.map((address) {
+        return Address.fromJson(address);
+      }).toList();
+    }
 
     return ProfileModel(
-      email: json['email'],
-      password: json['password'],
-      firstName: json['first_name'],
-      lastName: json['last_name'],
-      address: json['address'],
-      gender: json['gender'],
-      telephoneNumber: json['telephone_number'],
-      payments: payments,
-    );
+        email: json['email'],
+        password: json['password'],
+        firstName: json['first_name'],
+        lastName: json['last_name'],
+        gender: json['gender'],
+        telephoneNumber: json['telephone_number'],
+        payments: payments,
+        addresses: addreses);
   }
 }
 

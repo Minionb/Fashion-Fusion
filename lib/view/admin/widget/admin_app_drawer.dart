@@ -51,7 +51,7 @@ class _AppDrawerState extends State<AppDrawer> {
               },
               child: ListTile(
                 onTap: () {
-                  context.read<AuthCubit>().signOut();
+                  _showLogoutConfirmationDialog(context);
                 },
                 dense: true,
                 style: ListTileStyle.drawer,
@@ -92,6 +92,34 @@ class _AppDrawerState extends State<AppDrawer> {
           style: TextStyle(fontSize: 12.sp, color: Colors.grey),
         ),
       ),
+    );
+  }
+
+  void _showLogoutConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text("Logout Confirmation"),
+          content: const Text("Are you sure you want to logout?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                // Perform logout action
+                context.read<AuthCubit>().signOut();
+                Navigator.pop(context);
+              },
+              child: const Text("Logout"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

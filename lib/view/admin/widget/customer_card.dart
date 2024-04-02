@@ -9,7 +9,7 @@ class CustomerCard extends StatelessWidget {
     required this.user,
   });
 
-  final CustomerDataModel? user;
+  final CustomerDataModel user;
 
   @override
   Widget build(BuildContext context) {

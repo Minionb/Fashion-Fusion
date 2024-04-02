@@ -10,15 +10,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-
 class AdminProductScreen extends StatefulWidget {
   final String category;
-  AdminProductScreen({super.key,required this.category});
+  const AdminProductScreen({super.key, required this.category});
 
   @override
   State<AdminProductScreen> createState() => _AdminProductScreenState();
 }
-  
+
 class _AdminProductScreenState extends State<AdminProductScreen> {
   Map<String, String> productQueryParams = {
     'category': '',
@@ -28,92 +27,93 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
   String productName = "";
 
   TextEditingController searchController = TextEditingController();
- 
-    void handleSearchButtonTap() {
-      setState(() {
-        if (searchController.text != ""){
-          productName = "${searchController.text}*";
-          productQueryParams = {
-                  'category': widget.category,
-                  'productName': productName,
-              };
-        }
-        else{
-          productQueryParams = {
-              'category': widget.category,
-              'productName': '',
-          };
-        }
-         context.read<ProductCubit>().getProduct(productQueryParams);
-      });
-    }
+
+  void handleSearchButtonTap() {
+    setState(() {
+      if (searchController.text != "") {
+        productName = "${searchController.text}*";
+        productQueryParams = {
+          'category': widget.category,
+          'productName': productName,
+        };
+      } else {
+        productQueryParams = {
+          'category': widget.category,
+          'productName': '',
+        };
+      }
+      context.read<ProductCubit>().getProduct(productQueryParams);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return HelperMethod.loader(
-      child: Scaffold(
-        extendBody: true,
-        bottomNavigationBar: _addCategoryBtn(context),
-        appBar: AppBar(
-          title: const Text("Product"),
-        ),
-        body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: searchController,
-                    decoration: const InputDecoration(
-                      labelText: 'Search Products',
-                      border: OutlineInputBorder(),
-                    ),
+        child: Scaffold(
+      extendBody: true,
+      bottomNavigationBar: _addCategoryBtn(context),
+      appBar: AppBar(
+        title: const Text("Product"),
+      ),
+      body: Column(children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: searchController,
+                  decoration: const InputDecoration(
+                    labelText: 'Search Products',
+                    border: OutlineInputBorder(),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () {
-                    handleSearchButtonTap(); 
-                  },
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: BlocBuilder<ProductCubit, ProductState>(
-          builder: (context, state) {
-            if (state is ProductIsLoadingState) {
-              return HelperMethod.loadinWidget();
-            }
-            if (state is ProductLoadedState) {
-              return RefreshIndicator(
-                onRefresh: () async {
-                  context.read<ProductCubit>().getProduct(productQueryParams);
+              ),
+              IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: () {
+                  handleSearchButtonTap();
                 },
-                child: ListView.separated(
-                    itemBuilder: (context, index) {
-                      return BlocProvider(
-                        create: (context) => sl<ProductEditCubit>(),
-                        child: AdminProductCard(model: state.models[index]),
-                      );
-                    },
-                    separatorBuilder: (context, index) => 10.verticalSpace,
-                    itemCount: state.models.length),
-              );
-            }
-            if (state is ProductErrorState) {
-              return HelperMethod.emptyWidget();
-            }
-            return const SizedBox();
-          },
+              ),
+            ],
+          ),
         ),
-          )
-        ]
-        ),
-      )
-    );
+        Expanded(
+          child: BlocBuilder<ProductCubit, ProductState>(
+            builder: (context, state) {
+              if (state is ProductIsLoadingState) {
+                return HelperMethod.loadinWidget();
+              }
+              if (state is ProductLoadedState) {
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    context
+                        .read<ProductCubit>()
+                        .getProduct({"category": widget.category});
+                  },
+                  child: ListView.separated(
+                      itemBuilder: (context, index) {
+                        return BlocProvider(
+                          create: (context) => sl<ProductEditCubit>(),
+                          child: AdminProductCard(
+                            model: state.models[index],
+                            productQueryParams: {"category": widget.category},
+                          ),
+                        );
+                      },
+                      separatorBuilder: (context, index) => 10.verticalSpace,
+                      itemCount: state.models.length),
+                );
+              }
+              if (state is ProductErrorState) {
+                return HelperMethod.emptyWidget();
+              }
+              return const SizedBox();
+            },
+          ),
+        )
+      ]),
+    ));
   }
 
   Container _addCategoryBtn(BuildContext context) {

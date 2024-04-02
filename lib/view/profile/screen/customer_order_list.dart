@@ -1,6 +1,7 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/core/utils/decorator_utils.dart';
+import 'package:fashion_fusion/core/utils/order_utils.dart';
 import 'package:fashion_fusion/data/order/model/order_list_model.dart';
 import 'package:fashion_fusion/provider/order_cubit/order_cubit.dart';
 import 'package:fashion_fusion/view/home/screen/order_screen.dart';
@@ -30,9 +31,7 @@ class _CustomerOrderListScreenContentState
   @override
   void initState() {
     super.initState();
-    orderCubit = context.read<OrderCubit>();
-    orderCubit
-        .getOrdersByCustomerId(); // Fetch orders when the screen is initialized
+    _fetchOrders(context);
   }
 
   @override
@@ -49,30 +48,45 @@ class _CustomerOrderListScreenContentState
             );
           } else if (state is OrderListLoadedState) {
             List<OrderListModel> orders = state.model;
-            return Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: orders.length,
-                    itemBuilder: (context, index) {
-                      return OrderListElementWidget(model: orders[index]);
-                    },
-                  ),
-                ),
-              ],
-            );
+            return RefreshIndicator(
+                onRefresh: () async {
+                  _fetchOrders(context);
+                },
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: orders.length,
+                        itemBuilder: (context, index) {
+                          return OrderListElementWidget(model: orders[index]);
+                        },
+                      ),
+                    ),
+                  ],
+                ));
           } else if (state is ErrorState) {
-            return Center(
-              child: Text(state.message),
+            return RefreshIndicator(
+              onRefresh: () async {
+                _fetchOrders(context);
+              },
+              child: Center(child: Text(state.message)),
             );
           } else {
-            return const Center(
-              child: Text('No orders available'),
-            );
+            return RefreshIndicator(
+                onRefresh: () async {
+                  _fetchOrders(context);
+                },
+                child: const Center(
+                  child: Text('No orders available'),
+                ));
           }
         },
       ),
     );
+  }
+
+  void _fetchOrders(BuildContext context) {
+    context.read<OrderCubit>().getOrdersByCustomerId();
   }
 }
 
@@ -139,7 +153,7 @@ class OrderListElementWidget extends StatelessWidget {
       ),
     );
   }
-  
+
   int getItemCount() {
     return model.cartItems!.fold<int>(
       0,
@@ -189,7 +203,7 @@ class OrderListElementWidget extends StatelessWidget {
   }
 
   Widget _title(String title, {String status = ""}) {
-    Color textColor = getTextColorBasedOnOrderStatus(status);
+    Color textColor = OrderUtils.getColorBasedOnStatus(status);
 
     return Text(
       formatText(title),
@@ -203,21 +217,6 @@ class OrderListElementWidget extends StatelessWidget {
     );
   }
 
-  Color getTextColorBasedOnOrderStatus(String status) {
-    Color textColor = Colors.black; // Default color
-    if (status.toLowerCase() == "pending" ||
-        status.toLowerCase() == "out for delivery") {
-      textColor = const Color.fromARGB(
-          255, 255, 94, 0); // Set title color to orange for Pending status
-    } else if (status.toLowerCase() == "delivered") {
-      textColor = const Color.fromARGB(
-          255, 0, 164, 5); // Set title color to green for Delivered status
-    } else if (status.toLowerCase() == "cancelled") {
-      textColor = Colors.grey; // Set title color to grey for Cancelled status
-    }
-    return textColor;
-  }
-
   Widget _text(String text, {String status = ""}) {
     var formattedText = formatText(text);
     return Text(
@@ -227,7 +226,7 @@ class OrderListElementWidget extends StatelessWidget {
       overflow: TextOverflow.fade,
       style: TextStyle(
           fontWeight: FontWeight.w600,
-          color: getTextColorBasedOnOrderStatus(status)),
+          color: OrderUtils.getColorBasedOnStatus(status)),
     );
   }
 

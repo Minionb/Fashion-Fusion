@@ -86,5 +86,14 @@ const customerSchema = new mongoose.Schema({
 });
 // Add timestamps
 customerSchema.set("timestamps", true);
+
+// Middleware to convert email to lowercase before saving
+customerSchema.pre('save', function(next) {
+  if (this.isModified('email')) {
+      this.email = this.email.toLowerCase();
+  }
+  next();
+});
+
 const CustomersModel = mongoose.model("customers", customerSchema);
 module.exports = { CustomersModel, paymentSchema, addressSchema };

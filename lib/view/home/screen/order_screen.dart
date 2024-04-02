@@ -1,7 +1,10 @@
+import 'package:fashion_fusion/config/theme/app_theme.dart';
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/core/utils/decorator_utils.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
+import 'package:fashion_fusion/core/utils/order_utils.dart';
+import 'package:fashion_fusion/data/order/model/admin_update_status_model.dart';
 import 'package:fashion_fusion/data/order/model/order_model.dart';
 import 'package:fashion_fusion/provider/order_cubit/order_cubit.dart';
 import 'package:fashion_fusion/view/widget/cart_item_widget.dart';
@@ -9,6 +12,8 @@ import 'package:fashion_fusion/view/widget/address_card_widget.dart';
 import 'package:fashion_fusion/view/widget/payment_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../provider/order_edit_cubit/order_edit_cubit_cubit.dart';
 
 class OrderScreen extends StatefulWidget {
   OrderModel? orderModel;
@@ -40,6 +45,9 @@ class _OrderScreenState extends State<OrderScreen> {
               return sl<OrderCubit>();
             }
           }),
+          BlocProvider<OrderEditCubit>(
+            create: (context) => sl<OrderEditCubit>(),
+          ),
         ],
         child: BlocBuilder<OrderCubit, OrderState>(
           builder: (context, state) {
@@ -72,7 +80,7 @@ class _OrderScreenState extends State<OrderScreen> {
             } else if (state is ErrorState) {
               return HelperMethod.emptyWidget(title: "Request failed.");
             } else {
-              return const CircularProgressIndicator();
+              return const Center(child: CircularProgressIndicator());
             }
           },
         ));
@@ -152,9 +160,7 @@ class _OrderScreenState extends State<OrderScreen> {
   Widget _buildPaymentOptions() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        PaymentWidget(model: orderModel.payment!, onTap: () {})
-      ],
+      children: [PaymentWidget(model: orderModel.payment!, onTap: () {})],
     );
   }
 
@@ -176,6 +182,7 @@ class OrderSummaryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String status = model.status ?? "";
     return InkWell(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -185,55 +192,118 @@ class OrderSummaryWidget extends StatelessWidget {
         ),
         margin: const EdgeInsets.only(bottom: 16.0),
         child: ListTile(
-          title: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-            _title("Status:"),
-            const SizedBox(width: 16.0),
-            _title(model.status ?? "Pending"),
-            const SizedBox(width: 16.0)
-          ]),
+          title: _buildTitleRow("Status", status, status: status),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _label("Order Date"),
-                      const SizedBox(height: 16.0),
-                      _label("Order Total"),
-                      _label("GST/HST"),
-                      _label("Subtotal"),
-                      const SizedBox(height: 16.0),
-                      _label("Shipping Method"),
-                      _label("Courier"),
-                    ],
-                  ),
-                  const SizedBox(width: 16.0),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _text(AppFormatter.formatDateDisplay(model.createdAt!)),
-                      const SizedBox(height: 16.0),
-                      _text(
-                          '\$${AppFormatter.getFormattedAmount(model.totalAmount ?? 0.0)} (${getItemCount()} items)'),
-                      _text(
-                          '\$${AppFormatter.getFormattedAmount(model.tax ?? 0.0)}'),
-                      _text(
-                          '\$${AppFormatter.getFormattedAmount(model.subtotal ?? 0.0)}'),
-                      const SizedBox(height: 16.0),
-                      _text(model.delivery?.method ?? "Delivery"),
-                      _text(model.delivery?.courier ?? "No specified"),
-                    ],
-                  ),
-                  const SizedBox(width: 16.0),
-                ],
-              ),
+              createKeyValRow("Order Date",
+                  AppFormatter.formatDateDisplay(model.createdAt!)),
+              const SizedBox(height: 16.0),
+              createKeyValRow("Order Total",
+                  '\$${AppFormatter.getFormattedAmount(model.totalAmount ?? 0.0)} (${getItemCount()} items)'),
+              createKeyValRow("GST/HST",
+                  '\$${AppFormatter.getFormattedAmount(model.tax ?? 0.0)}'),
+              createKeyValRow("Subtotal",
+                  '\$${AppFormatter.getFormattedAmount(model.subtotal ?? 0.0)}'),
+              const SizedBox(height: 16.0),
+              createKeyValRow(
+                  "Shipping Method", model.delivery?.method ?? "Delivery"),
+              createKeyValRow(
+                  "Courier", model.delivery?.courier ?? "Not specified"),
+              const SizedBox(height: 16.0),
+              if (model.status == 'pending') _cancelOrderButton(context)
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Row _buildTitleRow(String label, String val, {String status = ""}) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 1,
+          child: _label(label),
+        ),
+        Expanded(
+          flex: 2,
+          child: _text(val, status: status),
+        ),
+      ],
+    );
+  }
+
+  Row createKeyValRow(String label, String val, {String status = ""}) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 1,
+          child: _label(label),
+        ),
+        Expanded(
+          flex: 2,
+          child: _text(val, status: status),
+        ),
+      ],
+    );
+  }
+
+  Widget _cancelOrderButton(BuildContext context) {
+    bool ifOrderIsPending = model.status == 'pending';
+    return Row(
+      children: [
+        Expanded(
+          child: ElevatedButton(
+            onPressed: ifOrderIsPending
+                ? () {
+                    _confirmCancelOrder(context);
+                  }
+                : null,
+            style: !ifOrderIsPending
+                ? AppTheme.disabledButtonStyle()
+                : AppTheme.primaryButtonStyle(),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _confirmCancelOrder(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dContext) {
+        return AlertDialog(
+          title: const Text("Cancel order"),
+          content: const Text("Are you sure you want to cancel the order?"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("No"),
+              onPressed: () {
+                Navigator.of(dContext).pop();
+              },
+            ),
+            TextButton(
+              child: const Text("Yes"),
+              onPressed: () {
+                // Update status here
+                sl<OrderEditCubit>().updateOrderStatus(
+                  AdminOrderUpdateStatusModel(
+                    orderID: model.orderId!,
+                    orderStatus: 'cancelled',
+                  ),
+                );
+                model.status = 'cancelled';
+                Navigator.of(dContext).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -244,24 +314,27 @@ class OrderSummaryWidget extends StatelessWidget {
     );
   }
 
-  Widget _title(String title) {
+  Widget _title(String title, {String status = ""}) {
+    Color textColor = OrderUtils.getColorBasedOnStatus(status);
     return Text(
       formatText(title),
       maxLines: 1,
       textAlign: TextAlign.left,
       overflow: TextOverflow.fade,
-      style: const TextStyle(fontWeight: FontWeight.w600),
+      style: TextStyle(fontWeight: FontWeight.w600, color: textColor),
     );
   }
 
-  Widget _text(String text) {
+  Widget _text(String text, {String status = ""}) {
     var formattedText = formatText(text);
     return Text(
       formattedText,
       maxLines: 1,
       textAlign: TextAlign.left,
       overflow: TextOverflow.fade,
-      style: const TextStyle(fontWeight: FontWeight.w600),
+      style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: OrderUtils.getColorBasedOnStatus(status)),
     );
   }
 

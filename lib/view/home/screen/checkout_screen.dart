@@ -7,6 +7,8 @@ import 'package:fashion_fusion/data/customer/model/customer_model.dart';
 import 'package:fashion_fusion/data/order/model/order_model.dart';
 import 'package:fashion_fusion/provider/customerCubit/customer/customer_cubit.dart';
 import 'package:fashion_fusion/view/home/screen/order_screen.dart';
+import 'package:fashion_fusion/view/profile/screen/profile_addresses_screen.dart';
+import 'package:fashion_fusion/view/profile/screen/profile_payment_methods.dart';
 import 'package:fashion_fusion/view/widget/cart_item_widget.dart';
 import 'package:fashion_fusion/view/home/widget/total_amount_widget.dart';
 import 'package:fashion_fusion/view/widget/address_card_widget.dart';
@@ -150,13 +152,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       builder: (context, state) {
         if (state is GetCustomerByIdLoadedState) {
           payments = state.model.payments ?? [];
-          if (selectedPaymentIndex < 0) {
+          if (selectedPaymentIndex < 0 && payments.isNotEmpty) {
             selectedPaymentIndex = 0;
           }
           // Render UI with stored payments
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (payments.isEmpty)
+                _buildMissingInfoWidget(context,
+                    text: 'Add a Payment method', onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ProfilePaymentMethods(
+                            paymentMethodsList: const [])),
+                  );
+                }),
               for (int i = 0; i < (payments.length); i++)
                 PaymentWidget(
                   model: payments[i],
@@ -178,6 +190,28 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
+  GestureDetector _buildMissingInfoWidget(BuildContext context,
+      {required VoidCallback onTap, required String text}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Expanded(
+            child: InkWell(
+                child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    color: AppColors.secondary,
+                    child: Text(
+                      text,
+                      textAlign: TextAlign.center,
+                    ))),
+          )
+        ],
+      ),
+    );
+  }
+
   void onAddressTap(int index) {
     setState(() {
       selectedAddressIndex = index; // Update selected index on tap
@@ -189,7 +223,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       builder: (context, state) {
         if (state is GetCustomerByIdLoadedState) {
           addresses = state.model.addresses ?? [];
-          if (selectedAddressIndex < 0) {
+          if (selectedAddressIndex < 0 && addresses.isNotEmpty) {
             selectedAddressIndex = 0;
           }
           var addressWidgets = buildAddressWidgets(addresses);
@@ -204,8 +238,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  List<AddressWidget> buildAddressWidgets(List<Address> addresses) {
+  List<Widget> buildAddressWidgets(List<Address> addresses) {
     return [
+      if (addresses.isEmpty)
+        _buildMissingInfoWidget(context, text: 'Add an Address',
+            onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddressListScreen()),
+          );
+        }),
       for (int i = 0; i < (addresses.length); i++)
         AddressWidget(
           model: addresses[i],

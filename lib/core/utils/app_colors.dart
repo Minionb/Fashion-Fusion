@@ -8,6 +8,9 @@ class AppColors {
   static Color lightGray = const Color.fromARGB(255, 214, 214, 214);
   static Color lightSeliver = HexColor("D9D9D9");
   static Color darkSeliver = HexColor("707070");
+  static Color secondary = Colors.red.shade300;
+  static Color accent = Colors.red.shade50;
+  static Color disabled = Colors.black12;
 
   // Dark
   static Color primaryDK = HexColor("EF3651");
