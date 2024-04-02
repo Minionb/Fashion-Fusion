@@ -124,7 +124,7 @@ class PaymentOptionsCard extends StatelessWidget {
             FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
-                paymentMethod.cardNumber,
+                 "**** **** **** ${paymentMethod.cardNumber.substring(paymentMethod.cardNumber.length - 4)}",
                 style: TextStyle(
                     fontSize: 24.0,
                     letterSpacing: 4.0,
