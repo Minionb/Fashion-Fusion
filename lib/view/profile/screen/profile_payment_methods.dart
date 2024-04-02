@@ -2,12 +2,14 @@ import 'package:fashion_fusion/config/theme/app_theme.dart';
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/data/profile/model/profile_model.dart';
+import 'package:fashion_fusion/data/profile/model/upload_profile_model.dart';
 import 'package:fashion_fusion/provider/profile_cubit/profile_edit/profile_edit_cubit.dart';
 import 'package:fashion_fusion/view/profile/screen/add_payment_method.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePaymentMethods extends StatelessWidget {
   late final List<PaymentModel> paymentMethodsList;
@@ -20,6 +22,7 @@ class ProfilePaymentMethods extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    newPaymentMethodsList = paymentMethodsList;
     return HelperMethod.loader(
       child: Scaffold(
         appBar: AppBar(
@@ -27,17 +30,115 @@ class ProfilePaymentMethods extends StatelessWidget {
         ),
         body: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(
+          child: 
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (int i = 0; i < paymentMethodsList.length; i++)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: PaymentOptionsCard(
-                    paymentMethod: paymentMethodsList[i],
+              // DO NOT change this
+              paymentMethodsList.isNotEmpty ? 
+                Expanded(
+                  child: 
+                  Stack(
+                    children: [
+                      ListView.builder(
+                        itemCount: paymentMethodsList.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: GestureDetector(
+                              onLongPress:() {
+                                showDialog(
+                                  context: context, 
+                                  builder: (BuildContext context1) {
+                                    return AlertDialog(
+                                      title: const Text("Delete Payment Method?"),
+                                      content: Text("Delete ${paymentMethodsList[index].method} card: \n${paymentMethodsList[index].cardNumber}?"),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context1);
+                                          }, 
+                                          child: const Text("Cancel")
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context1);
+                                            showDialog(
+                                              context: context, 
+                                              builder: (BuildContext context1) {
+                                                return BlocProvider<ProfileEditCubit>(
+                                                  create: (context) => sl<ProfileEditCubit>(),
+                                                  child: AlertDialog(
+                                                    title: const Text("Delete Payment Method?"),
+                                                    content: Text("Are you sure?"),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(context1);
+                                                        }, 
+                                                        child: const Text("Cancel")
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          newPaymentMethodsList.removeAt(index);
+                                                          List<Map<String, dynamic>> jsonListCurPayments = newPaymentMethodsList.map((e) => e.toJson()).toList();
+                                                          context.read<ProfileEditCubit>().updateProfile(
+                                                            UploadProfileModel(dictionary: 'payments', newData: jsonListCurPayments), 
+                                                            sl<SharedPreferences>().getString("userID")!
+                                                          );
+                                                          Navigator.pop(context1);
+                                                          Navigator.pushReplacement(
+                                                            context, MaterialPageRoute(builder: (context) => ProfilePaymentMethods(paymentMethodsList: newPaymentMethodsList)));
+                                                        }, 
+                                                        child: const Text("Yes", style: TextStyle(color: Colors.red),)
+                                                      )
+                                                    ],
+                                                  ),
+                                                );
+                                              }
+                                            );
+                                          }, 
+                                          child: const Text("DELETE", style: TextStyle(color: Colors.red),)
+                                        )
+                                      ],
+                                    );
+                                  }
+                                );
+                              },
+                              child: PaymentOptionsCard(paymentMethod: paymentMethodsList[index])
+                            )
+                          );
+                        }
+                      ),
+                      Positioned(
+                        bottom: 16.0,
+                        right: 16.0,
+                        child: FloatingActionButton(onPressed: () {
+                            toAddPaymentMethod(context, paymentMethodsList);
+                          },
+                          child: const Text("+", style: TextStyle(fontSize: 25)),
+                        ),
+                      )
+                    ],
+                  )
+                )
+              : 
+              Stack(
+                children: [
+                  const Center(
+                    child: Text("No saved payment methods")
                   ),
-                ),
-              _buildAddPaymentButton(context),
+                  Positioned(
+                    bottom: 16.0,
+                    right: 16.0,
+                    child: FloatingActionButton(onPressed: () {
+                        toAddPaymentMethod(context, paymentMethodsList);
+                      },
+                      child: const Text("+", style: TextStyle(fontSize: 25)),
+                    ),
+                  )
+                ],
+              ),
             ],
           ),
         ),
@@ -45,24 +146,24 @@ class ProfilePaymentMethods extends StatelessWidget {
     );
   }
 
-  Widget _buildAddPaymentButton(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: ElevatedButton(
-            onPressed: () {
-              toAddPaymentMethod(context, paymentMethodsList);
-            },
-            style: AppTheme.primaryButtonStyle(),
-            child: const Text(
-              'Add payment',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget _buildAddPaymentButton(BuildContext context) {
+  //   return Row(
+  //     children: [
+  //       Expanded(
+  //         child: ElevatedButton(
+  //           onPressed: () {
+  //             toAddPaymentMethod(context, paymentMethodsList);
+  //           },
+  //           style: AppTheme.primaryButtonStyle(),
+  //           child: const Text(
+  //             'Add payment',
+  //             style: TextStyle(color: Colors.white),
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   void toAddPaymentMethod(
       BuildContext context, List<PaymentModel> paymentMethodsList) async {
@@ -86,7 +187,6 @@ class PaymentOptionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String methodImage = "assets/icons/visa.256x79.png";
 
     return Card(
       elevation: 4.0,

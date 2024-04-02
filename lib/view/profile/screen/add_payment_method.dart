@@ -14,7 +14,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// TODO: Add more payment options
 const List<String> paymentOpsList = <String>[
   'VISA',
   'Mastercard',
