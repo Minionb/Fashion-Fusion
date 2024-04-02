@@ -22,9 +22,9 @@ const List<String> paymentOpsList = <String>[
 ];
 
 class AddPaymentMethod extends StatefulWidget {
-  final List<PaymentModel> curPayments;
+  List<PaymentModel>? curPayments;
 
-  const AddPaymentMethod({super.key, required this.curPayments});
+  AddPaymentMethod({super.key, this.curPayments});
 
   @override
   State<AddPaymentMethod> createState() => _AddPaymentMethod();
@@ -171,7 +171,8 @@ class _AddPaymentMethod extends State<AddPaymentMethod> {
                                     ),
                                     TextButton(
                                         onPressed: () {
-                                          widget.curPayments.add(PaymentModel(
+                                          List<PaymentModel> newPaymentList =  List.from(widget.curPayments??[]);
+                                          newPaymentList.add(PaymentModel(
                                               name:
                                                   "${_holderFirstNameCtrl.text} ${_holderLastNameCtrl.text}",
                                               method: selectedMethod,
@@ -180,8 +181,7 @@ class _AddPaymentMethod extends State<AddPaymentMethod> {
                                                   "${_expDateMonthCtrl.text}/${_expDateYearCtrl.text}",
                                               cvv: _cvvCtrl.text));
                                           List<Map<String, dynamic>>
-                                              jsonListCurPayments = widget
-                                                  .curPayments
+                                              jsonListCurPayments = newPaymentList
                                                   .map((e) => e.toJson())
                                                   .toList();
                                           context
@@ -216,8 +216,7 @@ class _AddPaymentMethod extends State<AddPaymentMethod> {
                                                   builder: (context) =>
                                                       ProfilePaymentMethods(
                                                           paymentMethodsList:
-                                                              widget
-                                                                  .curPayments)));
+                                                              newPaymentList)));
                                         },
                                         child: const Text('Save'))
                                   ],
