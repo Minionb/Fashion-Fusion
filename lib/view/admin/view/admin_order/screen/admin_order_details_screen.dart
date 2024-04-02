@@ -71,14 +71,32 @@ class _AdminOrderDetailsScreenState extends State<AdminOrderDetailsScreen> {
                       _buildCartItemsSection(),
                       _buildShippingDetailsSection(),
                       20.verticalSpace,
-                      CustomButton(
-                        label: getOrderStatusLabel(orderModel.status ?? ""),
-                        bg: AppColors.primary,
-                        onPressed: () {
-                          updateOrderStatus(
-                              context, widget.orderId ?? "", orderModel.status);
-                        },
-                      ),
+                      (orderModel.status == "cancel" ||
+                              orderModel.status == "cancelled")
+                          ? const SizedBox()
+                          : CustomButton(
+                              label:
+                                  getOrderStatusLabel(orderModel.status ?? ""),
+                              bg: AppColors.primary,
+                              onPressed: () {
+                                updateOrderStatus(context, widget.orderId ?? "",
+                                    orderModel.status);
+                              },
+                            ),
+                      10.verticalSpace,
+                      // Cancel Button
+                      (orderModel.status == "cancel" ||
+                              orderModel.status == "cancelled" ||
+                              orderModel.status?.toLowerCase() == "delivered")
+                          ? const SizedBox()
+                          : CustomButton(
+                              label: "Cancel",
+                              bg: AppColors.primary,
+                              onPressed: () {
+                                updateOrderStatus(
+                                    context, widget.orderId ?? "", "cancel");
+                              },
+                            ),
                       25.verticalSpace
                     ],
                   ),
@@ -106,6 +124,8 @@ class _AdminOrderDetailsScreenState extends State<AdminOrderDetailsScreen> {
         return "Delivered";
       case "delivered":
         return "Order Delivered";
+      case "cancel":
+        return "cancel";
       default:
         return "";
     }
@@ -125,6 +145,8 @@ class _AdminOrderDetailsScreenState extends State<AdminOrderDetailsScreen> {
         break;
       case "out for delivery":
         newStatus = "delivered";
+      case "cancel":
+        newStatus = "cancelled";
         break;
       case "delivered":
         // Do nothing or handle accordingly

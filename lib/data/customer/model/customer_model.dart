@@ -121,11 +121,11 @@ class Address {
   Address(
       {required this.addressNickName,
       required this.addressLine1,
-      required this.addressLine2,
+      this.addressLine2,
       required this.zipCode,
       required this.city,
       required this.country,
-      required this.sId});
+      this.sId});
 
   Address.fromJson(Map<String, dynamic> json) {
     addressNickName = json['addresNickName'];
@@ -139,8 +139,10 @@ class Address {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['_id'] = sId;
-    data['addressNickName'] = addressNickName;
+    if (sId != null) {
+      data['_id'] = sId;
+    }
+    data['addresNickName'] = addressNickName;
     data['addressLine1'] = addressLine1;
     data['addressLine2'] = addressLine2;
     data['zipCode'] = zipCode;

@@ -31,9 +31,7 @@ class _CustomerOrderListScreenContentState
   @override
   void initState() {
     super.initState();
-    orderCubit = context.read<OrderCubit>();
-    orderCubit
-        .getOrdersByCustomerId(); // Fetch orders when the screen is initialized
+    _fetchOrders(context);
   }
 
   @override
@@ -50,30 +48,45 @@ class _CustomerOrderListScreenContentState
             );
           } else if (state is OrderListLoadedState) {
             List<OrderListModel> orders = state.model;
-            return Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: orders.length,
-                    itemBuilder: (context, index) {
-                      return OrderListElementWidget(model: orders[index]);
-                    },
-                  ),
-                ),
-              ],
-            );
+            return RefreshIndicator(
+                onRefresh: () async {
+                  _fetchOrders(context);
+                },
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: orders.length,
+                        itemBuilder: (context, index) {
+                          return OrderListElementWidget(model: orders[index]);
+                        },
+                      ),
+                    ),
+                  ],
+                ));
           } else if (state is ErrorState) {
-            return Center(
-              child: Text(state.message),
+            return RefreshIndicator(
+              onRefresh: () async {
+                _fetchOrders(context);
+              },
+              child: Center(child: Text(state.message)),
             );
           } else {
-            return const Center(
-              child: Text('No orders available'),
-            );
+            return RefreshIndicator(
+                onRefresh: () async {
+                  _fetchOrders(context);
+                },
+                child: const Center(
+                  child: Text('No orders available'),
+                ));
           }
         },
       ),
     );
+  }
+
+  void _fetchOrders(BuildContext context) {
+    context.read<OrderCubit>().getOrdersByCustomerId();
   }
 }
 
@@ -140,7 +153,7 @@ class OrderListElementWidget extends StatelessWidget {
       ),
     );
   }
-  
+
   int getItemCount() {
     return model.cartItems!.fold<int>(
       0,

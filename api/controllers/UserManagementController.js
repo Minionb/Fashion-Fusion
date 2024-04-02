@@ -228,6 +228,7 @@ async function normalizeCustomerData(updateData) {
   if (updateData.addresses) {
     updateData.addresses.forEach((add) => {
       if (!add.country) add.country = "Canada";
+      
     });
   }
 
