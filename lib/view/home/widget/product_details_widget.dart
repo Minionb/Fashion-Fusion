@@ -1,7 +1,6 @@
 import 'package:fashion_fusion/config/theme/app_theme.dart';
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
-import 'package:fashion_fusion/core/widgets/cart_button.dart';
 import 'package:fashion_fusion/core/widgets/like_button.dart';
 import 'package:fashion_fusion/data/cart/model/put_item_model.dart';
 import 'package:fashion_fusion/data/product/model/product_model.dart';
