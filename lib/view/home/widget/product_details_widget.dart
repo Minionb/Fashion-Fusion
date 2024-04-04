@@ -173,6 +173,7 @@ class ProductDetailWidgetState extends State<ProductDetailWidget> {
           builder: (BuildContext context, FavoriteState state) {
             return LikeButton(
               productId: widget.model.id!,
+              isFavorite: widget.isFavorite,
               isDark: true,
               iconSize: 30,
             );
