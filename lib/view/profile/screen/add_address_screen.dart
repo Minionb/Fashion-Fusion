@@ -1,14 +1,8 @@
 import 'package:fashion_fusion/config/theme/app_theme.dart';
 import 'package:fashion_fusion/core/utils/app_colors.dart';
-import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/data/customer/model/customer_model.dart';
-import 'package:fashion_fusion/data/profile/model/upload_profile_model.dart';
-import 'package:fashion_fusion/provider/profile_cubit/profile/profile_cubit.dart';
-import 'package:fashion_fusion/provider/profile_cubit/profile_edit/profile_edit_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class AddAddressScreen extends StatefulWidget {
   List<Address> addressList;

@@ -8,13 +8,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 // ignore: must_be_immutable
 class LikeButton extends StatefulWidget {
   bool isFavorite;
+  bool isDark;
   final String productId;
-  final Function(bool isLiked) onLikeStatusChanged; // Callback function
+  final Function(bool isLiked) onLikeStatusChanged;
+  final double? iconSize; // Callback function
 
   LikeButton(
       {super.key,
       this.isFavorite = false,
+      this.isDark = false,
       required this.productId,
+      this.iconSize = 16,
       this.onLikeStatusChanged =
           _defaultOnLikeStatusChanged}); // Updated constructor
 
@@ -77,24 +81,46 @@ class _LikeButtonState extends State<LikeButton>
           },
           // Child widget wrapped with ScaleTransition for scaling animation
           child: ScaleTransition(
-            // Define scale animation using Tween animation
-            scale: Tween(begin: 0.7, end: 1.0).animate(
-                CurvedAnimation(parent: _controller, curve: Curves.easeOut)),
-            // Child of ScaleTransition, displays either filled or outline heart icon based on isFavorite
-            child: widget.isFavorite
-                ? Icon(
-                    Icons.favorite,
-                    color: AppColors.primary,
-                    size: 16.sp, // Size of the icon in scaled pixels
-                  )
-                : Icon(
-                    Icons.favorite_border,
-                    size: 16.sp,
-                    color: AppColors.grayDK,
-                  ),
-          ),
+              // Define scale animation using Tween animation
+              scale: Tween(begin: 0.7, end: 1.0).animate(
+                  CurvedAnimation(parent: _controller, curve: Curves.easeOut)),
+              // Child of ScaleTransition, displays either filled or outline heart icon based on isFavorite
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                // decoration: widget.isDark
+                //     ? const BoxDecoration(
+                //         color: Colors.black, shape: BoxShape.circle)
+                //     : const BoxDecoration(
+                //         color: Colors.white, shape: BoxShape.circle),
+                child: _buildIFavoriteIcon(),
+              )),
         );
       },
     );
+  }
+
+  Icon _buildIFavoriteIcon() {
+    if (widget.isFavorite) {
+      return Icon(
+                      Icons.favorite,
+                      color: AppColors.primary,
+                      size: widget
+                          .iconSize, // Size of the icon in scaled pixels
+                    );
+    } else {
+      // if (widget.isDark) {
+      //   return Icon(
+      //                 Icons.favorite,
+      //                 size: widget.iconSize,
+      //                 color: AppColors.whiteDK,
+      //               );
+      // } else {
+        return Icon(
+                      Icons.favorite_border_outlined,
+                      size: widget.iconSize,
+                      color: AppColors.grayDK,
+                    );
+      // }
+    }
   }
 }
