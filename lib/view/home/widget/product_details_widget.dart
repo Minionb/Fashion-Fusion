@@ -7,12 +7,14 @@ import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProductDetailWidget extends StatefulWidget {
-  
   final ProductModel model;
   final bool isFavorite;
 
-  const ProductDetailWidget({super.key, required this.model,
-    required this.isFavorite,});
+  const ProductDetailWidget({
+    super.key,
+    required this.model,
+    required this.isFavorite,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -21,7 +23,6 @@ class ProductDetailWidget extends StatefulWidget {
 }
 
 class ProductDetailWidgetState extends State<ProductDetailWidget> {
-
   late int xsQuantity = 0;
   late int sQuantity = 0;
   late int mQuantity = 0;
@@ -34,30 +35,28 @@ class ProductDetailWidgetState extends State<ProductDetailWidget> {
     initialize();
   }
 
-
   void initialize() {
     setState(() {
-    xsQuantity = checkSizeQuantity("XS");
-    sQuantity = checkSizeQuantity("S");
-    mQuantity = checkSizeQuantity("M");
-    lQuantity = checkSizeQuantity("L");
-    xlQuantity = checkSizeQuantity("XL");
+      xsQuantity = checkSizeQuantity("XS");
+      sQuantity = checkSizeQuantity("S");
+      mQuantity = checkSizeQuantity("M");
+      lQuantity = checkSizeQuantity("L");
+      xlQuantity = checkSizeQuantity("XL");
     });
   }
-  
-  int checkSizeQuantity (String size) {
+
+  int checkSizeQuantity(String size) {
     var inventory = widget.model.inventory;
     int sizeQuantity = 0;
     for (var item in inventory!) {
       if (item.size == size) {
         sizeQuantity = item.quantity!;
-        
+
         return sizeQuantity;
       }
     }
     return sizeQuantity;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -125,16 +124,15 @@ class ProductDetailWidgetState extends State<ProductDetailWidget> {
                   ),
                   const SizedBox(height: 10),
                   if (widget.model.category != "Accessories")
-                  Row(
-                    children: [
-                       
-                      _buildSizeButton('XS', xsQuantity),
-                      _buildSizeButton('S', sQuantity),
-                      _buildSizeButton('M', mQuantity),
-                      _buildSizeButton('L', lQuantity),
-                      _buildSizeButton('XL', xlQuantity),
-                    ],
-                  ),
+                    Row(
+                      children: [
+                        _buildSizeButton('XS', xsQuantity),
+                        _buildSizeButton('S', sQuantity),
+                        _buildSizeButton('M', mQuantity),
+                        _buildSizeButton('L', lQuantity),
+                        _buildSizeButton('XL', xlQuantity),
+                      ],
+                    ),
                 ],
               ),
             ),
@@ -144,34 +142,36 @@ class ProductDetailWidgetState extends State<ProductDetailWidget> {
     );
   }
 
-Widget _buildSizeButton(String size, int sizeQuantity) {
-  final bool isClickable = sizeQuantity > 0;
+  Widget _buildSizeButton(String size, int sizeQuantity) {
+    final bool isClickable = sizeQuantity > 0;
 
-  return Container(
-    margin: const EdgeInsets.only(right: 8),
-    child: ElevatedButton(
-      onPressed: isClickable
-          ? () {
-              // Handle button press
-              print("$size pressed");
-            }
-          : null,
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      child: ElevatedButton(
+        onPressed: isClickable
+            ? () {
+                // Handle button press
+                print("$size pressed");
+              }
+            : null,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+          ),
+          backgroundColor: isClickable
+              ? Colors.blue
+              : Colors.grey, // Change button color based on clickability
         ),
-        backgroundColor: isClickable ? Colors.blue : Colors.grey, // Change button color based on clickability
-      ),
-      child: Text(
-        size,
-        style: const TextStyle(
-          fontSize: 14,
+        child: Text(
+          size,
+          style: const TextStyle(
+            fontSize: 14,
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   SizedBox _cursolImages() {
     return SizedBox(
