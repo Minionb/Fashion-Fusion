@@ -148,7 +148,7 @@ class ProfileTitle extends StatelessWidget {
             routeWidget: CustomerOrderListScreen()),
         ProfileOptionsCard(
             title: "Shipping addresses",
-            subtitle: "[] addresses",
+            subtitle: profile.addresses.length == 1 ? "1 address" : "${profile.addresses.length} addresses",
             routeWidget: AddressListScreen()),
         ProfileOptionsCard(
             title: "Payment methods",
@@ -156,7 +156,7 @@ class ProfileTitle extends StatelessWidget {
             routeWidget: ProfilePaymentMethods(paymentMethodsList: profile.payments)),
         ProfileOptionsCard(
             title: "Settings",
-            subtitle: "Email",
+            subtitle: "Email, Mobile",
             routeWidget: BlocProvider(
                 create: (context) => sl<ProfileEditCubit>(),
                 child: ProfileSettings(profile: profile,),
