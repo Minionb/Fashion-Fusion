@@ -7,9 +7,44 @@ import 'package:fashion_fusion/view/admin/view/admin_order/screen/admin_order_de
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mongo_dart/mongo_dart.dart' as mongo;
 
-class AdminOrderScreen extends StatelessWidget {
+class AdminOrderScreen extends StatefulWidget {
   const AdminOrderScreen({super.key});
+
+  @override
+  State<AdminOrderScreen> createState() => _AdminOrderScreenState();
+}
+
+class _AdminOrderScreenState extends State<AdminOrderScreen> {
+
+  // Map<String, mongo.ObjectId> orderQueryParams = {
+  //   'orderId':mongo.ObjectId(),
+  // };
+
+    Map<String, String> orderQueryParams = {
+    'orderId': "",
+  };
+
+  TextEditingController searchController = TextEditingController();
+
+    void handleSearchButtonTap() {
+    setState(() {
+      if (searchController.text != "") {
+        // mongo.ObjectId orderId = mongo.ObjectId.parse(searchController.text);
+        String orderId = searchController.text;
+        orderQueryParams = {
+          'orderId': orderId,
+        };
+      } else {
+        orderQueryParams = {
+          'orderId': "",
+        };
+      }
+      print(orderQueryParams);
+      context.read<OrderCubit>().adminGetORders(orderQueryParams);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +52,32 @@ class AdminOrderScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Orders"),
       ),
-      body: BlocBuilder<OrderCubit, OrderState>(
+      body: Column(
+        children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: searchController,
+                  decoration: const InputDecoration(
+                    labelText: 'Search Orders by Order ID',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: () {
+                  handleSearchButtonTap();
+                },
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: BlocBuilder<OrderCubit, OrderState>(
         builder: (context, state) {
           if (state is OrderIsLoadingState) {
             return HelperMethod.loadinWidget();
@@ -30,7 +90,7 @@ class AdminOrderScreen extends StatelessWidget {
                 .toList();
             return RefreshIndicator(
               onRefresh: () async =>
-                  context.read<OrderCubit>().adminGetORders(),
+                  context.read<OrderCubit>().adminGetORders(orderQueryParams),
               child: ListView.separated(
                 itemBuilder: (context, index) {
                   final model = data[index];
@@ -82,15 +142,23 @@ class AdminOrderScreen extends StatelessWidget {
                           );
                         },
                       )).then((value) {
-                        context.read<OrderCubit>().adminGetORders();
+                        context.read<OrderCubit>().adminGetORders(orderQueryParams);
                       });
                     },
                     dense: true,
-                    title: Text("ID:${model.orderId?.substring(0, 10) ?? ""}"),
-                    leading: Image.asset(AppImages.package),
+                    // title: Text("ID:${model.orderId?.substring(0, 10) ?? ""}"),
+                    title: Expanded(
+                        child:Text("ID:${model.orderId ?? ""}", 
+                        overflow: TextOverflow.ellipsis,)
+                        ),
+                    leading: SizedBox(
+                        width: 35,
+                        height: 35, 
+                        child:Image.asset(AppImages.package)
+                        ),
                     subtitle: Text("\$${model.totalAmount}"),
                     trailing: Container(
-                      padding: const EdgeInsets.all(5).w,
+                      padding: const EdgeInsets.all(4).w,
                       decoration: BoxDecoration(
                         color: statusColor, // Set color dynamically
                         borderRadius: BorderRadius.circular(8),
@@ -113,7 +181,10 @@ class AdminOrderScreen extends StatelessWidget {
           return const SizedBox();
         },
       ),
-    );
+    )
+   ]
+  )
+  );
   }
 
   String getOrderStatusLabel(String status) {
