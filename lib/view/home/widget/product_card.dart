@@ -24,47 +24,43 @@ class ProductCard extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () => {
-        Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProductDetailWidget(
-                          model : model,
-                          isFavorite: isFavorite
-                        ),
-                      ),
-                    )
-      },
-    
-      child: Container(
-      decoration: const BoxDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(child: _image(imageUrl)),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0).w,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                10.verticalSpace,
-                _label(),
-                7.verticalSpace,
-                Row(
+        onTap: () => {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      ProductDetailWidget(model: model, isFavorite: isFavorite),
+                ),
+              )
+            },
+        child: Container(
+          decoration: const BoxDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(child: _image(imageUrl)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0).w,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _price(),
-                    const Spacer(),
-                    AddCartButton(productId: model.id!, isDark: true)
+                    10.verticalSpace,
+                    _label(),
+                    7.verticalSpace,
+                    Row(
+                      children: [
+                        _price(),
+                        const Spacer(),
+                        AddCartButton(productId: model.id!, isDark: true)
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
-          )
-        ],
-      ),
-    )
-    );
+              )
+            ],
+          ),
+        ));
   }
 
 // Method to create the price text widget

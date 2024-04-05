@@ -328,8 +328,9 @@ async function getOrdersByCustomerId(req, res) {
 
 // GET /orders
 async function getOrders(req, res) {
+  const filter = buildFilter(req.query);
   try {
-    const orders = await OrderService.getAllOrders(null, 1);
+    const orders = await OrderService.getAllOrders(null, 1,filter);
 
     // Construct separate response objects for orders
     const responseOrders = orders.map((order) => {
@@ -348,6 +349,13 @@ async function getOrders(req, res) {
   } catch (error) {
     console.error(error);
   }
+}
+
+function buildFilter(query) {
+  const filter = {};
+  if (query.orderId)
+    filter._id = query.orderId;
+  return filter;
 }
 
 // GET /order/:id

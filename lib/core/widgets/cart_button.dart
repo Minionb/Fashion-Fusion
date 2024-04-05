@@ -9,16 +9,16 @@ import '../../provider/cart_cubit/cart_cubit.dart';
 abstract class CartButton extends StatefulWidget {
   final bool isDark;
   final IconData icon;
+  final double? iconSize;
   final int quantityUpdate;
-
   final bool Function() animateCondition;
-
   final String productId;
 
   const CartButton({
     super.key,
     this.isDark = true,
     required this.icon,
+    this.iconSize,
     required this.quantityUpdate,
     this.animateCondition = _defaultOnTapCondition,
     required this.productId,
@@ -34,6 +34,7 @@ class AddCartButton extends CartButton {
       {super.key,
       super.isDark,
       super.icon = Icons.add,
+      super.iconSize = 16,
       super.quantityUpdate = 1,
       super.animateCondition,
       required super.productId}); // Updated constructor
@@ -47,6 +48,7 @@ class RemoveCartButton extends CartButton {
     super.key,
     super.isDark = true,
     super.icon = Icons.remove,
+    super.iconSize = 16,
     super.quantityUpdate = -1,
     super.animateCondition,
     required super.productId,
@@ -74,19 +76,16 @@ class _CartButtonState extends State<CartButton>
     final cartCubit = context.watch<CartCubit>();
 
     // Wrap the widget with BlocBuilder to rebuild the widget based on cubit state changes
-    // return BlocBuilder<FavoriteEditCubit, FavoriteEditState>(
     return BlocBuilder<CartCubit, CartState>(
       builder: (context, state) {
         return GestureDetector(
           // Define onTap callback, executed when the widget is tapped
           onTap: () {
-            cartCubit.putCartItems(
-              PutCartItemModel(
-                productId: widget.productId,
-                quantity: widget.quantityUpdate));
+            cartCubit.putCartItems(PutCartItemModel(
+                productId: widget.productId, quantity: widget.quantityUpdate));
             if (widget.animateCondition()) {
               // Reverse the animation controller and then forward it to trigger the scale animation
-               _controller.reverse().then((value) => {_controller.forward()});
+              _controller.reverse().then((value) => {_controller.forward()});
             }
           },
           // Child widget wrapped with ScaleTransition for scaling animation
@@ -103,10 +102,11 @@ class _CartButtonState extends State<CartButton>
                     : const BoxDecoration(
                         color: Colors.white, shape: BoxShape.circle),
                 child: widget.isDark
-                    ? Icon(widget.icon, color: Colors.white, size: 16.sp)
+                    ? Icon(widget.icon,
+                        color: Colors.white, size: widget.iconSize)
                     : Icon(
                         widget.icon,
-                        size: 16.sp,
+                        size: widget.iconSize,
                         color: AppColors.grayDK,
                       ),
               )),
