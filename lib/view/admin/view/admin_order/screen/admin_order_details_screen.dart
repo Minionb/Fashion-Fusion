@@ -54,11 +54,12 @@ class _AdminOrderDetailsScreenState extends State<AdminOrderDetailsScreen> {
               child: Scaffold(
                 appBar: AppBar(
                   title: Text(
-                    "Order ${AppFormatter.formatOrderId(orderModel.orderId ?? '')}",
+                    //"Order ${AppFormatter.formatOrderId(orderModel.orderId ?? '')}",
+                    "${orderModel.orderId ?? ''}",
                     textAlign: TextAlign.left,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 24,
+                      fontSize: 18,
                     ),
                   ),
                 ),
