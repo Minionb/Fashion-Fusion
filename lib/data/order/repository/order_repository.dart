@@ -12,7 +12,7 @@ abstract class OrderRepository {
   Future<Either<Failure, OrderModel>> postOrderCheckout(OrderModel model);
   Future<Either<Failure, OrderModel>> getOrderById(String orderId);
   Future<Either<Failure, List<OrderListModel>>> getOrderByCustomerId();
-  Future<Either<Failure, List<AdminOrderModel>>> adminGetOrders();
+  Future<Either<Failure, List<AdminOrderModel>>> adminGetOrders(orderQueryParams);
   Future<Either<Failure, AdminOrderUpdateStatusResponse>> updateOrderStatus(
       AdminOrderUpdateStatusModel model);
 }
@@ -65,10 +65,10 @@ class OrderRepositoryImpl implements OrderRepository {
   }
 
   @override
-  Future<Either<Failure, List<AdminOrderModel>>> adminGetOrders() async {
+  Future<Either<Failure, List<AdminOrderModel>>> adminGetOrders(orderQueryParams) async {
     if (await networkInfo.isConnected) {
       try {
-        final response = await remoteDatasource.adminGetOrders();
+        final response = await remoteDatasource.adminGetOrders(orderQueryParams);
         return Right(response);
       } on ServerException {
         return Left(ServerFailure());

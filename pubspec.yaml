@@ -44,6 +44,7 @@ dependencies:
   chips_choice: ^3.0.1
   http: ^1.2.0
   timeago: ^3.6.1
+  mongo_dart: ^0.10.0
 
 
 dependency_overrides: 

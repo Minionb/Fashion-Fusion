@@ -20,7 +20,7 @@ abstract class OrderRemoteDataSource {
   Future<AdminOrderUpdateStatusResponse> updateOrderStatus(
       AdminOrderUpdateStatusModel model);
   Future<List<OrderModel>> getOrders();
-  Future<List<AdminOrderModel>> adminGetOrders();
+  Future<List<AdminOrderModel>> adminGetOrders(orderQueryParams);
   Future<List<CartItemModel>> patchOrder(PutCartItemModel model);
 }
 
@@ -113,9 +113,9 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   }
 
   @override
-  Future<List<AdminOrderModel>> adminGetOrders() async {
+  Future<List<AdminOrderModel>> adminGetOrders(orderQueryParams) async {
     final Response orderResponse =
-        await apiConsumer.get(EndPoints.adminGetOrders);
+        await apiConsumer.get(EndPoints.adminGetOrders, queryParameters: orderQueryParams);
     if (orderResponse.statusCode == StatusCode.ok) {
       try {
         final List<dynamic> jsonList = json.decode(orderResponse.data);

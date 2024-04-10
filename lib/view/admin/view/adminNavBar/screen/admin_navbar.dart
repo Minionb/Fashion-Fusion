@@ -22,6 +22,8 @@ class AdminNavBar extends StatefulWidget {
 class _AdminNavBarState extends State<AdminNavBar> {
   final PersistentTabController _controller =
       PersistentTabController(initialIndex: 0);
+      
+        get orderQueryParams => null;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +68,7 @@ class _AdminNavBarState extends State<AdminNavBar> {
       const ListAllCustomersScreen(),
       const AdminCategoryScreen(),
       BlocProvider(
-        create: (context) => sl<OrderCubit>()..adminGetORders(),
+        create: (context) => sl<OrderCubit>()..adminGetORders(orderQueryParams),
         child: const AdminOrderScreen(),
       ),
       MultiBlocProvider(
