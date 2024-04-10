@@ -2,7 +2,6 @@ import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/core/utils/helper_validation.dart';
 import 'package:fashion_fusion/core/widgets/custom_text_field.dart';
-import 'package:fashion_fusion/data/auth/model/login_model.dart';
 import 'package:fashion_fusion/data/auth/model/set_password.dart';
 import 'package:fashion_fusion/data/profile/model/profile_model.dart';
 import 'package:fashion_fusion/data/profile/model/upload_profile_model.dart';

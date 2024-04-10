@@ -3,7 +3,6 @@ import 'package:fashion_fusion/data/favorite/model/put_favorite_model.dart';
 import 'package:fashion_fusion/provider/favorite_cubit/favorite_edit/favorite_edit_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // ignore: must_be_immutable
 class LikeButton extends StatefulWidget {

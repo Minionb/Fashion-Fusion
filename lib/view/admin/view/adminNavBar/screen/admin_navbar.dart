@@ -5,7 +5,7 @@ import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart
 import 'package:fashion_fusion/provider/product_cubit/product_edit/product_edit_cubit.dart';
 import 'package:fashion_fusion/view/admin/view/admin_category_screen.dart';
 import 'package:fashion_fusion/view/admin/view/admin_order/screen/admin_order_screen.dart';
-import 'package:fashion_fusion/view/admin/view/admin_report.dart';
+import 'package:fashion_fusion/view/admin/view/reports/view/admin_report.dart';
 import 'package:fashion_fusion/view/admin/view/list_all_customers_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
