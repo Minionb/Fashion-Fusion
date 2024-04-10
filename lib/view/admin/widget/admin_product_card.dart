@@ -12,8 +12,13 @@ import 'package:toastification/toastification.dart';
 
 class AdminProductCard extends StatefulWidget {
   final ProductModel model;
+  final bool? showQuantity;
   Map<String, String>? productQueryParams;
-  AdminProductCard({super.key, required this.model, this.productQueryParams});
+  AdminProductCard(
+      {super.key,
+      required this.model,
+      this.productQueryParams,
+      this.showQuantity});
 
   @override
   State<AdminProductCard> createState() => _AdminProductCardState();
@@ -112,7 +117,9 @@ class _AdminProductCardState extends State<AdminProductCard> {
             backgroundImage: NetworkImage(_getImageUrl),
           ),
           style: ListTileStyle.drawer,
-          subtitle: Text("\$${widget.model.price ?? 0}"),
+          subtitle: Text(widget.showQuantity == true
+              ? "Sold quantity: ${widget.model.soldQuantity}"
+              : "\$${widget.model.price ?? 0}"),
           visualDensity: VisualDensity.comfortable,
           title: Text(widget.model.productName ?? ""),
           trailing: Icon(

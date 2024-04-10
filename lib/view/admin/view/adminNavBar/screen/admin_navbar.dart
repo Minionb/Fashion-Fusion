@@ -1,8 +1,11 @@
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
 import 'package:fashion_fusion/provider/order_cubit/order_cubit.dart';
+import 'package:fashion_fusion/provider/product_cubit/product/product_cubit.dart';
+import 'package:fashion_fusion/provider/product_cubit/product_edit/product_edit_cubit.dart';
 import 'package:fashion_fusion/view/admin/view/admin_category_screen.dart';
 import 'package:fashion_fusion/view/admin/view/admin_order/screen/admin_order_screen.dart';
+import 'package:fashion_fusion/view/admin/view/admin_report.dart';
 import 'package:fashion_fusion/view/admin/view/list_all_customers_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -66,7 +69,21 @@ class _AdminNavBarState extends State<AdminNavBar> {
         create: (context) => sl<OrderCubit>()..adminGetORders(),
         child: const AdminOrderScreen(),
       ),
-      Container(),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => sl<ProductCubit>()
+              ..getProduct({
+                'category': '',
+                'productName': '',
+              }),
+          ),
+          BlocProvider(
+            create: (context) => sl<ProductEditCubit>(),
+          ),
+        ],
+        child: const AdminReportScreen(),
+      ),
     ];
   }
 
