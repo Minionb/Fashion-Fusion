@@ -144,14 +144,14 @@ class ProfileTitle extends StatelessWidget {
         const Padding(padding: EdgeInsets.all(15)),
         ProfileOptionsCard(
             title: "My orders",
-            subtitle: "Already have [] orders",
+            subtitle: "",
             routeWidget: CustomerOrderListScreen()),
         ProfileOptionsCard(
-            title: "Shipping addresses",
+            title: "Shipping Addresses",
             subtitle: profile.addresses.length == 1 ? "1 address" : "${profile.addresses.length} addresses",
             routeWidget: AddressListScreen()),
         ProfileOptionsCard(
-            title: "Payment methods",
+            title: "Payment Methods",
             subtitle: profile.payments.isNotEmpty ? "${profile.payments[0].method} **${profile.payments[0].cardNumber.substring(17)}" : "No saved payment methods",
             routeWidget: ProfilePaymentMethods(paymentMethodsList: profile.payments)),
         ProfileOptionsCard(
