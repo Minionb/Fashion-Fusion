@@ -150,18 +150,29 @@ class InfoCards extends StatelessWidget {
   void onSaveButtonPressed(BuildContext context, BuildContext context2) {
     if (cardTitle == "Name") {
       context.read<ProfileEditCubit>().updateProfile(
+          UploadProfileModel(dictionary: 'first_name', newData: _editCtrl1.text),
+          sl<SharedPreferences>().getString("userID")!);
+      context.read<ProfileEditCubit>().updateProfile(
           UploadProfileModel(dictionary: 'last_name', newData: _editCtrl2.text),
           sl<SharedPreferences>().getString("userID")!);
     } else if (cardTitle == "Password") {
       context.read<AuthCubit>().setPassword(SetPasswordModel(
           oldPassword: _editCtrl1.text, password: _editCtrl2.text));
-    } else {
-      debugPrint("Email or mobile number updated");
+    } else if (cardTitle == "Mobile Number") {
+      String newMobileN = cardContent.substring(0, 2) + _editCtrl1.text;
       context.read<ProfileEditCubit>().updateProfile(
-          UploadProfileModel(
-              dictionary: cardTitle == "Email" ? 'email' : 'telephone_number',
-              newData: _editCtrl1.text),
-          sl<SharedPreferences>().getString("userID")!);
+        UploadProfileModel(
+            dictionary: 'telephone_number',
+            newData: newMobileN),
+        sl<SharedPreferences>().getString("userID")!);
+    }
+    else {
+      debugPrint("Email updated");
+      context.read<ProfileEditCubit>().updateProfile(
+        UploadProfileModel(
+            dictionary: 'email',
+            newData: _editCtrl1.text),
+        sl<SharedPreferences>().getString("userID")!);
     }
     Navigator.pop(context2);
     showDialog(
@@ -185,7 +196,11 @@ class InfoCards extends StatelessWidget {
     if (cardTitle == "Name") {
       _editCtrl1.text = cardContent.split(' ')[0];
       _editCtrl2.text = cardContent.split(' ')[1];
-    } else {
+    } 
+    else if (cardTitle == "Mobile Number") {
+      _editCtrl1.text = cardContent.substring(cardContent.length - 10);
+    }
+    else {
       _editCtrl1.text = cardContent;
     }
 
@@ -209,7 +224,7 @@ class InfoCards extends StatelessWidget {
                 Text(cardContent, style: const TextStyle(fontSize: 15))
               ],
             ),
-            const Expanded(child: Spacer()),
+            const Expanded(flex: 1, child: Spacer()),
             Card(
               color: AppColors.bg,
               elevation: 0.0,
