@@ -3,6 +3,7 @@ import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/app_string.dart';
 import 'package:fashion_fusion/error/failures.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:toastification/toastification.dart';
@@ -66,5 +67,10 @@ class HelperMethod {
       description: description,
       autoCloseDuration: const Duration(seconds: 5),
     );
+  }
+
+ static String formatNumber(double number) {
+    final formatter = NumberFormat("#,##0.00", "en_US");
+    return formatter.format(number);
   }
 }

@@ -1,4 +1,3 @@
-import 'package:fashion_fusion/config/theme/app_theme.dart';
 import 'package:fashion_fusion/core/utils/app_colors.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/data/profile/model/profile_model.dart';
@@ -125,6 +124,7 @@ class ProfilePaymentMethods extends StatelessWidget {
               : 
               Stack(
                 children: [
+                  500.verticalSpace,
                   const Center(
                     child: Text("No saved payment methods")
                   ),
