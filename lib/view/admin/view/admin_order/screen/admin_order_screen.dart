@@ -1,5 +1,6 @@
 import 'package:fashion_fusion/core/utils/app_images.dart';
 import 'package:fashion_fusion/core/utils/app_service.dart';
+import 'package:fashion_fusion/core/utils/decorator_utils.dart';
 import 'package:fashion_fusion/core/utils/helper_method.dart';
 import 'package:fashion_fusion/provider/order_cubit/order_cubit.dart';
 import 'package:fashion_fusion/provider/order_edit_cubit/order_edit_cubit_cubit.dart';
@@ -155,7 +156,7 @@ class _AdminOrderScreenState extends State<AdminOrderScreen> {
                         height: 35, 
                         child:Image.asset(AppImages.package)
                         ),
-                    subtitle: Text("\$${model.totalAmount}"),
+                    subtitle: Text("\$${AppFormatter.getFormattedAmount(model.totalAmount ?? 0.0)}"),
                     trailing: Container(
                       padding: const EdgeInsets.all(4).w,
                       decoration: BoxDecoration(
