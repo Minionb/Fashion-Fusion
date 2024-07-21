@@ -11,15 +11,46 @@ Dart, Flutter, Figma, NodeJs, MongoDB,Firebase...
 
 ## Demo
 
-Insert gif or link to demo
+![alt text](./images/shopper.png)
 
+<br>
+
+![alt text](./images/order.png)
+
+<br>
+
+![alt text](./images/profile1.png)
+
+<br>
+
+![alt text](./images/profile2.png)
+
+<br>
+
+![alt text](./images/authentication.png)
+
+<br>
+
+![alt text](./images/admin.png)
+
+<br>
 
 ## Installation
 
-Install my-project with npm
+Install project with flutter pub get:
 
 ```bash
- soon
+ flutter pub get
+```
+Run the frontend:
+- Press Run -> Run without Debugging -> Choose Simulator
+
+Run the backend REST API:
+
+```bash
+ cd api
+
+ node index.js
 ```
     
 ## Related
@@ -36,22 +67,4 @@ This project is used by the following companies:
 - Centennial College
 
 
-
-## Badges
-
-Add badges from somewhere like: [shields.io](https://shields.io/)
-
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
-[![AGPL License](https://img.shields.io/badge/license-AGPL-blue.svg)](http://www.gnu.org/licenses/agpl-3.0)
-
-
-## Optimizations
-
-What optimizations did you make in your code? E.g. refactors, performance improvements, accessibility
-
-
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
 
